@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build and publish to nuget.org
+
+# Controls when the workflow will run
+on:
+  release:
+    types:
+      - published
+    # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      PATCH_NUM_SUFFIX:
+        description: 'Version patch number suffix'
+        required: true
+        default: 'beta'
+
+env:
+  PROJECT_PATH: 'src/DragoAnt.Extensions.DependencyInjection.sln'
+  PACKAGE_OUTPUT_DIRECTORY: '${{ github.workspace }}/output'
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build_publish_nuget:
+    name: 'Build and publish nuget packages'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Install dotnet'
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: "./src/global.json"
+
+      - name: 'Restore packages'
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: 'Build'
+        run: dotnet msbuild -t:Build '-p:Configuration=${{ env.BUILD_CONFIGURATION }};PatchNumSuffix=${{ github.event.inputs.PATCH_NUM_SUFFIX }}' ${{ env.PROJECT_PATH }}
+
+      - name: 'Pack'
+        run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} '-p:PatchNumSuffix=${{ github.event.inputs.PATCH_NUM_SUFFIX }}'
+
+      - name: 'Push packages'
+        run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_ORG_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }} --skip-duplicate
