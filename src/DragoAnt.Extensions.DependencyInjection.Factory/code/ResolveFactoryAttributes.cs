@@ -4,7 +4,7 @@ global using DragoAnt.Extensions.DependencyInjection.Factory;
 
 namespace DragoAnt.Extensions.DependencyInjection.Factory;
 
-public enum ResolveFactoryServiceLifetime
+internal enum ResolveFactoryServiceLifetime
 {
     Scoped = 0,
     Singleton = 1,
@@ -15,7 +15,7 @@ public enum ResolveFactoryServiceLifetime
 /// </summary>
 /// <param name="lifetime">Factory service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class ResolveFactoryAttribute(ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
+internal sealed class ResolveFactoryAttribute(ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
 {
     public ResolveFactoryServiceLifetime Lifetime { get; } = lifetime;
 }
@@ -24,7 +24,7 @@ public sealed class ResolveFactoryAttribute(ResolveFactoryServiceLifetime lifeti
 /// Attribute to mark constrictor to be ignored during Factory code generation.
 /// </summary>
 [AttributeUsage(AttributeTargets.Constructor)]
-public sealed class ResolveFactoryIgnoreCtorAttribute : Attribute
+internal sealed class ResolveFactoryIgnoreCtorAttribute : Attribute
 {
 }
 
@@ -32,7 +32,7 @@ public sealed class ResolveFactoryIgnoreCtorAttribute : Attribute
 /// Attribute to mark parameter as factory parameter 
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class ResolveFactoryParameterAttribute : Attribute
+internal sealed class ResolveFactoryParameterAttribute : Attribute
 {
 }
 
@@ -40,6 +40,6 @@ public sealed class ResolveFactoryParameterAttribute : Attribute
 /// Attribute to mark parameter as factory service 
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class ResolveFactoryServiceAttribute : Attribute
+internal sealed class ResolveFactoryServiceAttribute : Attribute
 {
 }
