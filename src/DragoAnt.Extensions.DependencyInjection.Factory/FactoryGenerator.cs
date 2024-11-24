@@ -185,14 +185,6 @@ internal static class TypeExtensions
         return false;
     }
 
-    public static FactoryDeclaration? GetFactory(this GeneratorExecutionContext context, ClassDeclarationSyntax classInfo)
-    {
-        var semanticModel = context.Compilation.GetSemanticModel(classInfo.SyntaxTree);
-        var symbol = semanticModel.GetDeclaredSymbol(classInfo);
-
-        return GetFactory(symbol);
-    }
-
     public static FactoryDeclaration? GetFactory(this GeneratorSyntaxContext context)
     {
         var classSyntax = (ClassDeclarationSyntax)context.Node;

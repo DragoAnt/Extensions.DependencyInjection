@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory.Example", "DragoAnt.Extensions.DependencyInjection.Factory.Example\DragoAnt.Extensions.DependencyInjection.Factory.Example.csproj", "{6850E54A-D577-49F8-B540-B03A326A47A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory", "..\src\DragoAnt.Extensions.DependencyInjection.Factory\DragoAnt.Extensions.DependencyInjection.Factory.csproj", "{B4D32064-6EC6-43D1-8893-D891C5B57FF1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6850E54A-D577-49F8-B540-B03A326A47A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6850E54A-D577-49F8-B540-B03A326A47A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6850E54A-D577-49F8-B540-B03A326A47A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6850E54A-D577-49F8-B540-B03A326A47A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B4D32064-6EC6-43D1-8893-D891C5B57FF1} = {CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}
+	EndGlobalSection
+EndGlobal
