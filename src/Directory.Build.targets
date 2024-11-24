@@ -1,0 +1,5 @@
+<Project>
+
+  <Import Condition="'$(IsPackable)'=='true'" Project="$(MSBuildThisFileDirectory).msbuild\package.props" />
+
+</Project>

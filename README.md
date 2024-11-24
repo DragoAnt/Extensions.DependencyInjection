@@ -1,2 +1,2 @@
 # Extensions.DependencyInjection
-Additional extensions for Microsof.Extensions.DependencyInjection library.
+Additional extensions for Microsoft.Extensions.DependencyInjection library.
