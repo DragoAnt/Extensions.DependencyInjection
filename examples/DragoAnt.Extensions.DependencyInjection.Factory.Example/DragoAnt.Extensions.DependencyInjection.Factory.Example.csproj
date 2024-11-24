@@ -11,7 +11,10 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="DragoAnt.Extensions.DependencyInjection.Factory" />
+    <PackageReference Include="DragoAnt.Extensions.DependencyInjection.Factory">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
