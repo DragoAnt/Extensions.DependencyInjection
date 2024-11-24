@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+	<AssemblyTitle>$(MSBuildProjectName)</AssemblyTitle>
+    
+    <!-- Year for usage in copyright and etc. -->
+    <Year>$([System.DateTime]::Now.Year)</Year>
+    <!-- Company name, avoid use " -->
+    <ManufacturerName>DragoAnt</ManufacturerName>
+    <!-- Company name, avoid use " -->
+    <FullManufacturerName>$(ManufacturerName)</FullManufacturerName>
+    <!-- Legal trademarks, avoid use " -->
+    <LegalTrademarks>$(ManufacturerName)</LegalTrademarks>
+    <!-- These properties elso used for assembly attributes for Sdk style projects. See https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#properties-per-attribute -->
+    <Company>$(FullManufacturerName)</Company>
+    <!-- Copyright, avoid use " -->
+    <Copyright>© $(Year) $(FullManufacturerName) ALL RIGHTS RESERVED.</Copyright>
+
+    <Authors>$(ManufacturerName)</Authors>
+
+    <Product>Dependency Extensions</Product>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Import Project="$(MSBuildProjectDirectory)\version.props" />
+
+  <PropertyGroup>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Description>$(MSBuildProjectName)</Description>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageVersion>$(Version)</PackageVersion>
+
+    <RepositoryUrl>https://github.com/DragoAnt/Extensions.DependencyInjection</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <Authors>$(ManufacturerName)</Authors>
+  </PropertyGroup>
+
+  <!--Packages details-->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)package.icon.png" Pack="true" PackagePath="\icon.png" Visible="false" />
+  </ItemGroup>
+
+
+</Project>
