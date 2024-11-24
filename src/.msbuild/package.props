@@ -6,8 +6,7 @@
     <PackageId>$(MSBuildProjectName)</PackageId>
     <Description>$(MSBuildProjectName)</Description>
 
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>false</IncludeSymbols>
     <PackageIcon>icon.png</PackageIcon>
     <PackageVersion>$(Version)</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
