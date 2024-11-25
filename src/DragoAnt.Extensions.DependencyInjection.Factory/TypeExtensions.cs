@@ -75,10 +75,11 @@ internal static class TypeExtensions
 
     public static void CollectNamespaces(this ITypeSymbol symbol, ISet<string> namespaces)
     {
-        if (namespaces.Contains(symbol.ContainingNamespace.ToDisplayString()))
+        if (symbol.ContainingNamespace.IsGlobalNamespace)
+        {
             return;
+        }
 
-        // Add the namespace of the current symbol
         namespaces.Add(symbol.ContainingNamespace.ToDisplayString());
 
         // If generic type, recursively collect namespaces of type arguments
