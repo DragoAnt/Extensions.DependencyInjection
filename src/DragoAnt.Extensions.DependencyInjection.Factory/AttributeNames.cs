@@ -6,6 +6,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory;
 internal static class AttributeNames
 {
     public static readonly Regex ResolveFactory = new("^ResolveFactory(Attribute)?$", Compiled | CultureInvariant);
+    public static readonly Regex ResolveFactoryContract = new("^ResolveFactoryContract(Attribute)?$", Compiled | CultureInvariant);
 
     public static readonly Regex ResolveFactoryIgnoreCtor = new("^ResolveFactoryIgnoreCtor(Attribute)?$", Compiled | CultureInvariant);
     public static readonly Regex ResolveFactoryParameter = new("^ResolveFactoryParameter(Attribute)?$", Compiled | CultureInvariant);
