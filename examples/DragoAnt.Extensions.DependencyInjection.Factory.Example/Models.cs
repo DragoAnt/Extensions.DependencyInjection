@@ -22,6 +22,7 @@ public sealed class ViewModel
         TestService serviceClass,
         IEnumerable<ITestService> serviceInterfaces,
         IEnumerable<TestService> serviceClasses,
+        ISingletonViewModelFactory singletonViewModelFactory,
         [ResolveFactoryParameter] AppOptions? options = null)
     {
         ExportPath = exportPath;
@@ -32,6 +33,7 @@ public sealed class ViewModel
         string exportPath,
         string customCodePath,
         ITestService serviceInterface,
+        ISingletonViewModelFactory singletonViewModelFactory,
         [ResolveFactoryParameter] AppOptions? options = null)
     {
         ExportPath = exportPath;
