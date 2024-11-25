@@ -141,6 +141,8 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
 
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
+        if (!factory.SharedFactoryInterface.OnlySharedFactory)
+        {
 
             this.Write("\r\n/// <summary>\r\n/// Factory contract for <see cref=\"");
             
@@ -156,8 +158,8 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("\r\n{\r\n");
 
-        foreach (var method in factory.Methods)
-        {
+            foreach (var method in factory.Methods)
+            {
 
             this.Write("    ");
             
@@ -173,9 +175,13 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write(");\r\n");
 
-        }
+            }
 
             this.Write("}\r\n");
+
+        }
+
+            this.Write("\r\n");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(factory.GetError()));
             

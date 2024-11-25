@@ -5,7 +5,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory;
 internal readonly struct FactoryDeclaration(
     string instanceClassName,
     string classNamespace,
-    ITypeSymbol? sharedFactoryInterfaceTypeDefinitionSymbol,
+    SharedFactoryInterface sharedFactoryInterface,
     ResolveFactoryServiceLifetime lifetime,
     ImmutableArray<FactoryMethod> methods)
 {
@@ -13,30 +13,19 @@ internal readonly struct FactoryDeclaration(
     public string FactoryClassName => $"{instanceClassName}Factory";
     public string FactoryInterfaceName => $"I{instanceClassName}Factory";
 
-    public bool HasSharedFactoryInterface => sharedFactoryInterfaceTypeDefinitionSymbol is not null;
+    public bool HasSharedFactoryInterface => sharedFactoryInterface.Symbol is not null;
 
-    public string SharedFactoryInterfaceName
-    {
-        get
-        {
-            if (sharedFactoryInterfaceTypeDefinitionSymbol is null)
-            {
-                return string.Empty;
-            }
-
-            var name = sharedFactoryInterfaceTypeDefinitionSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-            return $"{name.Substring(0, name.Length - 2)}<{InstanceClassName}>";
-        }
-    }
+    public SharedFactoryInterface SharedFactoryInterface => sharedFactoryInterface;
+    public string SharedFactoryInterfaceName => sharedFactoryInterface.GetSharedFactoryInterfaceName(InstanceClassName);
 
     public string GetError()
     {
-        if (sharedFactoryInterfaceTypeDefinitionSymbol is null)
+        if (sharedFactoryInterface.Symbol is null)
         {
             return string.Empty;
         }
 
-        var name = sharedFactoryInterfaceTypeDefinitionSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        var name = sharedFactoryInterface.Symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         if (!name.EndsWith("<>"))
         {
             return $"#error Invalid shared factory interface type definition '{name}'";
@@ -59,7 +48,11 @@ internal readonly struct FactoryDeclaration(
 
     public IEnumerable<string> GetImplementedInterfaces()
     {
-        yield return FactoryInterfaceName;
+        if (!sharedFactoryInterface.OnlySharedFactory)
+        {
+            yield return FactoryInterfaceName;
+        }
+
         if (HasSharedFactoryInterface)
         {
             yield return SharedFactoryInterfaceName;

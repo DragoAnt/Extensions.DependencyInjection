@@ -55,6 +55,8 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
 <#
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
+        if (!factory.SharedFactoryInterface.OnlySharedFactory)
+        {
 #>
 
 /// <summary>
@@ -63,14 +65,18 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
 public interface <#= factory.FactoryInterfaceName #>
 {
 <#
-        foreach (var method in factory.Methods)
-        {
+            foreach (var method in factory.Methods)
+            {
 #>
     <#= factory.InstanceClassName #> Create(<#= method.GetParametersForSignature(true) #>);
 <#
-        }
+            }
 #>
 }
+<#
+        }
+#>
+
 <#= factory.GetError() #>
 /// <summary>
 /// Factory implementation for <see cref="<#= factory.InstanceClassName #>"/>.
