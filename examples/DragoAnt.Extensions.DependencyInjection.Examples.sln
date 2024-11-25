@@ -6,6 +6,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{CC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory", "..\src\DragoAnt.Extensions.DependencyInjection.Factory\DragoAnt.Extensions.DependencyInjection.Factory.csproj", "{B4D32064-6EC6-43D1-8893-D891C5B57FF1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{4D046D8A-D327-48A1-8289-7072B096BD47}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		global.json = global.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

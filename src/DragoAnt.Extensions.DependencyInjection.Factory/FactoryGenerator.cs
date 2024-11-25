@@ -14,7 +14,7 @@ public class FactoryGenerator : IIncrementalGenerator
     {
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
-                    predicate: static (s, _) => IsResolveFactoryMarkedClass(s),
+                    predicate: static (s, _) => IsPublicOrInternalClass(s),
                     transform: static (ctx, _) => ctx.GetFactory())
                 .Where(static m => m is not null)
                 .Select(static (f, _) => f!.Value);
@@ -52,9 +52,8 @@ public class FactoryGenerator : IIncrementalGenerator
         }.TransformText();
 
 
-    private static bool IsResolveFactoryMarkedClass(SyntaxNode syntaxNode)
+    private static bool IsPublicOrInternalClass(SyntaxNode syntaxNode)
         => syntaxNode is ClassDeclarationSyntax classDecl &&
            !classDecl.Modifiers.Any(PrivateKeyword) &&
-           (classDecl.Modifiers.Any(InternalKeyword) || classDecl.Modifiers.Any(PublicKeyword)) &&
-           classDecl.HasResolveFactoryAttribute();
+           (classDecl.Modifiers.Any(InternalKeyword) || classDecl.Modifiers.Any(PublicKeyword));
 }

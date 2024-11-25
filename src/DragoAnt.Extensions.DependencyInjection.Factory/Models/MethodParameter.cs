@@ -41,9 +41,9 @@ internal readonly struct MethodParameter(IParameterSymbol parameter)
     {
         var attributes = p.GetAttributes();
         // ReSharper disable SimplifyConditionalTernaryExpression
-        return attributes.Any(attr => attr.AttributeClass?.Name == AttributeNames.ResolveFactoryParameter)
+        return attributes.Any(attr => AttributeNames.ResolveFactoryParameter.IsMatchAttr(attr))
             ? true
-            : attributes.Any(attr => attr.AttributeClass?.Name == AttributeNames.ResolveFactoryService)
+            : attributes.Any(attr => AttributeNames.ResolveFactoryService.IsMatchAttr(attr))
                 ? false
                 : p.Type.IsImplicitParameter() && !p.Type.ToDisplayString().EndsWith("Factory");
         // ReSharper restore SimplifyConditionalTernaryExpression
