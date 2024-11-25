@@ -10,10 +10,10 @@ internal static class ModelsExtensions
         options.TryGetValue($"build_property.{key}", out value);
 
 
-    public static FactoryDeclaration? GetFactory(this GeneratorSyntaxContext context)
-        => GetFactoryDeclaration((ClassDeclarationSyntax)context.Node, context.SemanticModel);
+    public static FactoryModel? GetFactory(this GeneratorSyntaxContext context)
+        => GetFactory((ClassDeclarationSyntax)context.Node, context.SemanticModel);
 
-    public static FactoryDeclaration? GetFactoryDeclaration(this ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
+    public static FactoryModel? GetFactory(this ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
         var declaredSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
         if (declaredSymbol is null || declaredSymbol.IsAbstract)
@@ -21,8 +21,14 @@ internal static class ModelsExtensions
             return null;
         }
 
-        if (!(declaredSymbol is INamedTypeSymbol classSymbol &&
-              GetResolveFactoryAttr(classSymbol) is { } resolveFactoryAttr))
+        if (declaredSymbol is not INamedTypeSymbol classSymbol)
+        {
+            return null;
+        }
+
+        var attributes = GetResolveFactoryAttributes(classSymbol);
+        var resolveFactoryAttr = attributes.FirstOrDefault(attr => AttributeNames.ResolveFactory.IsMatchAttr(attr));
+        if (resolveFactoryAttr is null)
         {
             return null;
         }
@@ -33,55 +39,97 @@ internal static class ModelsExtensions
             ? lifetimeValue
             : ResolveFactoryServiceLifetime.Scoped;
 
-        var sharedFactoryInterfaceTypeSymbol =
-            resolveFactoryAttr.GetNamedArgumentValue<ITypeSymbol>(nameof(ResolveFactoryAttribute.SharedFactoryInterfaceTypeDefinition));
+        var skipGenerateInterface =
+            resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
 
-        var onlySharedFactory = false;
-        var castParametersToSharedFactory = false;
-        var allowNotSupportedMethodsSharedFactory = false;
+        var ctors = classSymbol.Constructors
+            .Where(ctor => !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
+            .Select(m => GetFactoryMethod(m, null, classSymbol, false)).ToImmutableArray();
 
-        if (sharedFactoryInterfaceTypeSymbol is not null)
+        FactoryInterfaceModel? generatingInterface = null;
+        var className = classSymbol.Name;
+
+        if (!skipGenerateInterface)
         {
-            onlySharedFactory =
-                resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.OnlySharedFactory));
-
-            castParametersToSharedFactory =
-                resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.CastParametersToSharedFactory), true);
-
-
-            allowNotSupportedMethodsSharedFactory =
-                resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.AllowNotSupportedMethodsSharedFactory));
+            generatingInterface = new FactoryInterfaceModel($"I{className}Factory",
+                [..ctors.Select(m => new MethodModel("Create", m.ReturnType, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
         }
 
-        var methods = classSymbol.Constructors
-            .Where(ctor => !ctor.GetAttributes().Any(attr => AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
-            .Select(GetFactoryMethod).ToImmutableArray();
-
-        if (methods.Length == 0)
+        var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
+        if (ctors.Length == 0)
         {
             return null;
         }
 
         //TODO: Check for similar method signatures
-
-        return new FactoryDeclaration(
-            classSymbol.Name,
-            classSymbol.ContainingNamespace.ToDisplayString(),
-            new(sharedFactoryInterfaceTypeSymbol, onlySharedFactory, castParametersToSharedFactory, allowNotSupportedMethodsSharedFactory),
+        return new FactoryModel(
+            classSymbol,
+            generatingInterface,
+            factoryInterfaces,
             lifetime,
-            methods);
+            ctors);
     }
 
-    private static AttributeData? GetResolveFactoryAttr(INamedTypeSymbol classSymbol)
+    private static IEnumerable<FactoryInterfaceModel> GetContractInterfaces(ImmutableArray<AttributeData> attributes, INamedTypeSymbol className)
     {
-        var attributes = classSymbol.GetAttributes();
-        return attributes.FirstOrDefault(attr => AttributeNames.ResolveFactory.IsMatchAttr(attr));
+        foreach (var contractAttr in attributes.Where(attr => AttributeNames.ResolveFactoryContract.IsMatchAttr(attr)))
+        {
+            if (contractAttr.ConstructorArguments.FirstOrDefault().Value is not INamedTypeSymbol interfaceSymbol)
+            {
+                //TODO: Add error
+                continue;
+            }
+
+            var castParameters =
+                contractAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryContractAttribute.CastParameters), true);
+
+            var allowNotSupportedMethods =
+                contractAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryContractAttribute.AllowNotSupportedMethods));
+
+            var interfaceName = interfaceSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            
+            Func<ITypeSymbol, ITypeSymbol>? typeMap = null;
+            if (interfaceSymbol.IsUnboundGenericType)
+            {
+                if (interfaceSymbol.ConstructedFrom.TypeArguments.Length != 1)
+                {
+                    //TODO: Add error;
+                    continue;
+                }
+
+                var typeArg = interfaceSymbol.ConstructedFrom.TypeArguments[0];
+                typeMap = t => SymbolEqualityComparer.IncludeNullability.Equals(typeArg, t) ? className : t;
+                
+                interfaceName = $"{interfaceName.Substring(0, interfaceName.Length - 2)}<{className.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}>";
+            }
+
+            var methods = interfaceSymbol.ConstructedFrom.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary)
+                .Select(m => GetFactoryMethod(m, null, null, true, typeMap)).ToImmutableArray();
+
+            
+
+            yield return new FactoryInterfaceModel(interfaceName, methods, castParameters, allowNotSupportedMethods);
+        }
     }
 
-    private static FactoryMethod GetFactoryMethod(IMethodSymbol ctor)
+    private static ImmutableArray<AttributeData> GetResolveFactoryAttributes(INamedTypeSymbol classSymbol)
     {
-        var parameters = ctor.Parameters.Select(p => new MethodParameter(p)).ToImmutableArray();
-        return new FactoryMethod(parameters);
+        var attributes = classSymbol.GetClassAttributes();
+        return
+        [
+            ..attributes.Where(attr => AttributeNames.ResolveFactory.IsMatchAttr(attr) ||
+                                       AttributeNames.ResolveFactoryContract.IsMatchAttr(attr)),
+        ];
+    }
+
+    private static MethodModel GetFactoryMethod(this IMethodSymbol method, string? name, ITypeSymbol? returnType, bool forceExplicitParameter, Func<ITypeSymbol, ITypeSymbol>? typeMap = null)
+    {
+        typeMap ??= t => t;
+        name ??= method.Name;
+        returnType ??= typeMap(method.ReturnType);
+        var parameters = method.Parameters.Select(p => new MethodParameterModel(p, forceExplicitParameter)).ToImmutableArray();
+
+        return new MethodModel(name, returnType, parameters);
     }
 
     public static bool IsImplicitParameter(this ITypeSymbol type)
@@ -97,5 +145,38 @@ internal static class ModelsExtensions
         }
 
         return false;
+    }
+
+    public static MethodModel? GetEquivalentConstructorMethod(this MethodModel method, ImmutableArray<MethodModel> ctors, bool allowCastParameters)
+    {
+        foreach (var ctor in ctors)
+        {
+            var found = true;
+            var ctorExplicitParameters = ctor.Parameters.Where(p => p.IsExplicitParameter).ToImmutableArray();
+
+            if (ctorExplicitParameters.Length != method.Parameters.Length)
+            {
+                continue;
+            }
+
+            foreach (var ctorParameter in ctorExplicitParameters)
+            {
+                var parameter = method.GetEquivalentParameter(ctorParameter, allowCastParameters);
+                if (parameter is not null)
+                {
+                    continue;
+                }
+
+                found = false;
+                break;
+            }
+
+            if (found)
+            {
+                return ctor;
+            }
+        }
+
+        return null;
     }
 }

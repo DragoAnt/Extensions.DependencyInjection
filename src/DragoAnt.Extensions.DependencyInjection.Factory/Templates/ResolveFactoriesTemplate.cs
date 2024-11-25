@@ -68,7 +68,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
         var addService = $"services.Add{factory.Lifetime}";
-        var interfaces = factory.GetImplementedInterfaces().ToArray();
+        var interfaces = factory.GetInterfaces().ToArray();
         if (interfaces.Length > 1)
         {
 
@@ -97,7 +97,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("<");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(iface));
+            this.Write(this.ToStringHelper.ToStringWithCulture(iface.Name));
             
             #line default
             #line hidden
@@ -122,7 +122,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("<");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(interfaces[0]));
+            this.Write(this.ToStringHelper.ToStringWithCulture(interfaces[0].Name));
             
             #line default
             #line hidden
@@ -141,7 +141,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
 
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
-        if (!factory.SharedFactoryInterface.OnlySharedFactory)
+        if (factory.GeneratingInterface is {} generatingInterface)
         {
 
             this.Write("\r\n/// <summary>\r\n/// Factory contract for <see cref=\"");
@@ -152,13 +152,13 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("\"/>.\r\n/// </summary>\r\npublic interface ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryInterfaceName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(generatingInterface.Name));
             
             #line default
             #line hidden
             this.Write("\r\n{\r\n");
 
-            foreach (var method in factory.Methods)
+            foreach (var method in generatingInterface.Methods)
             {
 
             this.Write("    ");
@@ -201,7 +201,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write(" : ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", factory.GetImplementedInterfaces())));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", factory.GetInterfaces().Select(i => i.Name))));
             
             #line default
             #line hidden
@@ -213,22 +213,57 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("(IServiceProvider provider)\r\n    {\r\n        _provider = provider;        \r\n    }\r\n\r\n");
 
-        foreach (var method in factory.Methods)
+        foreach (var iface in factory.GetInterfaces())
         {
 
-            this.Write("    public ");
+            foreach (var method in iface.Methods)
+            {
+
+            this.Write("    ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.InstanceClassName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(method.ReturnTypeName));
             
             #line default
             #line hidden
-            this.Write(" Create(");
+            this.Write(" ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(iface.Name));
+            
+            #line default
+            #line hidden
+            this.Write(".");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(method.Name));
+            
+            #line default
+            #line hidden
+            this.Write("(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(method.GetParametersForSignature(false)));
             
             #line default
             #line hidden
-            this.Write(")\r\n        => new ");
+            this.Write(") =>\r\n");
+
+                var ctor = method.GetEquivalentConstructorMethod(factory.Constructors, iface.CastParameters);
+                if (ctor is null)
+                {
+                    if (iface.AllowNotSupportedMethods)
+                    {
+
+            this.Write("        throw new System.NotSupportedException();\r\n");
+
+                    }
+                    else
+                    {
+
+            this.Write("#error ResolveFactory: Can't find equivalent construtor for interface's method.\r\n");
+
+                    }
+                    continue;
+                }
+
+            this.Write("        new ");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(factory.InstanceClassName));
             
@@ -236,12 +271,13 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write("(");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(method.GetParametersForCall("_provider")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(ctor.Value.GetCallCtorParameters("_provider", method)));
             
             #line default
             #line hidden
             this.Write(");\r\n");
 
+            }
         }
 
             this.Write("}\r\n");

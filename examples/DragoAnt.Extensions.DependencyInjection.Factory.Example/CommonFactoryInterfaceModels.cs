@@ -6,7 +6,8 @@ public interface ICommonFactory<out T>
     T Create(int length, int defaultLen = 100, double defaultDblLen = 10.01);
 }
 
-[ResolveFactory(SharedFactoryInterfaceTypeDefinition = typeof(ICommonFactory<>))]
+[ResolveFactory]
+[ResolveFactoryContract(typeof(ICommonFactory<>))]
 public sealed class CommonViewModel
 {
     public int Length { get; }
@@ -32,7 +33,8 @@ public sealed class CommonViewModel
     }
 }
 
-[ResolveFactory(SharedFactoryInterfaceTypeDefinition = typeof(ICommonFactory<>))]
+[ResolveFactory]
+[ResolveFactoryContract(typeof(ICommonFactory<>))]
 public sealed class CommonViewModelDoubled
 {
     public int Length { get; }

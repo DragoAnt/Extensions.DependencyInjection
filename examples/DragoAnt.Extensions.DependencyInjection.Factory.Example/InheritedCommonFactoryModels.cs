@@ -5,7 +5,6 @@ public interface IModel
 {
 }
 
-
 public class SimpleModel : IModel
 {
 }
@@ -26,7 +25,15 @@ public interface IFactory<out T>
     T Create(IModel model);
 }
 
-[ResolveFactory(SharedFactoryInterfaceTypeDefinition = typeof(IFactory<>), OnlySharedFactory = true, AllowNotSupportedMethodsSharedFactory = true)]
+public interface IAdvFactory<out T>
+{
+    T Create();
+    T Create(IModel model);
+}
+
+[ResolveFactory(SkipGenerateInterface = true)]
+[ResolveFactoryContract(typeof(IFactory<>), AllowNotSupportedMethods = true)]
+[ResolveFactoryContract(typeof(IAdvFactory<>), AllowNotSupportedMethods = true)]
 public abstract class SuperViewModel<TModel>
     where TModel : IModel
 {

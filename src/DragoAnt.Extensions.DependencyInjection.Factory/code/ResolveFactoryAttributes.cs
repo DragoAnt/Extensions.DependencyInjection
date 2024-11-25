@@ -22,28 +22,33 @@ internal sealed class ResolveFactoryAttribute(
     public ResolveFactoryServiceLifetime Lifetime { get; } = lifetime;
 
     /// <summary>
+    /// Skip generation and registration of specific factory interface.
+    /// </summary>
+    public bool SkipGenerateInterface { get; set; }
+}
+
+/// <summary>
+/// Mark class with this attribute to add implementation of factory contract to factory and registration for Dependency Injection ServiceCollection.
+/// </summary>
+/// <param name="interfaceTypeDefinition">Factory service contract.</param>
+[AttributeUsage(Class, AllowMultiple = true)]
+internal sealed class ResolveFactoryContractAttribute(Type interfaceTypeDefinition) : Attribute
+{
+    /// <summary>
     /// Shared factory generic interface type definition.(e.g. IFactory{T}).
     /// The interface contains Create methods with the same factory parameters as constructors.
     /// </summary>
-    public Type? SharedFactoryInterfaceTypeDefinition { get; set; }
-
-    /// <summary>
-    /// Generate code only for shared factory. Skip generation and registration of class specific factory.
-    /// Active only if <see cref="ResolveFactoryAttribute.SharedFactoryInterfaceTypeDefinition"/> is set.
-    /// </summary>
-    public bool OnlySharedFactory { get; set; }
+    public Type? InterfaceTypeDefinition { get; } = interfaceTypeDefinition;
 
     /// <summary>
     /// Cast parameters to shared factory method parameters. Mapped by name. Default is true.
-    /// Active only if <see cref="ResolveFactoryAttribute.SharedFactoryInterfaceTypeDefinition"/> is set.
     /// </summary>
-    public bool CastParametersToSharedFactory { get; set; } = true;
+    public bool CastParameters { get; set; } = true;
 
     /// <summary>
     ///If true and constructors can't be mapped by parameters to shared factory methods then generates throw <see cref="NotSupportedException"/> otherwise generates pragma error. 
-    /// Active only if <see cref="ResolveFactoryAttribute.SharedFactoryInterfaceTypeDefinition"/> is set.
     /// </summary>
-    public bool AllowNotSupportedMethodsSharedFactory { get; set; }
+    public bool AllowNotSupportedMethods { get; set; }
 }
 
 /// <summary>

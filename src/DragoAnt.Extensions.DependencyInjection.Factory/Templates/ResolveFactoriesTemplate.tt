@@ -29,7 +29,7 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
         var addService = $"services.Add{factory.Lifetime}";
-        var interfaces = factory.GetImplementedInterfaces().ToArray();
+        var interfaces = factory.GetInterfaces().ToArray();
         if (interfaces.Length > 1)
         {
 #>
@@ -38,14 +38,14 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
             foreach (var iface in interfaces)
             {
 #>
-        <#= addService #><<#= iface #>>(p => p.GetRequiredService<<#= factory.FactoryClassName #>>());
+        <#= addService #><<#= iface.Name #>>(p => p.GetRequiredService<<#= factory.FactoryClassName #>>());
 <#
             }
         }
         else
         {
 #>
-        <#= addService #><<#= interfaces[0] #>, <#= factory.FactoryClassName #>>();
+        <#= addService #><<#= interfaces[0].Name #>, <#= factory.FactoryClassName #>>();
 <#
         }
     }
@@ -55,17 +55,17 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
 <#
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
-        if (!factory.SharedFactoryInterface.OnlySharedFactory)
+        if (factory.GeneratingInterface is {} generatingInterface)
         {
 #>
 
 /// <summary>
 /// Factory contract for <see cref="<#= factory.InstanceClassName #>"/>.
 /// </summary>
-public interface <#= factory.FactoryInterfaceName #>
+public interface <#= generatingInterface.Name #>
 {
 <#
-            foreach (var method in factory.Methods)
+            foreach (var method in generatingInterface.Methods)
             {
 #>
     <#= factory.InstanceClassName #> Create(<#= method.GetParametersForSignature(true) #>);
@@ -81,7 +81,7 @@ public interface <#= factory.FactoryInterfaceName #>
 /// <summary>
 /// Factory implementation for <see cref="<#= factory.InstanceClassName #>"/>.
 /// </summary>
-internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", factory.GetImplementedInterfaces()) #>
+internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", factory.GetInterfaces().Select(i => i.Name)) #>
 {
     private readonly IServiceProvider _provider;
 
@@ -91,12 +91,35 @@ internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", fa
     }
 
 <#
-        foreach (var method in factory.Methods)
+        foreach (var iface in factory.GetInterfaces())
         {
+
+            foreach (var method in iface.Methods)
+            {
 #>
-    public <#= factory.InstanceClassName #> Create(<#= method.GetParametersForSignature(false) #>)
-        => new <#= factory.InstanceClassName #>(<#= method.GetParametersForCall("_provider") #>);
+    <#= method.ReturnTypeName #> <#= iface.Name #>.<#= method.Name #>(<#= method.GetParametersForSignature(false) #>) =>
 <#
+                var ctor = method.GetEquivalentConstructorMethod(factory.Constructors, iface.CastParameters);
+                if (ctor is null)
+                {
+                    if (iface.AllowNotSupportedMethods)
+                    {
+#>
+        throw new System.NotSupportedException();
+<#
+                    }
+                    else
+                    {
+#>
+#error ResolveFactory: Can't find equivalent construtor for interface's method.
+<#
+                    }
+                    continue;
+                }
+#>
+        new <#= factory.InstanceClassName #>(<#= ctor.Value.GetCallCtorParameters("_provider", method) #>);
+<#
+            }
         }
 #>
 }

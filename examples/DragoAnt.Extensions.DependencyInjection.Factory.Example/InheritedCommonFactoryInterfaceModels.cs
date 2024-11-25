@@ -19,7 +19,8 @@ public sealed class InheritedCommonViewModel : InheritedCommonViewModelBase
     }
 }
 
-[ResolveFactory(SharedFactoryInterfaceTypeDefinition = typeof(IInheritedCommonFactory<>))]
+[ResolveFactory]
+[ResolveFactoryContract(typeof(IInheritedCommonFactory<>))]
 public abstract class InheritedCommonViewModelBase
 {
     public int Length { get; }

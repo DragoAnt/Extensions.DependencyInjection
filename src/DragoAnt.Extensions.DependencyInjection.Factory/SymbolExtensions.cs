@@ -65,12 +65,7 @@ public static class SymbolExtensions
 
     public static void CollectNamespaces(this ITypeSymbol symbol, ISet<string> namespaces)
     {
-        if (symbol.ContainingNamespace.IsGlobalNamespace)
-        {
-            return;
-        }
-
-        namespaces.Add(symbol.ContainingNamespace.ToDisplayString());
+        symbol.ContainingNamespace.CollectNamespaces(namespaces);
 
         // If generic type, recursively collect namespaces of type arguments
         if (symbol is INamedTypeSymbol namedTypeSymbol)
@@ -80,6 +75,16 @@ public static class SymbolExtensions
                 CollectNamespaces(typeArg, namespaces);
             }
         }
+    }
+
+    private static void CollectNamespaces(this INamespaceSymbol namespaceSymbol, ISet<string> namespaces)
+    {
+        if (namespaceSymbol.IsGlobalNamespace)
+        {
+            return;
+        }
+
+        namespaces.Add(namespaceSymbol.ToDisplayString());
     }
 
     public static bool GetBoolNamedArgumentValue(this AttributeData resolveFactoryAttr, string name, bool defaultValue = false)

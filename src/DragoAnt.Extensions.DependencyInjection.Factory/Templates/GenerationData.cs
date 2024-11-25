@@ -4,7 +4,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates;
 
 internal sealed class GenerationData
 {
-    public GenerationData(string methodCodeName, string ns, ImmutableArray<FactoryDeclaration> factories)
+    public GenerationData(string methodCodeName, string ns, ImmutableArray<FactoryModel> factories)
     {
         Namespace = ns;
         Factories = factories;
@@ -13,7 +13,7 @@ internal sealed class GenerationData
 
     public string MethodCodeName { get; }
     public string Namespace { get; }
-    public ImmutableArray<FactoryDeclaration> Factories { get; }
+    public ImmutableArray<FactoryModel> Factories { get; }
 
     public IEnumerable<string> GetUsings(params string[] usings)
     {
