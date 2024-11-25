@@ -20,6 +20,9 @@ public sealed class ViewModel
         IEnumerable<ITestService> serviceInterfaces,
         IEnumerable<TestService> serviceClasses,
         ISingletonViewModelFactory singletonViewModelFactory,
+        bool test = false,
+        int defaultLen = 100,
+        double defaultDblLen = 10.01,
         [ResolveFactoryParameter] AppOptions? options = null)
     {
         ExportPath = exportPath;

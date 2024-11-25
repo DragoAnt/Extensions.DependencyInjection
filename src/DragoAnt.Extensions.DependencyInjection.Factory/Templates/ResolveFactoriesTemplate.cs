@@ -67,16 +67,62 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
 
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
+        var addService = $"services.Add{factory.Lifetime}";
+        var interfaces = factory.GetImplementedInterfaces().ToArray();
+        if (interfaces.Length > 1)
+        {
 
-            this.Write("        services.Add");
+            this.Write("        ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.Lifetime));
+            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
             
             #line default
             #line hidden
             this.Write("<");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryInterfaceName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryClassName));
+            
+            #line default
+            #line hidden
+            this.Write(">();\r\n");
+
+            foreach (var iface in interfaces)
+            {
+
+            this.Write("        ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
+            
+            #line default
+            #line hidden
+            this.Write("<");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(iface));
+            
+            #line default
+            #line hidden
+            this.Write(">(p => p.GetRequiredService<");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryClassName));
+            
+            #line default
+            #line hidden
+            this.Write(">());\r\n");
+
+            }
+        }
+        else
+        {
+
+            this.Write("        ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
+            
+            #line default
+            #line hidden
+            this.Write("<");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(interfaces[0]));
             
             #line default
             #line hidden
@@ -88,6 +134,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write(">();\r\n");
 
+        }
     }
 
             this.Write("    }\r\n}\r\n");
@@ -128,7 +175,13 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
 
         }
 
-            this.Write("}\r\n\r\n/// <summary>\r\n/// Factory implementation for <see cref=\"");
+            this.Write("}\r\n");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(factory.GetError()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n/// <summary>\r\n/// Factory implementation for <see cref=\"");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(factory.InstanceClassName));
             
@@ -142,7 +195,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
             #line hidden
             this.Write(" : ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryInterfaceName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", factory.GetImplementedInterfaces())));
             
             #line default
             #line hidden
@@ -157,19 +210,13 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
         foreach (var method in factory.Methods)
         {
 
-            this.Write("    ");
+            this.Write("    public ");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(factory.InstanceClassName));
             
             #line default
             #line hidden
-            this.Write(" ");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryInterfaceName));
-            
-            #line default
-            #line hidden
-            this.Write(".Create(");
+            this.Write(" Create(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(method.GetParametersForSignature(false)));
             
