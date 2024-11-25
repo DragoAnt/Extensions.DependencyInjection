@@ -28,9 +28,26 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
 <#
     foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
     {
+        var addService = $"services.Add{factory.Lifetime}";
+        var interfaces = factory.GetImplementedInterfaces().ToArray();
+        if (interfaces.Length > 1)
+        {
 #>
-        services.Add<#= factory.Lifetime #><<#= factory.FactoryInterfaceName #>, <#= factory.FactoryClassName #>>();
+        <#= addService #><<#= factory.FactoryClassName #>>();
 <#
+            foreach (var iface in interfaces)
+            {
+#>
+        <#= addService #><<#= iface #>>(p => p.GetRequiredService<<#= factory.FactoryClassName #>>());
+<#
+            }
+        }
+        else
+        {
+#>
+        <#= addService #><<#= interfaces[0] #>, <#= factory.FactoryClassName #>>();
+<#
+        }
     }
 #>
     }
@@ -54,11 +71,11 @@ public interface <#= factory.FactoryInterfaceName #>
         }
 #>
 }
-
+<#= factory.GetError() #>
 /// <summary>
 /// Factory implementation for <see cref="<#= factory.InstanceClassName #>"/>.
 /// </summary>
-internal sealed class <#= factory.FactoryClassName #> : <#= factory.FactoryInterfaceName #>
+internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", factory.GetImplementedInterfaces()) #>
 {
     private readonly IServiceProvider _provider;
 
@@ -71,7 +88,7 @@ internal sealed class <#= factory.FactoryClassName #> : <#= factory.FactoryInter
         foreach (var method in factory.Methods)
         {
 #>
-    <#= factory.InstanceClassName #> <#= factory.FactoryInterfaceName #>.Create(<#= method.GetParametersForSignature(false) #>)
+    public <#= factory.InstanceClassName #> Create(<#= method.GetParametersForSignature(false) #>)
         => new <#= factory.InstanceClassName #>(<#= method.GetParametersForCall("_provider") #>);
 <#
         }

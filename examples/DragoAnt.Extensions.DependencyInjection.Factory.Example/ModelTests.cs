@@ -1,6 +1,4 @@
-﻿using DragoAnt.Extensions.DependencyInjection.Factory.Example.Options;
-using DragoAnt.Extensions.DependencyInjection.Factory.Example.Services;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
@@ -39,5 +37,20 @@ public class ModelTests
         model.Should().NotBeNull();
         model.Length.Should().Be(11);
         model.ExportPath.Should().Be("testPath");
+    }
+    
+    [Fact]
+    public void TestSharedFactoryInterface()
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var options = new AppOptions();
+        
+        var model = scope.ServiceProvider.GetRequiredService<ICommonFactory<CommonViewModel>>().Create(10);
+        model.Should().NotBeNull();
+        model.Length.Should().Be(10);
+        
+        var model2 = scope.ServiceProvider.GetRequiredService<ICommonFactory<CommonViewModelDoubled>>().Create(10);
+        model2.Should().NotBeNull();
+        model2.Length.Should().Be(20);
     }
 }

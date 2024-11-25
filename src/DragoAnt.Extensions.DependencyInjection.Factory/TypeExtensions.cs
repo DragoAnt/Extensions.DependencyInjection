@@ -44,10 +44,16 @@ internal static class TypeExtensions
             return null;
         }
 
-        var lifetime = resolveFactoryAttr.ConstructorArguments.FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
+
+        var lifetime = resolveFactoryAttr.ConstructorArguments
+                           .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
                        Enum.TryParse<ResolveFactoryServiceLifetime>(lifetimeStr, out var lifetimeValue)
             ? lifetimeValue
             : ResolveFactoryServiceLifetime.Scoped;
+
+        var sharedFactoryInterfaceTypeSymbol = resolveFactoryAttr.NamedArguments
+            .FirstOrDefault(p => p.Key == "SharedFactoryInterfaceTypeDefinition")
+            .Value.Value as ITypeSymbol;
 
 
         var methods = classSymbol.Constructors
@@ -60,7 +66,12 @@ internal static class TypeExtensions
         }
 
         //TODO: Check for similar method signatures
-        return new FactoryDeclaration(classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), lifetime, methods);
+        return new FactoryDeclaration(
+            classSymbol.Name,
+            classSymbol.ContainingNamespace.ToDisplayString(),
+            sharedFactoryInterfaceTypeSymbol,
+            lifetime,
+            methods);
     }
 
     private static FactoryMethod GetFactoryMethod(IMethodSymbol ctor)

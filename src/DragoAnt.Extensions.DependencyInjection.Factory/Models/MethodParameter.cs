@@ -25,6 +25,7 @@ internal readonly struct MethodParameter(IParameterSymbol parameter)
                              {v}
                              """
                              """",
+                bool v => v.ToString().ToLowerInvariant(),
                 null => "default",
                 { } v => v.ToString(),
             };

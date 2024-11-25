@@ -15,9 +15,16 @@ internal enum ResolveFactoryServiceLifetime
 /// </summary>
 /// <param name="lifetime">Factory service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class)]
-internal sealed class ResolveFactoryAttribute(ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
+internal sealed class ResolveFactoryAttribute(
+    ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
 {
     public ResolveFactoryServiceLifetime Lifetime { get; } = lifetime;
+
+    /// <summary>
+    /// Shared factory generic interface type definition.(e.g. IFactory{T}).
+    /// The interface contains Create methods with the same factory parameters as constructors.
+    /// </summary>
+    public Type? SharedFactoryInterfaceTypeDefinition { get; set; }
 }
 
 /// <summary>
