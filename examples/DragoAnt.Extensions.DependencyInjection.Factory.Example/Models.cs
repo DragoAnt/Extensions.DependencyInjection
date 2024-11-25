@@ -1,7 +1,4 @@
-﻿using DragoAnt.Extensions.DependencyInjection.Factory.Example.Options;
-using DragoAnt.Extensions.DependencyInjection.Factory.Example.Services;
-
-namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
+﻿namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
 
 [ResolveFactory]
 public sealed class ViewModel

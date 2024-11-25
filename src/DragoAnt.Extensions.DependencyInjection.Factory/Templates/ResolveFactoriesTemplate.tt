@@ -3,7 +3,9 @@
 
 #nullable enable
 <#
-    foreach (var usingNs in Data.GetUsings("Microsoft.Extensions.DependencyInjection"))
+    foreach (var usingNs in Data
+        .GetUsings("Microsoft.Extensions.DependencyInjection")
+        .Except([Data.Namespace]))
     {
 #>
 using <#= usingNs #>;
