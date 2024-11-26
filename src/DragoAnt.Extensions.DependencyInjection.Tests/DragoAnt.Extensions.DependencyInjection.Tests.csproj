@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DragoAnt.Extensions.DependencyInjection\DragoAnt.Extensions.DependencyInjection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\GlobalUsings.cs">
+      <Link>EmbeddedCodeBase\examples\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\*Models.cs">
+      <Link>EmbeddedCodeBase\examples\Models\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Options\*.cs">
+      <Link>EmbeddedCodeBase\examples\Options\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Services\*.cs">
+      <Link>EmbeddedCodeBase\examples\Services\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\DragoAnt.Extensions.DependencyInjection\code\ResolveAttributes.cs">
+      <Link>EmbeddedCodeBase\code\ResolveAttributes.cs</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

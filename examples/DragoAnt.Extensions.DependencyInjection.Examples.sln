@@ -4,15 +4,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.Depende
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory", "..\src\DragoAnt.Extensions.DependencyInjection.Factory\DragoAnt.Extensions.DependencyInjection.Factory.csproj", "{B4D32064-6EC6-43D1-8893-D891C5B57FF1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection", "..\src\DragoAnt.Extensions.DependencyInjection\DragoAnt.Extensions.DependencyInjection.csproj", "{B4D32064-6EC6-43D1-8893-D891C5B57FF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{4D046D8A-D327-48A1-8289-7072B096BD47}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
+		nuget.config = nuget.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory.Tests", "..\src\DragoAnt.Extensions.DependencyInjection.Factory.Tests\DragoAnt.Extensions.DependencyInjection.Factory.Tests.csproj", "{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Tests", "..\src\DragoAnt.Extensions.DependencyInjection.Tests\DragoAnt.Extensions.DependencyInjection.Tests.csproj", "{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

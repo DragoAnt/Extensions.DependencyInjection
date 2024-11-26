@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory", "DragoAnt.Extensions.DependencyInjection.Factory\DragoAnt.Extensions.DependencyInjection.Factory.csproj", "{7A76B30E-83AB-42E6-A515-E71E265B384F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection", "DragoAnt.Extensions.DependencyInjection\DragoAnt.Extensions.DependencyInjection.csproj", "{7A76B30E-83AB-42E6-A515-E71E265B384F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{21313908-A076-4FFB-8CCA-17FDCBE8F43A}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".pipelines", ".pipelines", 
 		..\.github\workflows\build_and_publish_nuget.yml = ..\.github\workflows\build_and_publish_nuget.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory.Tests", "DragoAnt.Extensions.DependencyInjection.Factory.Tests\DragoAnt.Extensions.DependencyInjection.Factory.Tests.csproj", "{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Tests", "DragoAnt.Extensions.DependencyInjection.Tests\DragoAnt.Extensions.DependencyInjection.Tests.csproj", "{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
