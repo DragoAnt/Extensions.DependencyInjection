@@ -1,1 +1,0 @@
-Additional extensions for Microsoft.Extensions.DependencyInjection library.

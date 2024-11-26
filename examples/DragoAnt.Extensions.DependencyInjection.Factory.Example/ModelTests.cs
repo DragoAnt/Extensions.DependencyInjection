@@ -14,7 +14,7 @@ public class ModelTests
         services.AddSingleton<TestService>();
         services.AddScoped<ITestService>(provider => provider.GetRequiredService<TestService>());
 
-        services.AddExampleFactories();
+        services.AddExampleDependencies();
         _serviceProvider = services.BuildServiceProvider();
     }
 
