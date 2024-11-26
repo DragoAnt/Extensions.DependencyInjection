@@ -53,4 +53,44 @@ public class ModelTests
         model2.Should().NotBeNull();
         model2.Length.Should().Be(20);
     }
+
+    [Fact]
+    public void TestInheritedCommonFactoryInterface()
+    {
+        using var scope = _serviceProvider.CreateScope();
+        
+        var model = scope.ServiceProvider.GetRequiredService<IInheritedCommonFactory<InheritedCommonViewModel>>().Create(10);
+        model.Should().NotBeNull();
+        model.Length.Should().Be(10);
+        
+        var model2 = scope.ServiceProvider.GetRequiredService<IInheritedCommonFactory<InheritedCommonViewModelDoubled>>().Create(10);
+        model2.Should().NotBeNull();
+        model2.Length.Should().Be(20);
+    }
+    
+    [Fact]
+    public void HierarchyFactoryInterface()
+    {
+        using var scope = _serviceProvider.CreateScope();
+
+        var simpleViewModelFactory = scope.ServiceProvider.GetRequiredService<IFactory<SimpleViewModel>>();
+        
+        var model = simpleViewModelFactory.Create();
+        model.Should().NotBeNull();
+
+        var model2 = simpleViewModelFactory.Create(new SimpleModel());
+        model2.Should().NotBeNull();
+
+        var complexViewModelFactory = scope.ServiceProvider.GetRequiredService<IFactory<ComplexViewModel>>();
+        
+        var model3 = complexViewModelFactory.Create(new ComplexModel(10));
+        model3.Should().NotBeNull();
+        
+        var act =() => complexViewModelFactory.Create(new SimpleModel());
+        act.Should().Throw<InvalidCastException>();
+        
+        var act2 =() => complexViewModelFactory.Create();
+        act2.Should().Throw<NotSupportedException>();
+        
+    }
 }
