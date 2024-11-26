@@ -1,6 +1,7 @@
 ﻿namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
 
 public interface IInheritedCommonFactory<out T>
+    where T : InheritedCommonViewModelBase
 {
     T Create(int defaultLen, double defaultDblLen);
     T Create(int length, int defaultLen = 100, double defaultDblLen = 10.01);

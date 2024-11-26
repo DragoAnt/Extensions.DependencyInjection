@@ -20,21 +20,27 @@ public class ComplexModel : IModel
 }
 
 public interface IFactory<out T>
+    where T : IViewModel
 {
     T Create();
     T Create(IModel model);
 }
 
 public interface IAdvFactory<out T>
+    where T : IViewModel
 {
     T Create();
     T Create(IModel model);
 }
 
+public interface IViewModel
+{
+}
+
 [ResolveFactory(SkipGenerateInterface = true)]
 [ResolveFactoryContract(typeof(IFactory<>), AllowNotSupportedMethods = true)]
 [ResolveFactoryContract(typeof(IAdvFactory<>), AllowNotSupportedMethods = true)]
-public abstract class SuperViewModel<TModel>
+public abstract class SuperViewModel<TModel> : IViewModel
     where TModel : IModel
 {
     protected SuperViewModel(TModel model)
