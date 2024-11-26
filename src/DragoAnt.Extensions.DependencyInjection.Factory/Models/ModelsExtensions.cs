@@ -11,7 +11,17 @@ internal static class ModelsExtensions
 
 
     public static FactoryModel? GetFactory(this GeneratorSyntaxContext context)
-        => GetFactory((ClassDeclarationSyntax)context.Node, context.SemanticModel);
+    {
+        try
+        {
+            return GetFactory((ClassDeclarationSyntax)context.Node, context.SemanticModel);
+        }
+        catch (Exception e)
+        {
+            return new FactoryModel(null!, null, [], ResolveFactoryServiceLifetime.Scoped, [],
+                new FactoryGeneratorException($"Failed to construct factory for class '{context.Node}'", e));
+        }
+    }
 
     public static FactoryModel? GetFactory(this ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
@@ -87,7 +97,7 @@ internal static class ModelsExtensions
                 contractAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryContractAttribute.AllowNotSupportedMethods));
 
             var interfaceName = interfaceSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-            
+
             Func<ITypeSymbol, ITypeSymbol>? typeMap = null;
             if (interfaceSymbol.IsUnboundGenericType)
             {
@@ -99,14 +109,14 @@ internal static class ModelsExtensions
 
                 var typeArg = interfaceSymbol.ConstructedFrom.TypeArguments[0];
                 typeMap = t => SymbolEqualityComparer.IncludeNullability.Equals(typeArg, t) ? className : t;
-                
-                interfaceName = $"{interfaceName.Substring(0, interfaceName.Length - 2)}<{className.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}>";
+
+                interfaceName =
+                    $"{interfaceName.Substring(0, interfaceName.Length - 2)}<{className.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}>";
             }
 
             var methods = interfaceSymbol.ConstructedFrom.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary)
                 .Select(m => GetFactoryMethod(m, null, null, true, typeMap)).ToImmutableArray();
 
-            
 
             yield return new FactoryInterfaceModel(interfaceName, methods, castParameters, allowNotSupportedMethods);
         }
@@ -122,7 +132,12 @@ internal static class ModelsExtensions
         ];
     }
 
-    private static MethodModel GetFactoryMethod(this IMethodSymbol method, string? name, ITypeSymbol? returnType, bool forceExplicitParameter, Func<ITypeSymbol, ITypeSymbol>? typeMap = null)
+    private static MethodModel GetFactoryMethod(
+        this IMethodSymbol method,
+        string? name,
+        ITypeSymbol? returnType,
+        bool forceExplicitParameter,
+        Func<ITypeSymbol, ITypeSymbol>? typeMap = null)
     {
         typeMap ??= t => t;
         name ??= method.Name;

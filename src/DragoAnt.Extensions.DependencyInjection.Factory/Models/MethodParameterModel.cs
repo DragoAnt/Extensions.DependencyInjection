@@ -2,6 +2,8 @@
 
 internal readonly struct MethodParameterModel(IParameterSymbol parameter, bool forceExplicitParameter)
 {
+    public bool IsEmpty => Parameter == null;
+    
     private IParameterSymbol Parameter { get; } = parameter;
 
     public string Name => Parameter.Name;

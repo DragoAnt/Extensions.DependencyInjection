@@ -7,14 +7,21 @@ internal readonly struct FactoryModel(
     FactoryInterfaceModel? generatingInterface,
     ImmutableArray<FactoryInterfaceModel> factoryInterfaces,
     ResolveFactoryServiceLifetime lifetime,
-    ImmutableArray<MethodModel> constructors)
+    ImmutableArray<MethodModel> constructors,
+    Exception? exception = null)
 {
+    public bool IsInvalid => exception is not null;
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
     public string FactoryClassName => $"{InstanceClassName}Factory";
     public ImmutableArray<FactoryInterfaceModel> FactoryInterfaces => factoryInterfaces;
 
     public string GetError()
     {
+        if (exception is not null)
+        {
+            return $"Exception: {exception.Message}, InnerException: {exception.InnerException?.Message}";
+        }
+
         return string.Empty;
     }
 

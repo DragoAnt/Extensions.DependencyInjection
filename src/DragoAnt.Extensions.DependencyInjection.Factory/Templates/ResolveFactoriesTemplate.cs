@@ -39,7 +39,22 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory.Templates
 
     }
 
-            this.Write("\r\nnamespace ");
+    if (Data.Factories.Any(f => f.IsInvalid))
+    {
+        foreach (var invalidFactory in Data.Factories.Where(f => f.IsInvalid))
+        {
+
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(invalidFactory.GetError()));
+            
+            #line default
+            #line hidden
+            this.Write(">\r\n");
+            
+        }
+    }
+
+            this.Write("\r\n\r\n\r\nnamespace ");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(Data.Namespace));
             

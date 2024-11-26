@@ -39,18 +39,22 @@ public class FactoryGenerator : IIncrementalGenerator
                     rootNamespace = "NotSetRootNamespace";
                 }
 
-                var generatedCode = GenerateFactories(new(registerMethodName, rootNamespace, factories));
+                string generatedCode;
+                try
+                {
+                    generatedCode = new ResolveFactoriesTemplate
+                    {
+                        Data = new(registerMethodName, rootNamespace, factories)
+                    }.TransformText();
+                }
+                catch (Exception e)
+                {
+                    generatedCode = e.ToString();
+                }
 
                 ctx.AddSource($"{registerMethodName}Factories.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
             });
     }
-
-    private static string GenerateFactories(GenerationData data)
-        => new ResolveFactoriesTemplate
-        {
-            Data = data
-        }.TransformText();
-
 
     private static bool IsPublicOrInternalClass(SyntaxNode syntaxNode)
         => syntaxNode is ClassDeclarationSyntax classDecl &&
