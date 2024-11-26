@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using static Microsoft.CodeAnalysis.Accessibility;
 
 namespace DragoAnt.Extensions.DependencyInjection.Factory;
 
@@ -53,7 +54,10 @@ internal static class ModelsExtensions
             resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
 
         var ctors = classSymbol.Constructors
-            .Where(ctor => !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
+            .Where(ctor =>
+                ctor.MethodKind == MethodKind.Constructor &&
+                ctor.DeclaredAccessibility is Public or Internal &&
+                !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
             .Select(m => GetFactoryMethod(m, null, classSymbol, false)).ToImmutableArray();
 
         FactoryInterfaceModel? generatingInterface = null;
@@ -82,11 +86,18 @@ internal static class ModelsExtensions
 
     private static IEnumerable<FactoryInterfaceModel> GetContractInterfaces(ImmutableArray<AttributeData> attributes, INamedTypeSymbol className)
     {
+        HashSet<string> interfaceNames = new(StringComparer.Ordinal);
+
         foreach (var contractAttr in attributes.Where(attr => AttributeNames.ResolveFactoryContract.IsMatchAttr(attr)))
         {
             if (contractAttr.ConstructorArguments.FirstOrDefault().Value is not INamedTypeSymbol interfaceSymbol)
             {
                 //TODO: Add error
+                continue;
+            }
+
+            if (!interfaceNames.Add(interfaceSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)))
+            {
                 continue;
             }
 
@@ -148,18 +159,33 @@ internal static class ModelsExtensions
     }
 
     public static bool IsImplicitParameter(this ITypeSymbol type)
-        => type.SpecialType is not SpecialType.None ||
-           type.TypeKind is not TypeKind.Class and not TypeKind.Interface ||
-           IsTypeMarkedAsParameter(type);
+        => type.IsTypeMarkedAs() switch
+        {
+            ResolveParameterType.Service => false,
+            ResolveParameterType.ExplicitParameter => true,
+            _ => type.SpecialType is not SpecialType.None ||
+                 type.TypeKind is not TypeKind.Class and not TypeKind.Interface,
+        };
 
-    private static bool IsTypeMarkedAsParameter(ITypeSymbol typeSymbol)
+    private static ResolveParameterType IsTypeMarkedAs(this ITypeSymbol typeSymbol)
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.GetAllAttributes().Any(attr => AttributeNames.AsResolveFactoryParameter.IsMatchAttr(attr));
+            foreach (var attr in namedTypeSymbol.GetAllAttributes())
+            {
+                if (AttributeNames.AsResolveFactoryParameter.IsMatchAttr(attr))
+                {
+                    return ResolveParameterType.ExplicitParameter;
+                }
+
+                if (AttributeNames.AsResolveFactoryService.IsMatchAttr(attr))
+                {
+                    return ResolveParameterType.Service;
+                }
+            }
         }
 
-        return false;
+        return default;
     }
 
     public static MethodModel? GetEquivalentConstructorMethod(this MethodModel method, ImmutableArray<MethodModel> ctors, bool allowCastParameters)

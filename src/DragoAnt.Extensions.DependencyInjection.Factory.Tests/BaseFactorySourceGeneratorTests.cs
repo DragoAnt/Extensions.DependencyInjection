@@ -13,16 +13,16 @@ public abstract class BaseFactorySourceGeneratorTests
             ParseText(ReadEmbeddedCode("examples.Services.Services.cs")),
         ];
 
-    protected string RunFactoryGenerator(string inputSource)
+    protected string RunFactoryGenerator(params string[] inputSource)
     {
         // Create a CSharp syntax tree from the source code
 
-        var syntaxTree = ParseText(inputSource);
+        var inputSyntaxTrees = inputSource.Select(s => ParseText(s));
 
         // Create a compilation
         var compilation = CSharpCompilation.Create(
             assemblyName: "TestAssembly",
-            syntaxTrees: [..CommonSyntaxTrees, syntaxTree],
+            syntaxTrees: [..CommonSyntaxTrees, ..inputSyntaxTrees],
             references:
             [
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),

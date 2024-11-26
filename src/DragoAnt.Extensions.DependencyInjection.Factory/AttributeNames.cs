@@ -11,7 +11,9 @@ internal static class AttributeNames
     public static readonly Regex ResolveFactoryIgnoreCtor = new("^ResolveFactoryIgnoreCtor(Attribute)?$", Compiled | CultureInvariant);
     public static readonly Regex ResolveFactoryParameter = new("^ResolveFactoryParameter(Attribute)?$", Compiled | CultureInvariant);
     public static readonly Regex ResolveFactoryService = new("^ResolveFactoryService(Attribute)?$", Compiled | CultureInvariant);
+    
     public static readonly Regex AsResolveFactoryParameter = new("^AsResolveFactoryParameter(Attribute)?$", Compiled | CultureInvariant);
+    public static readonly Regex AsResolveFactoryService = new("^AsResolveFactoryService(Attribute)?$", Compiled | CultureInvariant);
 
     public static bool IsMatchAttr(this Regex regex, AttributeData attribute)
     {

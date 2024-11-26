@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
 
-  <Target Name="CheckResolveFactorySourceGeneratorRequiredPropertyGroup" BeforeTargets="Build">
+  <Target Name="CheckResolveFactorySourceGeneratorRequiredPropertyGroup" BeforeTargets="Compile,Build">
     <Error Condition="'$(RootNamespace)' == ''" Text="PropertyGroup 'RootNamespace' is not declared. It's required for ResolveFactory Source Generator." />
     <Error Condition="'$(ResolveFactoryDependencyInjectionMethodName)' == ''" Text="PropertyGroup 'ResolveFactoryDependencyInjectionMethodName' is not declared. It's required for ResolveFactory Source Generator." />
   </Target>
