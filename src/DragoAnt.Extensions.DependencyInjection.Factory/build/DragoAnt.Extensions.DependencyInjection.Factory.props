@@ -3,6 +3,7 @@
   <ItemGroup>
     <CompilerVisibleProperty Include="ResolveFactoryDependencyInjectionMethodName" />
     <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="ResolveFactoryDebug" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\code\ResolveFactoryAttributes.cs" Visible="false">

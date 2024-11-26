@@ -5,29 +5,31 @@ public class ExamplesFactorySourceGeneratorTests : BaseFactorySourceGeneratorTes
     [Fact]
     public void SimpleModels()
     {
-        var inputSource = ReadEmbeddedExampleModelCode("SimpleModels");
-
         //TODO: Use Verify
-        var generatedCode = RunFactoryGenerator(inputSource);
+        var generatedCode = RunFactoryGeneratorExamples("SimpleModels");
     }
-    
+
     [Fact]
     public void CommonFactoryInterfaceModels()
     {
-        var inputSource = ReadEmbeddedExampleModelCode("CommonFactoryInterfaceModels");
-
         //TODO: Use Verify
-        var generatedCode = RunFactoryGenerator(inputSource);
+        var generatedCode = RunFactoryGeneratorExamples("CommonFactoryInterfaceModels");
     }
-    
+
     [Fact]
     public void InheritedCommonFactoryInterfaceModels()
     {
-        var inputSource = ReadEmbeddedExampleModelCode("InheritedCommonFactoryInterfaceModels");
-
         //TODO: Use Verify
-        var generatedCode = RunFactoryGenerator(inputSource);
+        var generatedCode = RunFactoryGeneratorExamples("InheritedCommonFactoryInterfaceModels");
     }
 
-    
+    [Fact]
+    public void PartialModels()
+    {
+        //TODO: Use Verify
+        var generatedCode = RunFactoryGeneratorExamples("PartialModels", "Partial2Models");
+    }
+
+    private string RunFactoryGeneratorExamples(params string[] exampleCodeNames)
+        => RunFactoryGenerator(exampleCodeNames.Select(ReadEmbeddedExampleModelCode).ToArray());
 }

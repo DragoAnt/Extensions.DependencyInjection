@@ -108,8 +108,8 @@ public sealed class ResolvingTests(ITestOutputHelper output)
 
         var factoryDeclaration = classDeclaration.GetFactory(semanticModel);
     }
-    
-    
+
+
     [Fact]
     public void GetSimpleFactoryCase()
     {
@@ -120,7 +120,7 @@ public sealed class ResolvingTests(ITestOutputHelper output)
             public abstract class AbstractModel
             {
             }
-            
+
             [ResolveFactory]
             public sealed class ViewModel
             {
@@ -177,17 +177,17 @@ public sealed class ResolvingTests(ITestOutputHelper output)
         var root = tree.GetRoot();
         var classDeclarations = root.DescendantNodes()
             .OfType<ClassDeclarationSyntax>().ToArray();
-            
-            
+
+
         var abstractViewModelFactoryDecl = classDeclarations.First(cls => cls.Identifier.Text == "AbstractModel").GetFactory(semanticModel);
 
         abstractViewModelFactoryDecl.Should().BeNull();
-        
+
         var viewModelFactoryDecl = classDeclarations.First(cls => cls.Identifier.Text == "ViewModel").GetFactory(semanticModel);
-        
+
         viewModelFactoryDecl.Should().NotBeNull();
     }
-    
+
     [Fact]
     public void GetComplexFactoryCase()
     {
@@ -198,11 +198,11 @@ public sealed class ResolvingTests(ITestOutputHelper output)
             public interface IModel
             {
             }
-            
+
             public class SimpleModel : IModel
             {
             }
-            
+
             public class ComplexModel : IModel
             {
                 public int Value { get; }
@@ -212,19 +212,19 @@ public sealed class ResolvingTests(ITestOutputHelper output)
                     Value = value;
                 }
             }
-            
+
             public interface IFactory<out T>
             {
                 T Create();
                 T Create(IModel model);
             }
-            
+
             public interface IAdvFactory<out T>
             {
                 T Create();
                 T Create(IModel model);
             }
-            
+
             //[ResolveFactory(SkipGenerateInterface = true)]
             [ResolveFactory]
             [ResolveFactoryContract(typeof(IFactory<>), AllowNotSupportedMethods = true)]
@@ -239,7 +239,7 @@ public sealed class ResolvingTests(ITestOutputHelper output)
             
                 public TModel Model { get; }
             }
-            
+
             public abstract class BaseViewModel<TModel> : SuperViewModel<TModel>
                 where TModel : IModel
             {
@@ -248,7 +248,7 @@ public sealed class ResolvingTests(ITestOutputHelper output)
                 {
                 }
             }
-            
+
             public sealed class SimpleViewModel : BaseViewModel<SimpleModel>
             {
                 public SimpleViewModel()
@@ -261,7 +261,7 @@ public sealed class ResolvingTests(ITestOutputHelper output)
                 {
                 }
             }
-            
+
             public sealed class ComplexViewModel : BaseViewModel<ComplexModel>
             {
                 public ComplexViewModel(ComplexModel model)
@@ -291,14 +291,14 @@ public sealed class ResolvingTests(ITestOutputHelper output)
         var abstractViewModelFactoryDecl = classDeclarations.First(cls => cls.Identifier.Text == "SuperViewModel").GetFactory(semanticModel);
 
         abstractViewModelFactoryDecl.Should().BeNull();
-        
+
         var viewModelFactoryDecl = classDeclarations.First(cls => cls.Identifier.Text == "SimpleViewModel").GetFactory(semanticModel);
-        
+
         viewModelFactoryDecl.Should().NotBeNull();
 
         var generatedCode = new ResolveFactoriesTemplate
         {
-            Data = new GenerationData("Test", "ns_ns", [viewModelFactoryDecl!.Value])
+            Data = new GenerationData("Test", "ns_ns", true, [viewModelFactoryDecl!.Value])
         }.TransformText();
     }
 }

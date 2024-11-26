@@ -4,11 +4,12 @@ namespace DragoAnt.Extensions.DependencyInjection.Factory;
 
 internal readonly struct MethodModel(string name, ITypeSymbol returnType, ImmutableArray<MethodParameterModel> parameters)
 {
+    public bool IsEmpty => ReturnType is null;
     public string Name { get; } = name;
-
     public ITypeSymbol ReturnType { get; } = returnType;
     public string ReturnTypeName => ReturnType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     public ImmutableArray<MethodParameterModel> Parameters { get; } = parameters;
+
 
     public void CollectUsings(ISet<string> namespaces)
     {

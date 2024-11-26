@@ -14,7 +14,7 @@ public class FactoryGenerator : IIncrementalGenerator
     {
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
-                    predicate: static (s, _) => IsPublicOrInternalClass(s),
+                    predicate: static (s, _) => IsNotPrivateClass(s),
                     transform: static (ctx, _) => ctx.GetFactory())
                 .Where(static m => m is not null)
                 .Select(static (f, _) => f!.Value);
@@ -39,12 +39,18 @@ public class FactoryGenerator : IIncrementalGenerator
                     rootNamespace = "NotSetRootNamespace";
                 }
 
+                var resolveFactoryDebug = 
+                    optionsProvider.GlobalOptions.TryGetOption("ResolveFactoryDebug", out var resolveFactoryDebugValue) && resolveFactoryDebugValue is not null;
+
                 string generatedCode;
                 try
                 {
+                    //NOTE: Distinct for partial classes
+                    var inputFactories = factories.Distinct(new FactoryModelEqualityComparer());
+
                     generatedCode = new ResolveFactoriesTemplate
                     {
-                        Data = new(registerMethodName, rootNamespace, factories)
+                        Data = new(registerMethodName, rootNamespace, resolveFactoryDebug, [..inputFactories])
                     }.TransformText();
                 }
                 catch (Exception e)
@@ -56,8 +62,13 @@ public class FactoryGenerator : IIncrementalGenerator
             });
     }
 
-    private static bool IsPublicOrInternalClass(SyntaxNode syntaxNode)
-        => syntaxNode is ClassDeclarationSyntax classDecl &&
-           !classDecl.Modifiers.Any(PrivateKeyword) &&
-           (classDecl.Modifiers.Any(InternalKeyword) || classDecl.Modifiers.Any(PublicKeyword));
+    private sealed class FactoryModelEqualityComparer : IEqualityComparer<FactoryModel>
+    {
+        public bool Equals(FactoryModel x, FactoryModel y) => x.FactoryClassName == y.FactoryClassName;
+
+        public int GetHashCode(FactoryModel obj) => obj.FactoryClassName.GetHashCode();
+    }
+
+    private static bool IsNotPrivateClass(SyntaxNode syntaxNode)
+        => syntaxNode is ClassDeclarationSyntax classDecl && !classDecl.Modifiers.Any(PrivateKeyword);
 }

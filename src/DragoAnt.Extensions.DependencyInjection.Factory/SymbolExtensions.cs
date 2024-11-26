@@ -77,14 +77,17 @@ public static class SymbolExtensions
         }
     }
 
-    private static void CollectNamespaces(this INamespaceSymbol namespaceSymbol, ISet<string> namespaces)
+    private static void CollectNamespaces(this INamespaceSymbol? namespaceSymbol, ISet<string> namespaces)
     {
-        if (namespaceSymbol.IsGlobalNamespace)
+        if (namespaceSymbol is null || namespaceSymbol.IsGlobalNamespace)
         {
             return;
         }
 
-        namespaces.Add(namespaceSymbol.ToDisplayString());
+        foreach (var ns in namespaceSymbol.ConstituentNamespaces)
+        {
+            namespaces.Add(ns.ToDisplayString());
+        }
     }
 
     public static bool GetBoolNamedArgumentValue(this AttributeData resolveFactoryAttr, string name, bool defaultValue = false)

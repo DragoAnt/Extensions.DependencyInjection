@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{4D
 		global.json = global.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory.Tests", "..\src\DragoAnt.Extensions.DependencyInjection.Factory.Tests\DragoAnt.Extensions.DependencyInjection.Factory.Tests.csproj", "{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,8 +28,13 @@ Global
 		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4D32064-6EC6-43D1-8893-D891C5B57FF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B4D32064-6EC6-43D1-8893-D891C5B57FF1} = {CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC} = {CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}
 	EndGlobalSection
 EndGlobal

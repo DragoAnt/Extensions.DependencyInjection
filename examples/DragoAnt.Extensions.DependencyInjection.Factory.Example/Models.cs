@@ -3,6 +3,10 @@
 [ResolveFactory]
 public sealed class ViewModel
 {
+    private ViewModel(string hidden)
+    {
+    }
+
     public ViewModel(
         string exportPath,
         string? exportPath2,
@@ -24,6 +28,7 @@ public sealed class ViewModel
         int defaultLen = 100,
         double defaultDblLen = 10.01,
         [ResolveFactoryParameter] AppOptions? options = null)
+        : this(exportPath)
     {
         ExportPath = exportPath;
         //...

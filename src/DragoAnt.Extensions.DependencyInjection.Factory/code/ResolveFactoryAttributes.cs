@@ -1,6 +1,9 @@
 ﻿// This class imported to the project by DragoAnt.Extensions.DependencyInjection.Factory package
 
 // ReSharper disable RedundantUsingDirective
+// ReSharper disable once RedundantNullableDirective
+#nullable enable
+
 global using DragoAnt.Extensions.DependencyInjection.Factory;
 using System;
 
@@ -82,5 +85,13 @@ internal sealed class ResolveFactoryServiceAttribute : Attribute
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 internal sealed class AsResolveFactoryParameterAttribute : Attribute
+{
+}
+
+/// <summary>
+/// Attribute to mark referenced type to be an explicit factory service by default. 
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+internal sealed class AsResolveFactoryServiceAttribute : Attribute
 {
 }
