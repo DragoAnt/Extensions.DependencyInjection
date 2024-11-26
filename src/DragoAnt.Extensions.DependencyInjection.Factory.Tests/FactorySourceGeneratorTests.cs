@@ -9,15 +9,20 @@ public class FactorySourceGeneratorTests
     public void TestGenerator_OutputIsCorrect()
     {
         // Arrange: Define the source code to be used as input
-        var inputSource = @"
-            using System;
-
-            [ResolveFactory]
-            public class SampleClass
-            {
-                public SampleClass(string name, int age) { }
-            }
-        ";
+        //language=csharp
+        var inputSource = """
+                          
+                          using System;
+                          
+                          public interface ITestService {}
+                          
+                          [ResolveFactory]
+                          public class SampleClass
+                          {
+                              public SampleClass(ITestService service) { }
+                          }
+                          
+                          """;
 
         // Create a CSharp syntax tree from the source code
         var syntaxTree = CSharpSyntaxTree.ParseText(inputSource);

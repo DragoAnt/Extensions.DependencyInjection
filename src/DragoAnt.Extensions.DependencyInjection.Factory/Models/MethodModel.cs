@@ -22,6 +22,11 @@ internal readonly struct MethodModel(string name, ITypeSymbol returnType, Immuta
     public MethodParameterModel? GetEquivalentParameter(MethodParameterModel parameter, bool allowCastParameters)
     {
         var result = Parameters.FirstOrDefault(p => string.Equals(p.Name, parameter.Name, StringComparison.Ordinal));
+        if (result.IsEmpty)
+        {
+            return null;
+        }
+
         return allowCastParameters || MethodParameterModel.HasSameType(result, parameter.Type)
             ? result
             : null;

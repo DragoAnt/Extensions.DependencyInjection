@@ -11,6 +11,18 @@
 using <#= usingNs #>;
 <#
     }
+
+    if (Data.Factories.Any(f => f.IsInvalid))
+    {
+        foreach (var invalidFactory in Data.Factories.Where(f => f.IsInvalid))
+        {
+#>
+#error <#= invalidFactory.GetError() #>>
+<#
+        }
+    }
+    else
+    {
 #>
 
 namespace <#= Data.Namespace #>;
@@ -26,37 +38,37 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
     public static void Add<#= Data.MethodCodeName #>Factories(this IServiceCollection services)
     {
 <#
-    foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
-    {
-        var addService = $"services.Add{factory.Lifetime}";
-        var interfaces = factory.GetInterfaces().ToArray();
-        if (interfaces.Length > 1)
+        foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
         {
+            var addService = $"services.Add{factory.Lifetime}";
+            var interfaces = factory.GetInterfaces().ToArray();
+            if (interfaces.Length > 1)
+            {
 #>
         <#= addService #><<#= factory.FactoryClassName #>>();
 <#
-            foreach (var iface in interfaces)
-            {
+                foreach (var iface in interfaces)
+                {
 #>
         <#= addService #><<#= iface.Name #>>(p => p.GetRequiredService<<#= factory.FactoryClassName #>>());
 <#
+                }
             }
-        }
-        else
-        {
+            else
+            {
 #>
         <#= addService #><<#= interfaces[0].Name #>, <#= factory.FactoryClassName #>>();
 <#
+            }
         }
-    }
 #>
     }
 }
 <#
-    foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
-    {
-        if (factory.GeneratingInterface is {} generatingInterface)
+        foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
         {
+            if (factory.GeneratingInterface is {} generatingInterface)
+            {
 #>
 
 /// <summary>
@@ -65,16 +77,16 @@ public static class <#= Data.MethodCodeName #>RegistrationExtensions
 public interface <#= generatingInterface.Name #>
 {
 <#
-            foreach (var method in generatingInterface.Methods)
-            {
+                foreach (var method in generatingInterface.Methods)
+                {
 #>
     <#= factory.InstanceClassName #> Create(<#= method.GetParametersForSignature(true) #>);
 <#
-            }
+                }
 #>
 }
 <#
-        }
+            }
 #>
 
 <#= factory.GetError() #>
@@ -91,38 +103,38 @@ internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", fa
     }
 
 <#
-        foreach (var iface in factory.GetInterfaces())
-        {
-
-            foreach (var method in iface.Methods)
+            foreach (var iface in factory.GetInterfaces())
             {
+                foreach (var method in iface.Methods)
+                {
 #>
     <#= method.ReturnTypeName #> <#= iface.Name #>.<#= method.Name #>(<#= method.GetParametersForSignature(false) #>) =>
 <#
-                var ctor = method.GetEquivalentConstructorMethod(factory.Constructors, iface.CastParameters);
-                if (ctor is null)
-                {
-                    if (iface.AllowNotSupportedMethods)
+                    var ctor = method.GetEquivalentConstructorMethod(factory.Constructors, iface.CastParameters);
+                    if (ctor is null)
                     {
+                        if (iface.AllowNotSupportedMethods)
+                        {
 #>
         throw new System.NotSupportedException();
 <#
-                    }
-                    else
-                    {
+                        }
+                        else
+                        {
 #>
 #error ResolveFactory: Can't find equivalent construtor for interface's method.
 <#
+                        }
+                        continue;
                     }
-                    continue;
-                }
 #>
         new <#= factory.InstanceClassName #>(<#= ctor.Value.GetCallCtorParameters("_provider", method) #>);
 <#
+                }
             }
-        }
 #>
 }
 <#
+        }
     }
 #>
