@@ -22,4 +22,24 @@
     <ProjectReference Include="..\DragoAnt.Extensions.DependencyInjection.Factory\DragoAnt.Extensions.DependencyInjection.Factory.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\DragoAnt.Extensions.DependencyInjection.Factory\code\ResolveFactoryAttributes.cs">
+      <Link>EmbeddedCodeBase\code\ResolveFactoryAttributes.cs</Link>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\GlobalUsings.cs">
+      <Link>EmbeddedCodeBase\examples\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\*Models.cs">
+      <Link>EmbeddedCodeBase\examples\Models\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Options\*.cs">
+      <Link>EmbeddedCodeBase\examples\Options\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Services\*.cs">
+      <Link>EmbeddedCodeBase\examples\Services\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

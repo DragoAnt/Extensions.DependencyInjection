@@ -108,7 +108,7 @@ internal static class ModelsExtensions
                 }
 
                 var typeArg = interfaceSymbol.ConstructedFrom.TypeArguments[0];
-                typeMap = t => SymbolEqualityComparer.IncludeNullability.Equals(typeArg, t) ? className : t;
+                typeMap = t => typeArg.Name == t.Name ? className : t;
 
                 interfaceName =
                     $"{interfaceName.Substring(0, interfaceName.Length - 2)}<{className.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}>";

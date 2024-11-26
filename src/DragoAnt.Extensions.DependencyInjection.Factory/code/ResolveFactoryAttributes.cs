@@ -1,7 +1,9 @@
 ﻿// This class imported to the project by DragoAnt.Extensions.DependencyInjection.Factory package
 
+// ReSharper disable RedundantUsingDirective
 global using DragoAnt.Extensions.DependencyInjection.Factory;
-using static System.AttributeTargets;
+using System;
+
 
 namespace DragoAnt.Extensions.DependencyInjection.Factory;
 
@@ -15,7 +17,7 @@ internal enum ResolveFactoryServiceLifetime
 /// Mark class with this attribute to generate factory and factory registration for Dependency Injection ServiceCollection.
 /// </summary>
 /// <param name="lifetime">Factory service lifetime.</param>
-[AttributeUsage(Class)]
+[AttributeUsage(AttributeTargets.Class)]
 internal sealed class ResolveFactoryAttribute(
     ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
 {
@@ -31,7 +33,7 @@ internal sealed class ResolveFactoryAttribute(
 /// Mark class with this attribute to add implementation of factory contract to factory and registration for Dependency Injection ServiceCollection.
 /// </summary>
 /// <param name="interfaceTypeDefinition">Factory service contract.</param>
-[AttributeUsage(Class, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 internal sealed class ResolveFactoryContractAttribute(Type interfaceTypeDefinition) : Attribute
 {
     /// <summary>
@@ -54,7 +56,7 @@ internal sealed class ResolveFactoryContractAttribute(Type interfaceTypeDefiniti
 /// <summary>
 /// Attribute to mark constrictor to be ignored during Factory code generation.
 /// </summary>
-[AttributeUsage(Constructor)]
+[AttributeUsage(AttributeTargets.Constructor)]
 internal sealed class ResolveFactoryIgnoreCtorAttribute : Attribute
 {
 }
@@ -62,7 +64,7 @@ internal sealed class ResolveFactoryIgnoreCtorAttribute : Attribute
 /// <summary>
 /// Attribute to mark parameter as factory parameter 
 /// </summary>
-[AttributeUsage(Parameter)]
+[AttributeUsage(AttributeTargets.Parameter)]
 internal sealed class ResolveFactoryParameterAttribute : Attribute
 {
 }
@@ -70,7 +72,7 @@ internal sealed class ResolveFactoryParameterAttribute : Attribute
 /// <summary>
 /// Attribute to mark parameter as factory service 
 /// </summary>
-[AttributeUsage(Parameter)]
+[AttributeUsage(AttributeTargets.Parameter)]
 internal sealed class ResolveFactoryServiceAttribute : Attribute
 {
 }
@@ -78,7 +80,7 @@ internal sealed class ResolveFactoryServiceAttribute : Attribute
 /// <summary>
 /// Attribute to mark referenced type to be an explicit factory parameter by default. 
 /// </summary>
-[AttributeUsage(Class | Interface)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 internal sealed class AsResolveFactoryParameterAttribute : Attribute
 {
 }
