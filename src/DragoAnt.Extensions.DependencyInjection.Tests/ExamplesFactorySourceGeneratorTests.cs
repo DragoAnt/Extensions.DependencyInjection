@@ -2,34 +2,35 @@
 
 public class ExamplesFactorySourceGeneratorTests : BaseFactorySourceGeneratorTests
 {
-    [Fact]
-    public void SimpleModels()
+    private readonly VerifySettings _settings;
+
+    public ExamplesFactorySourceGeneratorTests()
     {
-        //TODO: Use Verify
-        var generatedCode = RunFactoryGeneratorExamples("SimpleModels");
+        _settings = new VerifySettings();
+        _settings.UseDirectory(".verify.expected");
     }
 
-    [Fact]
-    public void CommonFactoryInterfaceModels()
-    {
-        //TODO: Use Verify
-        var generatedCode = RunFactoryGeneratorExamples("CommonFactoryInterfaceModels");
-    }
 
     [Fact]
-    public void InheritedCommonFactoryInterfaceModels()
-    {
-        //TODO: Use Verify
-        var generatedCode = RunFactoryGeneratorExamples("InheritedCommonFactoryInterfaceModels");
-    }
+    public Task SimpleModels() => RunAndVerifyFactoryGeneratorExamples("SimpleModels");
 
     [Fact]
-    public void PartialModels()
-    {
-        //TODO: Use Verify
-        var generatedCode = RunFactoryGeneratorExamples("PartialModels", "Partial2Models");
-    }
+    public Task CommonFactoryInterfaceModels() => RunAndVerifyFactoryGeneratorExamples("CommonFactoryInterfaceModels");
 
-    private string RunFactoryGeneratorExamples(params string[] exampleCodeNames)
-        => RunFactoryGenerator(exampleCodeNames.Select(ReadEmbeddedExampleModelCode).ToArray());
+    [Fact]
+    public Task InheritedCommonFactoryInterfaceModels() => RunAndVerifyFactoryGeneratorExamples("InheritedCommonFactoryInterfaceModels");
+
+    [Fact]
+    public Task PartialModels() => RunAndVerifyFactoryGeneratorExamples("PartialModels", "Partial2Models");
+
+
+    [Fact]
+    public Task DependencyModels() => RunAndVerifyFactoryGeneratorExamples("DependencyModels");
+
+
+    private Task RunAndVerifyFactoryGeneratorExamples(params string[] exampleCodeNames)
+    {
+        var generatedCode = RunFactoryGenerator(exampleCodeNames.Select(ReadEmbeddedExampleModelCode).ToArray());
+        return Verify(generatedCode, "cs", _settings);
+    }
 }

@@ -1,4 +1,4 @@
-﻿namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
+﻿namespace DragoAnt.Extensions.DependencyInjection.Example.Models;
 
 public partial class PartialViewModel
 {

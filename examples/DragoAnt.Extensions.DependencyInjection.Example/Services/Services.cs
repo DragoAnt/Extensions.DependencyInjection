@@ -1,4 +1,4 @@
-namespace DragoAnt.Extensions.DependencyInjection.Factory.Example.Services;
+namespace DragoAnt.Extensions.DependencyInjection.Example.Services;
 
 public interface ITestService
 {

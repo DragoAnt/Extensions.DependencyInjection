@@ -4,6 +4,8 @@
 // ReSharper disable once RedundantNullableDirective
 
 #nullable enable
+global using DragoAnt.Extensions.DependencyInjection;
+using System;
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
@@ -101,7 +103,7 @@ internal sealed class AsResolveFactoryServiceAttribute : Attribute
 /// </summary>
 internal enum ResolveDependencyServiceLifetime
 {
-    Transient = 0,
+    Transient = 1,
     Scoped = 2,
     Singleton = 3,
 }

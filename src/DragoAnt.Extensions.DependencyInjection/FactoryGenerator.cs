@@ -15,7 +15,7 @@ public class FactoryGenerator : IIncrementalGenerator
     {
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
-                    predicate: static (s, _) => IsNotPrivateClass(s),
+                    predicate: static (s, _) => IsNotPrivateOrAbstractOrStaticClass(s),
                     transform: static (ctx, _) => ctx.GetDependencyItem())
                 .Where(static m => m is not null)
                 .Select(static (f, _) => f!.Value);
@@ -40,7 +40,7 @@ public class FactoryGenerator : IIncrementalGenerator
                     rootNamespace = "NotSetRootNamespace";
                 }
 
-                var resolveFactoryDebug = 
+                var resolveFactoryDebug =
                     optionsProvider.GlobalOptions.TryGetOption("ResolveFactoryDebug", out var resolveFactoryDebugValue) && resolveFactoryDebugValue is not null;
 
                 string generatedCode;
@@ -55,7 +55,7 @@ public class FactoryGenerator : IIncrementalGenerator
 
                     generatedCode = new ResolveDependenciesTemplate
                     {
-                        Data = new(registerMethodName, rootNamespace, resolveFactoryDebug, errors, dependencies,factories)
+                        Data = new(registerMethodName, rootNamespace, resolveFactoryDebug, errors, dependencies, factories)
                     }.TransformText();
                 }
                 catch (Exception e)
@@ -63,7 +63,7 @@ public class FactoryGenerator : IIncrementalGenerator
                     generatedCode = e.ToString();
                 }
 
-                ctx.AddSource($"{registerMethodName}Factories.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
+                ctx.AddSource($"{registerMethodName}Dependencies.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
             });
     }
 
@@ -73,7 +73,7 @@ public class FactoryGenerator : IIncrementalGenerator
 
         public int GetHashCode(FactoryModel obj) => obj.FactoryClassName.GetHashCode();
     }
-    
+
     private sealed class DependencyModelEqualityComparer : IEqualityComparer<DependencyModel>
     {
         public bool Equals(DependencyModel x, DependencyModel y) => x.InstanceClassName == y.InstanceClassName;
@@ -81,6 +81,9 @@ public class FactoryGenerator : IIncrementalGenerator
         public int GetHashCode(DependencyModel obj) => obj.InstanceClassName.GetHashCode();
     }
 
-    private static bool IsNotPrivateClass(SyntaxNode syntaxNode)
-        => syntaxNode is ClassDeclarationSyntax classDecl && !classDecl.Modifiers.Any(PrivateKeyword);
+    private static bool IsNotPrivateOrAbstractOrStaticClass(SyntaxNode syntaxNode)
+        => syntaxNode is ClassDeclarationSyntax classDecl &&
+           !classDecl.Modifiers.Any(PrivateKeyword) &&
+           !classDecl.Modifiers.Any(AbstractKeyword) &&
+           !classDecl.Modifiers.Any(StaticKeyword);
 }
