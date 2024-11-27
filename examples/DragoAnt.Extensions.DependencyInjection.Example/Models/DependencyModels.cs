@@ -45,3 +45,15 @@ public class HierarchyDepModel : BaseHierarchyDepModel
 public class SingletonHierarchyDepModel : BaseHierarchyDepModel
 {
 }
+
+
+public class GenericInterfaceDepModel : BaseHierarchyDepModel, IGenericInterfaceDepModel<int>
+{
+   public int Get() => 1;
+}
+
+[ResolveDependency(Singleton)]
+public interface IGenericInterfaceDepModel<out T>
+{
+   T Get();
+}
