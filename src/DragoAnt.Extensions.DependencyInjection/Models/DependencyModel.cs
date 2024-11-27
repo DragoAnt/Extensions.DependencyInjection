@@ -9,7 +9,7 @@ internal readonly struct DependencyModel(
 {
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
 
-    public IEnumerable<string> Interfaces => interfaces.Select(s => s.Name);
+    public IEnumerable<string> Interfaces => interfaces.Select(s => s.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
 
     public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
 
