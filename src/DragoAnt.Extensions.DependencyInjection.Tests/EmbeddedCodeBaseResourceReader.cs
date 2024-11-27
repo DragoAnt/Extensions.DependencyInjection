@@ -7,7 +7,7 @@ public static class EmbeddedCodeBaseResourceReader
     public static string ReadEmbeddedCode(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream($"DragoAnt.Extensions.DependencyInjection.Factory.Tests.EmbeddedCodeBase.{resourceName}");
+        using var stream = assembly.GetManifestResourceStream($"DragoAnt.Extensions.DependencyInjection.Tests.EmbeddedCodeBase.{resourceName}");
         if (stream == null)
         {
             throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");

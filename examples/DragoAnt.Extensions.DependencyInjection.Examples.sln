@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Factory.Example", "DragoAnt.Extensions.DependencyInjection.Factory.Example\DragoAnt.Extensions.DependencyInjection.Factory.Example.csproj", "{6850E54A-D577-49F8-B540-B03A326A47A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Example", "DragoAnt.Extensions.DependencyInjection.Example\DragoAnt.Extensions.DependencyInjection.Example.csproj", "{6850E54A-D577-49F8-B540-B03A326A47A8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}"
 EndProject

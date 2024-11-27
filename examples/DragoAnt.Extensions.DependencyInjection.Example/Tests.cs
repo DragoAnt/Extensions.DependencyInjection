@@ -1,7 +1,10 @@
-﻿using FluentAssertions;
+﻿using DragoAnt.Extensions.DependencyInjection.Example.Models;
+using DragoAnt.Extensions.DependencyInjection.Example.Options;
+using DragoAnt.Extensions.DependencyInjection.Example.Services;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DragoAnt.Extensions.DependencyInjection.Factory.Example;
+namespace DragoAnt.Extensions.DependencyInjection.Example;
 
 public class ModelTests
 {
@@ -23,7 +26,7 @@ public class ModelTests
     {
         using var scope = _serviceProvider.CreateScope();
         var options = new AppOptions();
-        
+
         var model = scope.ServiceProvider.GetRequiredService<IViewModelFactory>().Create("testPath", "testCodePath", options);
         model.Should().NotBeNull();
         model.ExportPath.Should().Be("testPath");
@@ -38,17 +41,17 @@ public class ModelTests
         model.Length.Should().Be(11);
         model.ExportPath.Should().Be("testPath");
     }
-    
+
     [Fact]
     public void TestSharedFactoryInterface()
     {
         using var scope = _serviceProvider.CreateScope();
         var options = new AppOptions();
-        
+
         var model = scope.ServiceProvider.GetRequiredService<ICommonFactory<CommonViewModel>>().Create(10);
         model.Should().NotBeNull();
         model.Length.Should().Be(10);
-        
+
         var model2 = scope.ServiceProvider.GetRequiredService<ICommonFactory<CommonViewModelDoubled>>().Create(10);
         model2.Should().NotBeNull();
         model2.Length.Should().Be(20);
@@ -58,23 +61,23 @@ public class ModelTests
     public void TestInheritedCommonFactoryInterface()
     {
         using var scope = _serviceProvider.CreateScope();
-        
+
         var model = scope.ServiceProvider.GetRequiredService<IInheritedCommonFactory<InheritedCommonViewModel>>().Create(10);
         model.Should().NotBeNull();
         model.Length.Should().Be(10);
-        
+
         var model2 = scope.ServiceProvider.GetRequiredService<IInheritedCommonFactory<InheritedCommonViewModelDoubled>>().Create(10);
         model2.Should().NotBeNull();
         model2.Length.Should().Be(20);
     }
-    
+
     [Fact]
     public void HierarchyFactoryInterface()
     {
         using var scope = _serviceProvider.CreateScope();
 
         var simpleViewModelFactory = scope.ServiceProvider.GetRequiredService<IFactory<SimpleViewModel>>();
-        
+
         var model = simpleViewModelFactory.Create();
         model.Should().NotBeNull();
 
@@ -82,15 +85,20 @@ public class ModelTests
         model2.Should().NotBeNull();
 
         var complexViewModelFactory = scope.ServiceProvider.GetRequiredService<IFactory<ComplexViewModel>>();
-        
+
         var model3 = complexViewModelFactory.Create(new ComplexModel(10));
         model3.Should().NotBeNull();
-        
-        var act =() => complexViewModelFactory.Create(new SimpleModel());
+
+        var act = () => complexViewModelFactory.Create(new SimpleModel());
         act.Should().Throw<InvalidCastException>();
-        
-        var act2 =() => complexViewModelFactory.Create();
+
+        var act2 = () => complexViewModelFactory.Create();
         act2.Should().Throw<NotSupportedException>();
-        
+    }
+
+    [Fact]
+    public void Dependencies()
+    {
+        //TODO: Tests for Dependencies
     }
 }

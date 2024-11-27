@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,9 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Verify" />
+    <PackageReference Include="Verify.DiffPlex" />
+    <PackageReference Include="Verify.Xunit" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
@@ -23,18 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
-
-    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\GlobalUsings.cs">
-      <Link>EmbeddedCodeBase\examples\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\GlobalUsings.cs">
+      <Link>EmbeddedCodeBase\examples\GlobalUsings.cs</Link>
     </EmbeddedResource>
-    
-    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\*Models.cs">
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\Models\*.cs">
       <Link>EmbeddedCodeBase\examples\Models\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Options\*.cs">
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\Options\*.cs">
       <Link>EmbeddedCodeBase\examples\Options\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Factory.Example\Services\*.cs">
+    <EmbeddedResource Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\Services\*.cs">
       <Link>EmbeddedCodeBase\examples\Services\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\DragoAnt.Extensions.DependencyInjection\code\ResolveAttributes.cs">
@@ -42,4 +44,7 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include=".verify.expected\*.cs" />
+  </ItemGroup>
 </Project>

@@ -27,7 +27,10 @@ internal static class ModelsExtensions
     public static DependencyItem? GetDependencyItem(this ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
         var declaredSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
-        if (declaredSymbol is null || declaredSymbol.IsAbstract)
+        if (declaredSymbol is null ||
+            declaredSymbol.IsAbstract ||
+            declaredSymbol.DeclaredAccessibility == Private ||
+            declaredSymbol.IsStatic)
         {
             return null;
         }
@@ -40,38 +43,7 @@ internal static class ModelsExtensions
         var attributes = GetResolveAttributes(classSymbol);
         if (attributes.FirstOrDefault(attr => AttributeNames.ResolveFactory.IsMatchAttr(attr.Attr)) is { Attr: { } resolveFactoryAttr })
         {
-            var lifetime = resolveFactoryAttr.ConstructorArguments
-                               .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
-                           Enum.TryParse<ResolveFactoryServiceLifetime>(lifetimeStr, out var lifetimeValue)
-                ? lifetimeValue
-                : ResolveFactoryServiceLifetime.Scoped;
-
-            var skipGenerateInterface =
-                resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
-
-            var ctors = classSymbol.Constructors
-                .Where(ctor =>
-                    ctor.MethodKind == MethodKind.Constructor &&
-                    ctor.DeclaredAccessibility is Public or Internal &&
-                    !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
-                .Select(m => GetFactoryMethod(m, null, classSymbol, false)).ToImmutableArray();
-
-            FactoryInterfaceModel? generatingInterface = null;
-            var className = classSymbol.Name;
-
-            if (!skipGenerateInterface)
-            {
-                generatingInterface = new FactoryInterfaceModel($"I{className}Factory", null,
-                    [..ctors.Select(m => new MethodModel("Create", m.ReturnType, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
-            }
-
-            var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
-            if (ctors.Length == 0)
-            {
-                return null;
-            }
-
-            var factory = new FactoryModel(classSymbol, generatingInterface, factoryInterfaces, lifetime, ctors);
+            var factory = GetFactory(resolveFactoryAttr, classSymbol, attributes);
             return new DependencyItem(null, factory);
         }
 
@@ -120,6 +92,42 @@ internal static class ModelsExtensions
         }
 
         return null;
+    }
+
+    private static FactoryModel GetFactory(AttributeData resolveFactoryAttr, INamedTypeSymbol classSymbol, ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
+    {
+        var lifetime = resolveFactoryAttr.ConstructorArguments
+                           .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
+                       Enum.TryParse<ResolveFactoryServiceLifetime>(lifetimeStr, out var lifetimeValue)
+            ? lifetimeValue
+            : ResolveFactoryServiceLifetime.Scoped;
+
+        var skipGenerateInterface =
+            resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
+
+        var ctors = classSymbol.Constructors
+            .Where(ctor =>
+                ctor.MethodKind == MethodKind.Constructor &&
+                ctor.DeclaredAccessibility is Public or Internal &&
+                !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
+            .Select(m => GetFactoryMethod(m, null, classSymbol, false)).ToImmutableArray();
+
+        FactoryInterfaceModel? generatingInterface = null;
+        var className = classSymbol.Name;
+
+        if (!skipGenerateInterface)
+        {
+            generatingInterface = new FactoryInterfaceModel($"I{className}Factory", null,
+                [..ctors.Select(m => new MethodModel("Create", m.ReturnType, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
+        }
+
+        var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
+        if (ctors.Length == 0)
+        {
+            throw new FactoryGeneratorException("No constructors were found for factory.", null!);
+        }
+
+        return new FactoryModel(classSymbol, generatingInterface, factoryInterfaces, lifetime, ctors);
     }
 
     private static IEnumerable<FactoryInterfaceModel> GetContractInterfaces(
