@@ -2,15 +2,13 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
-    
-    <DragoAntExtensionsDependencyInjectionVersion>1.4.0</DragoAntExtensionsDependencyInjectionVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="$(DragoAntExtensionsDependencyInjectionVersion)">
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="1.4.1-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="$(DragoAntExtensionsDependencyInjectionVersion)">
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="1.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
