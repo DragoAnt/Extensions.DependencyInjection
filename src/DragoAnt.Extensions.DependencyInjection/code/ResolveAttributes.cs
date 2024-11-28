@@ -111,7 +111,7 @@ internal enum ResolveDependencyServiceLifetime
 /// <summary>
 /// Mark class with this attribute to generate factory and factory registration for Dependency Injection ServiceCollection.
 /// </summary>
-/// <param name="lifetime">Factory service lifetime.</param>
+/// <param name="lifetime">Dependency service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 internal sealed class ResolveDependencyAttribute(
     ResolveDependencyServiceLifetime lifetime = ResolveDependencyServiceLifetime.Scoped) : Attribute
@@ -122,4 +122,14 @@ internal sealed class ResolveDependencyAttribute(
     /// Service key for keyed service registration.
     /// </summary>
     public string? Key { get; set; }
+}
+
+/// <summary>
+/// Assembly marked with this attribute will be recognized as assembly with reference.
+/// </summary>
+/// <param name="dependenciesMethod">Full method's name (with namespace and type). </param>
+[AttributeUsage(AttributeTargets.Assembly)]
+internal sealed class ResolveAssemblyAttribute(string dependenciesMethod) : Attribute
+{
+    public string DependenciesMethod => dependenciesMethod;
 }

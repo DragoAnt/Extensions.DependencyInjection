@@ -31,6 +31,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ResolveDependenciesTemplate.tt</DependentUpon>
     </Compile>
+    <None Update="Templates\ResolveReferencedDependenciesTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ResolveReferencedDependenciesTemplate.cs</LastGenOutput>
+    </None>
+    <Compile Update="Templates\ResolveReferencedDependenciesTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ResolveReferencedDependenciesTemplate.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

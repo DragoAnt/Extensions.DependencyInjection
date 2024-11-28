@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{4D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Tests", "..\src\DragoAnt.Extensions.DependencyInjection.Tests\DragoAnt.Extensions.DependencyInjection.Tests.csproj", "{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{647E1219-222A-4ACE-AEAA-3C9EC96FAB76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B4D32064-6EC6-43D1-8893-D891C5B57FF1} = {CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}
-		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC} = {CCB9734A-0D45-40E2-BAB2-9FB6D0D056C1}
+		{6A40A1B7-5B04-43AD-964E-6F9274A3D9FC} = {647E1219-222A-4ACE-AEAA-3C9EC96FAB76}
 	EndGlobalSection
 EndGlobal

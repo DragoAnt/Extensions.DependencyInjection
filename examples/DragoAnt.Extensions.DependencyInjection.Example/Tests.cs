@@ -1,6 +1,4 @@
 ﻿using DragoAnt.Extensions.DependencyInjection.Example.Models;
-using DragoAnt.Extensions.DependencyInjection.Example.Options;
-using DragoAnt.Extensions.DependencyInjection.Example.Services;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 

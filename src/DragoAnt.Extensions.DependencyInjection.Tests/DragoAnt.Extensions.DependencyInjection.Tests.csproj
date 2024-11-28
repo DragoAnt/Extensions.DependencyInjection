@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\DragoAnt.Extensions.DependencyInjection.Example.csproj" />
     <ProjectReference Include="..\DragoAnt.Extensions.DependencyInjection\DragoAnt.Extensions.DependencyInjection.csproj" />
   </ItemGroup>
 
