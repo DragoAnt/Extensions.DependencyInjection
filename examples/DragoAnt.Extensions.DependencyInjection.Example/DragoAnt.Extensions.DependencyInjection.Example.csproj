@@ -5,8 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-
-    <ResolveFactoryDependencyInjectionMethodName>Example</ResolveFactoryDependencyInjectionMethodName>
+    <DragoAnt_MethodSuffix_SkippedNamePartsCount>3</DragoAnt_MethodSuffix_SkippedNamePartsCount>
   </PropertyGroup>
 
   <ItemGroup>

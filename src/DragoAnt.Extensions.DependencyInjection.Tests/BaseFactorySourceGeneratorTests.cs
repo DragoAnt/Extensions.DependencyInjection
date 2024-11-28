@@ -32,7 +32,7 @@ public abstract class BaseFactorySourceGeneratorTests
         );
 
         // Create an instance of your generator
-        var generator = new FactoryGenerator();
+        var generator = new DependencyGenerator();
 
         // Create a generator driver
         var driver = CSharpGeneratorDriver.Create(generator);
