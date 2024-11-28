@@ -7,7 +7,7 @@ namespace DragoAnt.Extensions.DependencyInjection;
 
 internal static class ModelsExtensions
 {
-    public static bool TryGetOption(this AnalyzerConfigOptions options, string key, out string? value) =>
+    public static bool TryGetBuildProperty(this AnalyzerConfigOptions options, string key, out string? value) =>
         options.TryGetValue($"build_property.{key}", out value);
 
 

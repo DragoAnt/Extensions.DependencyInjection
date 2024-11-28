@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <ItemGroup>
-    <CompilerVisibleProperty Include="ResolveFactoryDependencyInjectionMethodName" />
+    <CompilerVisibleProperty Include="DragoAnt_MethodSuffix" />
+    <CompilerVisibleProperty Include="DragoAnt_MethodSuffix_SkippedNamePartsCount" />
     <CompilerVisibleProperty Include="RootNamespace" />
-    <CompilerVisibleProperty Include="ResolveFactoryDebug" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\code\ResolveAttributes.cs" Visible="false">

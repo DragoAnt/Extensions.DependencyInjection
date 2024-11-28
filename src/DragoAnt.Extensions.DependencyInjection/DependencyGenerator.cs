@@ -4,12 +4,26 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxKind;
 
+// ReSharper disable InconsistentNaming
+
 namespace DragoAnt.Extensions.DependencyInjection;
 
 [Generator]
-public class FactoryGenerator : IIncrementalGenerator
+public class DependencyGenerator : IIncrementalGenerator
 {
-    private const string ResolveFactoryDependencyInjectionMethodNameProjectProperty = "ResolveFactoryDependencyInjectionMethodName";
+    private static class BuildProperties
+    {
+        /// <summary>
+        /// Suffix for Add_Suffix_Dependencies name
+        /// </summary>
+        public const string MethodSuffix = "DragoAnt_MethodSuffix";
+
+        /// <summary>
+        /// For suffix convention. Count of removing name parts at RootNamespace. Usually used for cut the first part - company name.  
+        /// </summary>
+        public const string MethodSuffix_SkippedNamePartsCount = "DragoAnt_MethodSuffix_SkippedNamePartsCount";
+    }
+
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -28,20 +42,27 @@ public class FactoryGenerator : IIncrementalGenerator
             {
                 var (items, optionsProvider) = data;
 
-                // Retrieve additional settings from csproj
-                if (!optionsProvider.GlobalOptions.TryGetOption(ResolveFactoryDependencyInjectionMethodNameProjectProperty, out var registerMethodName) ||
-                    registerMethodName is null)
+                if (!optionsProvider.GlobalOptions.TryGetBuildProperty("RootNamespace", out var rootNamespace) || rootNamespace is null)
                 {
-                    registerMethodName = "NotSetMethodName";
+                    throw new InvalidOperationException(
+                        "RootNamespace PropertyGroup is required. Open csproj file and add <RootNamespace> PropertyGroup to your project.");
                 }
 
-                if (!optionsProvider.GlobalOptions.TryGetOption("RootNamespace", out var rootNamespace) || rootNamespace is null)
+                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.MethodSuffix_SkippedNamePartsCount,
+                        out var countOfPartsVal) ||
+                    countOfPartsVal is null ||
+                    !int.TryParse(countOfPartsVal, out var skippedParts))
                 {
-                    rootNamespace = "NotSetRootNamespace";
+                    skippedParts = 0;
                 }
 
-                var resolveFactoryDebug =
-                    optionsProvider.GlobalOptions.TryGetOption("ResolveFactoryDebug", out var resolveFactoryDebugValue) && resolveFactoryDebugValue is not null;
+                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.MethodSuffix, out var methodSuffix) ||
+                    methodSuffix is null ||
+                    string.IsNullOrWhiteSpace(methodSuffix))
+                {
+                    methodSuffix = GetDefaultMethodSuffix(rootNamespace, skippedParts);
+                }
+
 
                 string generatedCode;
                 try
@@ -55,7 +76,7 @@ public class FactoryGenerator : IIncrementalGenerator
 
                     generatedCode = new ResolveDependenciesTemplate
                     {
-                        Data = new(registerMethodName, rootNamespace, resolveFactoryDebug, errors, dependencies, factories)
+                        Data = new(methodSuffix, rootNamespace, errors, dependencies, factories)
                     }.TransformText();
                 }
                 catch (Exception e)
@@ -63,8 +84,23 @@ public class FactoryGenerator : IIncrementalGenerator
                     generatedCode = e.ToString();
                 }
 
-                ctx.AddSource($"{registerMethodName}Dependencies.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
+                ctx.AddSource($"{methodSuffix}Dependencies.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
             });
+    }
+
+    public static string GetDefaultMethodSuffix(string rootNamespace, int skippedParts)
+    {
+        var parts = rootNamespace.Split('.');
+        skippedParts = Math.Min(parts.Length - 1, skippedParts);
+
+        var methodSuffix = parts.Skip(skippedParts).Aggregate(new StringBuilder(),
+            (current, part) =>
+            {
+                current.Append(part);
+                return current;
+            }).ToString();
+
+        return methodSuffix;
     }
 
     private sealed class FactoryModelEqualityComparer : IEqualityComparer<FactoryModel>

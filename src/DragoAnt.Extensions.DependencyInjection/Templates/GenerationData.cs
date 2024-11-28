@@ -5,7 +5,6 @@ namespace DragoAnt.Extensions.DependencyInjection.Templates;
 internal sealed class GenerationData(
     string methodCodeName,
     string ns,
-    bool debugEnabled,
     ImmutableArray<string> errors,
     ImmutableArray<DependencyModel> dependencies,
     ImmutableArray<FactoryModel> factories)
@@ -13,7 +12,6 @@ internal sealed class GenerationData(
     public ImmutableArray<string> Errors => errors;
     public string MethodCodeName => methodCodeName;
     public string Namespace => ns;
-    public bool DebugEnabled => debugEnabled;
     public ImmutableArray<FactoryModel> Factories => factories;
     public ImmutableArray<DependencyModel> Dependencies => dependencies;
 
