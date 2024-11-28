@@ -1,4 +1,4 @@
-﻿namespace DragoAnt.Extensions.DependencyInjection.Templates;
+﻿namespace DragoAnt.Extensions.DependencyInjection.Referenced;
 
 internal sealed class ResolveReferencedDependenciesData(
     string ns,

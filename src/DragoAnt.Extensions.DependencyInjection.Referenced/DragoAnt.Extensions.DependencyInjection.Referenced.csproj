@@ -24,16 +24,28 @@
     <None Update="lib\**\*" Pack="false" />
     <None Include="build\*.*" PackagePath="build\" Pack="true" />
     <None Include="bin\$(Configuration)\netstandard2.0\$(MSBuildProjectName).dll" Pack="true" PackagePath="analyzers\dotnet\cs" Visible="false" />
-    <Compile Update="code\ResolveAttributes.cs" Pack="true" PackagePath="\" />
-    <None Update="DependencyGeneratorTemplate.tt">
+    <None Update="ResolveReferencedDependenciesTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>DependencyGeneratorTemplate.cs</LastGenOutput>
+      <LastGenOutput>ResolveReferencedDependenciesTemplate.cs</LastGenOutput>
     </None>
-    <Compile Update="DependencyGeneratorTemplate.cs">
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ResolveReferencedDependenciesTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DependencyGeneratorTemplate.tt</DependentUpon>
+      <DependentUpon>ResolveReferencedDependenciesTemplate.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\DragoAnt.Extensions.DependencyInjection\Shared\*.cs">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\DragoAnt.Extensions.DependencyInjection\code\*.cs">
+      <Link>code\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Update="..\DragoAnt.Extensions.DependencyInjection\Templates" />
   </ItemGroup>
 
 </Project>

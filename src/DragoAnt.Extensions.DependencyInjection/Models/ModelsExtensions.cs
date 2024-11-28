@@ -1,16 +1,11 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
 using static Microsoft.CodeAnalysis.Accessibility;
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
 internal static class ModelsExtensions
 {
-    public static bool TryGetBuildProperty(this AnalyzerConfigOptions options, string key, out string? value) =>
-        options.TryGetValue($"build_property.{key}", out value);
-
-
     public static DependencyItem? GetDependencyItem(this GeneratorSyntaxContext context)
     {
         try
@@ -20,7 +15,7 @@ internal static class ModelsExtensions
         catch (Exception e)
         {
             return new DependencyItem(null, null,
-                new FactoryGeneratorException($"Failed to construct dependency for class '{context.Node}'", e));
+                new DependencyGeneratorException($"Failed to construct dependency for class '{context.Node}'", e));
         }
     }
 
@@ -124,7 +119,7 @@ internal static class ModelsExtensions
         var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
         if (ctors.Length == 0)
         {
-            throw new FactoryGeneratorException("No constructors were found for factory.", null!);
+            throw new DependencyGeneratorException("No constructors were found for factory.", null!);
         }
 
         return new FactoryModel(classSymbol, generatingInterface, factoryInterfaces, lifetime, ctors);

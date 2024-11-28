@@ -1,7 +1,6 @@
-﻿using DragoAnt.Extensions.DependencyInjection.Templates;
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 
-namespace DragoAnt.Extensions.DependencyInjection;
+namespace DragoAnt.Extensions.DependencyInjection.Referenced;
 
 [Generator]
 public class ReferencedDependenciesGenerator : IIncrementalGenerator

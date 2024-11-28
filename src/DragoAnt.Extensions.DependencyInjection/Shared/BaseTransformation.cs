@@ -1,6 +1,6 @@
 ﻿#pragma warning disable S3220,S2325
 
-namespace DragoAnt.Extensions.DependencyInjection.Templates
+namespace DragoAnt.Extensions.DependencyInjection
 {
     /// <summary>
     ///     Base class for this transformation. Copied from generated class

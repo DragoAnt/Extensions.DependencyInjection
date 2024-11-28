@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".msbuild", ".msbuild", "{21
 		.msbuild\package.props = .msbuild\package.props
 		.msbuild\package.icon.png = .msbuild\package.icon.png
 		.msbuild\product.props = .msbuild\product.props
+		version.props = version.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".common", ".common", "{E9A38D62-94B1-4377-ACEA-2214764369DA}"
@@ -25,6 +26,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".pipelines", ".pipelines", 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Tests", "DragoAnt.Extensions.DependencyInjection.Tests\DragoAnt.Extensions.DependencyInjection.Tests.csproj", "{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragoAnt.Extensions.DependencyInjection.Referenced", "DragoAnt.Extensions.DependencyInjection.Referenced\DragoAnt.Extensions.DependencyInjection.Referenced.csproj", "{182C82EC-35FE-47D9-855A-11EEDC520888}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{EBBF9BC6-63EC-4E4F-8974-0583A846D1B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,7 +45,13 @@ Global
 		{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBDEEF4C-E2B5-4CA5-8C4F-E4D670A65F57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{182C82EC-35FE-47D9-855A-11EEDC520888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{182C82EC-35FE-47D9-855A-11EEDC520888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{182C82EC-35FE-47D9-855A-11EEDC520888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{182C82EC-35FE-47D9-855A-11EEDC520888}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{7A76B30E-83AB-42E6-A515-E71E265B384F} = {EBBF9BC6-63EC-4E4F-8974-0583A846D1B6}
+		{182C82EC-35FE-47D9-855A-11EEDC520888} = {EBBF9BC6-63EC-4E4F-8974-0583A846D1B6}
 	EndGlobalSection
 EndGlobal

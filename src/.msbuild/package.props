@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <Import Project="$(MSBuildProjectDirectory)\version.props" />
 
   <PropertyGroup>
     <PackageId>$(MSBuildProjectName)</PackageId>
@@ -21,6 +20,5 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)package.icon.png" Pack="true" PackagePath="\icon.png" Visible="false" />
   </ItemGroup>
-
 
 </Project>

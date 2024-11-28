@@ -1,4 +1,5 @@
 ﻿using DragoAnt.Extensions.DependencyInjection.Example;
+using DragoAnt.Extensions.DependencyInjection.Referenced;
 using static Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree;
 
 namespace DragoAnt.Extensions.DependencyInjection.Tests;
