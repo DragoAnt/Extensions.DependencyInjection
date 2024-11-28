@@ -42,8 +42,23 @@ internal static class ModelsExtensions
             return new DependencyItem(null, factory);
         }
 
+        return GetDependency(classSymbol, attributes);
+    }
+
+    private static DependencyItem? GetDependency(INamedTypeSymbol classSymbol, ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
+    {
+        var ignoreDependency = classSymbol.GetAttributes().FirstOrDefault(attr => AttributeNames.ResolveDependencyIgnore.IsMatchAttr(attr));
+        if (ignoreDependency is not null)
+        {
+            return null;
+        }
+
         var dependenciesAttributes = attributes.Where(attr => AttributeNames.ResolveDependency.IsMatchAttr(attr.Attr)).ToImmutableArray();
-        if (dependenciesAttributes.Length != 0)
+        if (dependenciesAttributes.Length == 0)
+        {
+            return null;
+        }
+
         {
             ResolveDependencyServiceLifetime classLifetime = default;
             ResolveDependencyServiceLifetime lifetime = default;
@@ -85,11 +100,12 @@ internal static class ModelsExtensions
             var dependency = new DependencyModel(classSymbol, lifetime, [..interfaces]);
             return new DependencyItem(dependency, null);
         }
-
-        return null;
     }
 
-    private static FactoryModel GetFactory(AttributeData resolveFactoryAttr, INamedTypeSymbol classSymbol, ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
+    private static FactoryModel GetFactory(
+        AttributeData resolveFactoryAttr,
+        INamedTypeSymbol classSymbol,
+        ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
     {
         var lifetime = resolveFactoryAttr.ConstructorArguments
                            .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&

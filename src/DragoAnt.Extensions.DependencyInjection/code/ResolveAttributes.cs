@@ -109,7 +109,7 @@ internal enum ResolveDependencyServiceLifetime
 }
 
 /// <summary>
-/// Mark class with this attribute to generate factory and factory registration for Dependency Injection ServiceCollection.
+/// Mark class or interface with this attribute to generate dependency for Dependency Injection ServiceCollection.
 /// </summary>
 /// <param name="lifetime">Dependency service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
@@ -117,11 +117,17 @@ internal sealed class ResolveDependencyAttribute(
     ResolveDependencyServiceLifetime lifetime = ResolveDependencyServiceLifetime.Scoped) : Attribute
 {
     public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
+}
 
-    /// <summary>
-    /// Service key for keyed service registration.
-    /// </summary>
-    public string? Key { get; set; }
+/// <summary>
+/// Mark class with this attribute to ignore generate dependency for Dependency Injection ServiceCollection.
+/// </summary>
+/// <param name="lifetime">Dependency service lifetime.</param>
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+internal sealed class ResolveDependencyIgnoreAttribute(
+    ResolveDependencyServiceLifetime lifetime = ResolveDependencyServiceLifetime.Scoped) : Attribute
+{
+    public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
 }
 
 /// <summary>
