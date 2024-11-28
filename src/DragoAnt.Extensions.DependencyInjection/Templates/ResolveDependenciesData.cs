@@ -2,9 +2,12 @@
 
 namespace DragoAnt.Extensions.DependencyInjection.Templates;
 
-internal sealed class GenerationData(
+internal sealed class ResolveDependenciesData(
+    string extensionsClassName,
     string methodCodeName,
     string ns,
+    bool alwaysGenerateAddDependenciesMethod,
+    bool customDependenciesEnabled,
     ImmutableArray<string> errors,
     ImmutableArray<DependencyModel> dependencies,
     ImmutableArray<FactoryModel> factories)
@@ -14,6 +17,10 @@ internal sealed class GenerationData(
     public string Namespace => ns;
     public ImmutableArray<FactoryModel> Factories => factories;
     public ImmutableArray<DependencyModel> Dependencies => dependencies;
+    public bool AlwaysGenerateAddDependenciesMethod => alwaysGenerateAddDependenciesMethod;
+    public object ExtensionsClassName => extensionsClassName;
+
+    public bool CustomDependenciesEnabled => customDependenciesEnabled;
 
     public IEnumerable<string> GetUsings(params string[] includeNamespaces)
     {

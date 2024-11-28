@@ -3,6 +3,8 @@
   <ItemGroup>
     <CompilerVisibleProperty Include="DragoAnt_MethodSuffix" />
     <CompilerVisibleProperty Include="DragoAnt_MethodSuffix_SkippedNamePartsCount" />
+    <CompilerVisibleProperty Include="DragoAnt_AlwaysGenerateMethod" />
+    <CompilerVisibleProperty Include="DragoAnt_CustomDependencies" />
     <CompilerVisibleProperty Include="RootNamespace" />
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <DragoAnt_MethodSuffix_SkippedNamePartsCount>3</DragoAnt_MethodSuffix_SkippedNamePartsCount>
+    <DragoAnt_CustomDependencies>true</DragoAnt_CustomDependencies>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,16 +1,13 @@
-﻿using static Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree;
+﻿using DragoAnt.Extensions.DependencyInjection.Example;
+using static Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree;
 
 namespace DragoAnt.Extensions.DependencyInjection.Tests;
 
-public abstract class BaseFactorySourceGeneratorTests
+public abstract class BaseReferencedDependenciesSourceGeneratorTests
 {
     private static readonly SyntaxTree[] CommonSyntaxTrees
         =
         [
-            ParseText(ReadEmbeddedCode("code.ResolveAttributes.cs")),
-            ParseText(ReadEmbeddedCode("examples.GlobalUsings.cs")),
-            ParseText(ReadEmbeddedCode("examples.Options.Options.cs")),
-            ParseText(ReadEmbeddedCode("examples.Services.Services.cs")),
         ];
 
     protected string RunFactoryGenerator(params string[] inputSource)
@@ -25,14 +22,15 @@ public abstract class BaseFactorySourceGeneratorTests
             syntaxTrees: [..CommonSyntaxTrees, ..inputSyntaxTrees],
             references:
             [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(ExamplesFactorySourceGeneratorTests).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location), // mscorlib
+                MetadataReference.CreateFromFile(typeof(ModelTests).Assembly.Location), // Test-specific types
+                MetadataReference.CreateFromFile(typeof(System.Runtime.GCSettings).Assembly.Location) // System.Runtime
             ],
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
 
         // Create an instance of your generator
-        var generator = new DependencyGenerator();
+        var generator = new ReferencedDependenciesGenerator();
 
         // Create a generator driver
         var driver = CSharpGeneratorDriver.Create(generator);

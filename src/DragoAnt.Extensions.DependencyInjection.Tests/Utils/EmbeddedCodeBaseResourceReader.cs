@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace DragoAnt.Extensions.DependencyInjection.Tests;
+namespace DragoAnt.Extensions.DependencyInjection.Tests.Utils;
 
 public static class EmbeddedCodeBaseResourceReader
 {

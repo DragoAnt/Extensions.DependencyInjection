@@ -4,27 +4,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxKind;
 
-// ReSharper disable InconsistentNaming
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
 [Generator]
 public class DependencyGenerator : IIncrementalGenerator
 {
-    private static class BuildProperties
-    {
-        /// <summary>
-        /// Suffix for Add_Suffix_Dependencies name
-        /// </summary>
-        public const string MethodSuffix = "DragoAnt_MethodSuffix";
-
-        /// <summary>
-        /// For suffix convention. Count of removing name parts at RootNamespace. Usually used for cut the first part - company name.  
-        /// </summary>
-        public const string MethodSuffix_SkippedNamePartsCount = "DragoAnt_MethodSuffix_SkippedNamePartsCount";
-    }
-
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var classDeclarations =
@@ -34,18 +19,22 @@ public class DependencyGenerator : IIncrementalGenerator
                 .Where(static m => m is not null)
                 .Select(static (f, _) => f!.Value);
 
-        var combined = classDeclarations.Collect().Combine(context.AnalyzerConfigOptionsProvider);
+        var combined = classDeclarations.Collect().Combine(context.AnalyzerConfigOptionsProvider).Combine(context.CompilationProvider);
 
         context.RegisterSourceOutput(
-            combined,
-            (ctx, data) =>
+            combined, (ctx, nextProvider) =>
             {
+                var (data, compilation) = nextProvider;
                 var (items, optionsProvider) = data;
 
                 if (!optionsProvider.GlobalOptions.TryGetBuildProperty("RootNamespace", out var rootNamespace) || rootNamespace is null)
                 {
-                    throw new InvalidOperationException(
-                        "RootNamespace PropertyGroup is required. Open csproj file and add <RootNamespace> PropertyGroup to your project.");
+                    rootNamespace = compilation.AssemblyName;
+                    if (rootNamespace is null || string.IsNullOrEmpty(rootNamespace))
+                    {
+                        throw new InvalidOperationException(
+                            "RootNamespace PropertyGroup is required. Open csproj file and add <RootNamespace> PropertyGroup to your project.");
+                    }
                 }
 
                 if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.MethodSuffix_SkippedNamePartsCount,
@@ -63,8 +52,25 @@ public class DependencyGenerator : IIncrementalGenerator
                     methodSuffix = GetDefaultMethodSuffix(rootNamespace, skippedParts);
                 }
 
+                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.AlwaysGenerateMethod,
+                        out var alwaysGenerateMethodVal) ||
+                    alwaysGenerateMethodVal is null ||
+                    !bool.TryParse(alwaysGenerateMethodVal, out var alwaysGenerateMethod))
+                {
+                    alwaysGenerateMethod = false;
+                }
+
+                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.CustomDependencies,
+                        out var customDependenciesEnabledVal) ||
+                    alwaysGenerateMethodVal is null ||
+                    !bool.TryParse(customDependenciesEnabledVal, out var customDependenciesEnabled))
+                {
+                    customDependenciesEnabled = false;
+                }
 
                 string generatedCode;
+                var extensionsClassName = $"{methodSuffix}DependencyExtensions";
+                var methodName = $"Add{methodSuffix}Dependencies";
                 try
                 {
                     var errors = items.Where(i => i.IsInvalid).Select(i => i.GetError()).ToImmutableArray();
@@ -76,7 +82,9 @@ public class DependencyGenerator : IIncrementalGenerator
 
                     generatedCode = new ResolveDependenciesTemplate
                     {
-                        Data = new(methodSuffix, rootNamespace, errors, dependencies, factories)
+                        Data = new(extensionsClassName, methodName, rootNamespace, 
+                            alwaysGenerateMethod, customDependenciesEnabled, 
+                            errors, dependencies, factories)
                     }.TransformText();
                 }
                 catch (Exception e)
@@ -84,7 +92,8 @@ public class DependencyGenerator : IIncrementalGenerator
                     generatedCode = e.ToString();
                 }
 
-                ctx.AddSource($"{methodSuffix}Dependencies.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
+
+                ctx.AddSource($"{extensionsClassName}.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
             });
     }
 

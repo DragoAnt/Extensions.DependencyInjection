@@ -1,10 +1,10 @@
 ﻿namespace DragoAnt.Extensions.DependencyInjection.Tests;
 
-public class ExamplesFactorySourceGeneratorTests : BaseFactorySourceGeneratorTests
+public class ExamplesDependencySourceGeneratorTests : BaseDependencySourceGeneratorTests
 {
     private readonly VerifySettings _settings;
 
-    public ExamplesFactorySourceGeneratorTests()
+    public ExamplesDependencySourceGeneratorTests()
     {
         _settings = new VerifySettings();
         _settings.UseDirectory(".verify.expected");
