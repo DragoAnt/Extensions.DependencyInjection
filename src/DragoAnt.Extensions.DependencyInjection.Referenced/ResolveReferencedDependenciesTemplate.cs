@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace DragoAnt.Extensions.DependencyInjection.Templates
+namespace DragoAnt.Extensions.DependencyInjection.Referenced
 {
     using System;
     

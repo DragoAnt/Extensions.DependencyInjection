@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="DragoAnt.Extensions.DependencyInjection">
+    <PackageReference Include="DragoAnt.Extensions.DependencyInjection.Referenced">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DragoAnt.Extensions.DependencyInjection.Example\DragoAnt.Extensions.DependencyInjection.Example.csproj" />
   </ItemGroup>
 
 </Project>

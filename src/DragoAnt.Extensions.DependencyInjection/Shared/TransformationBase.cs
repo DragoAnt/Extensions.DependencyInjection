@@ -2,7 +2,7 @@
 
 #pragma warning disable RS1035
 
-namespace DragoAnt.Extensions.DependencyInjection.Templates;
+namespace DragoAnt.Extensions.DependencyInjection;
 
 /// <summary>
 /// Base class for this transformation

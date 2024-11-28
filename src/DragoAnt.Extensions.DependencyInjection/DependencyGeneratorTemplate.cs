@@ -7,16 +7,17 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace DragoAnt.Extensions.DependencyInjection.Templates
+namespace DragoAnt.Extensions.DependencyInjection
 {
     using System.Collections.Immutable;
+    using DragoAnt.Extensions.DependencyInjection.Templates;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    internal partial class ResolveDependenciesTemplate : BaseTransformation<ResolveDependenciesData>
+    internal partial class DependencyGeneratorTemplate : BaseTransformation<ResolveDependenciesData>
     {
         /// <summary>
         /// Create the template output

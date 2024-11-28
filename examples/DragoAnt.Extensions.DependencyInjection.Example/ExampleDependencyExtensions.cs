@@ -6,6 +6,7 @@ partial class ExampleDependencyExtensions
 {
     private static partial void AddCustomDependencies(IServiceCollection services)
     {
-        //Add custom dependencies here.
+        services.AddSingleton<TestService>();
+        services.AddScoped<ITestService>(provider => provider.GetRequiredService<TestService>());
     }
 }

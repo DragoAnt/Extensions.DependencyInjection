@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using DragoAnt.Extensions.DependencyInjection.Templates;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxKind;
@@ -80,7 +79,7 @@ public class DependencyGenerator : IIncrementalGenerator
                     var factories = items.Where(i => i is { IsInvalid: false, Factory: not null })
                         .Select(i => i.Factory!.Value).Distinct(new FactoryModelEqualityComparer()).ToImmutableArray();
 
-                    generatedCode = new ResolveDependenciesTemplate
+                    generatedCode = new DependencyGeneratorTemplate
                     {
                         Data = new(extensionsClassName, methodName, rootNamespace, 
                             alwaysGenerateMethod, customDependenciesEnabled, 

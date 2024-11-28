@@ -1,18 +1,19 @@
-﻿using DragoAnt.Extensions.DependencyInjection.Example.Models;
+﻿using DragoAnt.Extensions.DependencyInjection.Example;
+using DragoAnt.Extensions.DependencyInjection.Example.Models;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DragoAnt.Extensions.DependencyInjection.Example;
+namespace DragoAnt.Extensions.DependencyInjection.Referenced.Example;
 
-public class ModelTests
+public class ReferencedTests
 {
     private readonly ServiceProvider _serviceProvider;
 
-    public ModelTests()
+    public ReferencedTests()
     {
         var services = new ServiceCollection();
 
-        services.AddExampleDependencies();
+        services.AddReferencedDependencies();
         _serviceProvider = services.BuildServiceProvider();
     }
 
