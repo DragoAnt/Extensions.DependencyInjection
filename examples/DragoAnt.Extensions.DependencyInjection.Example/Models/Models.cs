@@ -48,7 +48,7 @@ public sealed class ViewModel
     public string ExportPath { get; }
 }
 
-[ResolveFactory(ResolveFactoryServiceLifetime.Singleton)]
+[ResolveFactory(ResolveDependencySingleton)]
 public sealed class SingletonViewModel
 {
     public int Length { get; }

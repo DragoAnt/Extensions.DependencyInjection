@@ -59,47 +59,55 @@ internal static class ModelsExtensions
             return null;
         }
 
+        var lifetime = GetDependencyLifetime(classSymbol, dependenciesAttributes, out var interfaces);
+
+        var dependency = new DependencyModel(classSymbol, lifetime, [..interfaces]);
+        return new DependencyItem(dependency, null);
+    }
+
+    private static ResolveDependencyLifetime GetDependencyLifetime(
+        INamedTypeSymbol classSymbol,
+        ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> dependenciesAttributes,
+        out List<INamedTypeSymbol> interfaces)
+    {
+        ResolveDependencyLifetime classLifetime = default;
+        ResolveDependencyLifetime lifetime = default;
+
+        interfaces = [];
+        foreach (var (attr, type) in dependenciesAttributes)
         {
-            ResolveDependencyServiceLifetime classLifetime = default;
-            ResolveDependencyServiceLifetime lifetime = default;
+            var attrLifetime = attr.ConstructorArguments
+                                   .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
+                               Enum.TryParse<ResolveDependencyLifetime>(lifetimeStr, out var lifetimeValue)
+                ? lifetimeValue
+                : default;
 
-            List<INamedTypeSymbol> interfaces = new();
-            foreach (var (attr, type) in dependenciesAttributes)
+            if (attrLifetime > lifetime)
             {
-                var attrLifetime = attr.ConstructorArguments
-                                       .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
-                                   Enum.TryParse<ResolveDependencyServiceLifetime>(lifetimeStr, out var lifetimeValue)
-                    ? lifetimeValue
-                    : default;
-
-                if (attrLifetime > lifetime)
-                {
-                    lifetime = attrLifetime;
-                }
-
-                if (SymbolEqualityComparer.Default.Equals(classSymbol, type))
-                {
-                    classLifetime = attrLifetime;
-                }
-                else
-                {
-                    interfaces.Add(type);
-                }
+                lifetime = attrLifetime;
             }
 
-            if (classLifetime != default)
+            if (SymbolEqualityComparer.Default.Equals(classSymbol, type))
             {
-                lifetime = classLifetime;
+                classLifetime = attrLifetime;
             }
-
-            if (lifetime == default)
+            else
             {
-                lifetime = ResolveDependencyServiceLifetime.Scoped;
+                interfaces.Add(type);
             }
-
-            var dependency = new DependencyModel(classSymbol, lifetime, [..interfaces]);
-            return new DependencyItem(dependency, null);
         }
+
+        if (classLifetime != default)
+        {
+            lifetime = classLifetime;
+        }
+
+        if (lifetime == default)
+        {
+            lifetime = ResolveDependencyScoped;
+        }
+
+        return lifetime;
     }
 
     private static FactoryModel GetFactory(
@@ -109,9 +117,9 @@ internal static class ModelsExtensions
     {
         var lifetime = resolveFactoryAttr.ConstructorArguments
                            .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
-                       Enum.TryParse<ResolveFactoryServiceLifetime>(lifetimeStr, out var lifetimeValue)
+                       Enum.TryParse<ResolveDependencyLifetime>(lifetimeStr, out var lifetimeValue)
             ? lifetimeValue
-            : ResolveFactoryServiceLifetime.Scoped;
+            : ResolveDependencyLifetime.ResolveDependencyScoped;
 
         var skipGenerateInterface =
             resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
@@ -281,4 +289,12 @@ internal static class ModelsExtensions
 
         return null;
     }
+
+    public static string ToServiceLifetime(this ResolveDependencyLifetime lifetime)
+        => lifetime switch
+        {
+            ResolveDependencyScoped => "Scoped",
+            ResolveDependencySingleton => "Singleton",
+            _ => throw new NotSupportedException($"Lifetime '{lifetime}' is not supported."),
+        };
 }
