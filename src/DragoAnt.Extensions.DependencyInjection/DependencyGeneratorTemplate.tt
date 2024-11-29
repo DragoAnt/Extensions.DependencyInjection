@@ -76,7 +76,6 @@ public static partial class <#= Data.ExtensionsClassName #>
             {
 #>
 
-
         <#= addService #><<#= factory.FactoryClassName #>>();
 <#
                 foreach (var iface in interfaces)
@@ -119,12 +118,13 @@ public static partial class <#= Data.ExtensionsClassName #>
 <#
         foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
         {
+            var crefClassName = factory.InstanceClassDefinition.Replace("<", "{").Replace(">", "}");
             if (factory.GeneratingInterface is {} generatingInterface)
             {
 #>
 
 /// <summary>
-/// Factory contract for <see cref="<#= factory.InstanceClassName #>"/>.
+/// Factory contract for <see cref="<#= crefClassName #>"/>.
 /// </summary>
 public interface <#= generatingInterface.Name #>
 {
@@ -160,7 +160,7 @@ public interface <#= generatingInterface.Name #>
 #>
 
 /// <summary>
-/// Factory implementation for <see cref="<#= factory.InstanceClassName #>"/>.
+/// Factory implementation for <see cref="<#= crefClassName #>"/>.
 /// </summary>
 internal sealed class <#= factory.FactoryClassName #> : <#= string.Join(", ", factory.GetInterfaces().Select(i => i.Name)) #>
 {
