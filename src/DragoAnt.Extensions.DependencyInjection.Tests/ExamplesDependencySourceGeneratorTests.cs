@@ -27,6 +27,8 @@ public class ExamplesDependencySourceGeneratorTests : BaseDependencySourceGenera
     [Fact]
     public Task DependencyModels() => RunAndVerifyFactoryGeneratorExamples("DependencyModels");
 
+    [Fact]
+    public Task GenericFactoryModels() => RunAndVerifyFactoryGeneratorExamples("GenericFactoryModels");
 
     private Task RunAndVerifyFactoryGeneratorExamples(params string[] exampleCodeNames)
     {

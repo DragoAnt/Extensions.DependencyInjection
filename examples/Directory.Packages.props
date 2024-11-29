@@ -4,11 +4,11 @@
     <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="1.5.0">
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="1.5.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="1.5.0">
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="1.5.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>

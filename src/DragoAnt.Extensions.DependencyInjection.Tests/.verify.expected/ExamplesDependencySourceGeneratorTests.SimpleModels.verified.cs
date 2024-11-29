@@ -47,6 +47,6 @@ internal sealed class SampleClassFactory : ISampleClassFactory
         _provider = provider;        
     }
 
-    SampleClass ISampleClassFactory.Create(string name, int age) =>
-        new SampleClass(name, age);
+    SampleClass ISampleClassFactory.Create(string name, int age) 
+         => new SampleClass(name, age);
 }

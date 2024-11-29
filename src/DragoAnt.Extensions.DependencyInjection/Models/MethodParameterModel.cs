@@ -71,7 +71,9 @@ internal readonly struct MethodParameterModel(IParameterSymbol parameter, bool f
             ? true
             : attributes.Any(attr => AttributeNames.ResolveFactoryService.IsMatchAttr(attr))
                 ? false
-                : p.Type.IsImplicitParameter() && !p.Type.ToDisplayString().EndsWith("Factory");
+                : p.Type.IsImplicitParameter() && 
+                  //NOTE: If we want resolve generating factory in constructor. For source generator it will be unknown type
+                  !p.Type.ToDisplayString().EndsWith("Factory");
         // ReSharper restore SimplifyConditionalTernaryExpression
     }
 }

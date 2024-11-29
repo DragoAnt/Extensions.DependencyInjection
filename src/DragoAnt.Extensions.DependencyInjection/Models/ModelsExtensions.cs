@@ -119,7 +119,7 @@ internal static class ModelsExtensions
                            .FirstOrDefault().Value?.ToString() is { } lifetimeStr &&
                        Enum.TryParse<ResolveDependencyLifetime>(lifetimeStr, out var lifetimeValue)
             ? lifetimeValue
-            : ResolveDependencyLifetime.ResolveDependencyScoped;
+            : ResolveDependencyScoped;
 
         var skipGenerateInterface =
             resolveFactoryAttr.GetBoolNamedArgumentValue(nameof(ResolveFactoryAttribute.SkipGenerateInterface));
@@ -129,7 +129,7 @@ internal static class ModelsExtensions
                 ctor.MethodKind == MethodKind.Constructor &&
                 ctor.DeclaredAccessibility is Public or Internal &&
                 !ctor.GetAttributes().Any(attr => !AttributeNames.ResolveFactoryIgnoreCtor.IsMatchAttr(attr)))
-            .Select(m => GetFactoryMethod(m, null, classSymbol, false)).ToImmutableArray();
+            .Select(m => GetMethodModel(m, null, classSymbol, false)).ToImmutableArray();
 
         FactoryInterfaceModel? generatingInterface = null;
         var className = classSymbol.Name;
@@ -137,7 +137,7 @@ internal static class ModelsExtensions
         if (!skipGenerateInterface)
         {
             generatingInterface = new FactoryInterfaceModel($"I{className}Factory", null,
-                [..ctors.Select(m => new MethodModel("Create", m.ReturnType, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
+                [..ctors.Select(m => new MethodModel("Create", classSymbol.TypeParameters, classSymbol, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
         }
 
         var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
@@ -193,7 +193,7 @@ internal static class ModelsExtensions
             }
 
             var methods = interfaceSymbol.ConstructedFrom.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary)
-                .Select(m => GetFactoryMethod(m, null, null, true, typeMap)).ToImmutableArray();
+                .Select(m => GetMethodModel(m, null, null, true, typeMap)).ToImmutableArray();
 
 
             yield return new FactoryInterfaceModel(interfaceName, interfaceSymbol, methods, castParameters, allowNotSupportedMethods);
@@ -212,7 +212,7 @@ internal static class ModelsExtensions
         ];
     }
 
-    private static MethodModel GetFactoryMethod(
+    private static MethodModel GetMethodModel(
         this IMethodSymbol method,
         string? name,
         ITypeSymbol? returnType,
@@ -221,10 +221,11 @@ internal static class ModelsExtensions
     {
         typeMap ??= t => t;
         name ??= method.Name;
+
         returnType ??= typeMap(method.ReturnType);
         var parameters = method.Parameters.Select(p => new MethodParameterModel(p, forceExplicitParameter)).ToImmutableArray();
 
-        return new MethodModel(name, returnType, parameters);
+        return new MethodModel(name, method.TypeParameters, returnType, parameters);
     }
 
     public static bool IsImplicitParameter(this ITypeSymbol type)
