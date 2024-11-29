@@ -5,17 +5,19 @@
 
 #nullable enable
 global using DragoAnt.Extensions.DependencyInjection;
+global using static DragoAnt.Extensions.DependencyInjection.ResolveDependencyLifetime;
 using System;
+
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
 /// <summary>
 /// Factory service lifetime. 
 /// </summary>
-internal enum ResolveFactoryServiceLifetime
+internal enum ResolveDependencyLifetime
 {
-    Scoped = 0,
-    Singleton = 1,
+    ResolveDependencyScoped = 1,
+    ResolveDependencySingleton = 2,
 }
 
 /// <summary>
@@ -24,9 +26,9 @@ internal enum ResolveFactoryServiceLifetime
 /// <param name="lifetime">Factory service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class)]
 internal sealed class ResolveFactoryAttribute(
-    ResolveFactoryServiceLifetime lifetime = ResolveFactoryServiceLifetime.Scoped) : Attribute
+    ResolveDependencyLifetime lifetime = ResolveDependencyScoped) : Attribute
 {
-    public ResolveFactoryServiceLifetime Lifetime { get; } = lifetime;
+    public ResolveDependencyLifetime Lifetime { get; } = lifetime;
 
     /// <summary>
     /// Skip generation and registration of specific factory interface.
@@ -99,24 +101,14 @@ internal sealed class AsResolveFactoryServiceAttribute : Attribute
 }
 
 /// <summary>
-/// Service lifetime.
-/// </summary>
-internal enum ResolveDependencyServiceLifetime
-{
-    Transient = 1,
-    Scoped = 2,
-    Singleton = 3,
-}
-
-/// <summary>
 /// Mark class or interface with this attribute to generate dependency for Dependency Injection ServiceCollection.
 /// </summary>
 /// <param name="lifetime">Dependency service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 internal sealed class ResolveDependencyAttribute(
-    ResolveDependencyServiceLifetime lifetime = ResolveDependencyServiceLifetime.Scoped) : Attribute
+    ResolveDependencyLifetime lifetime = ResolveDependencyScoped) : Attribute
 {
-    public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
+    public ResolveDependencyLifetime Lifetime { get; } = lifetime;
 }
 
 /// <summary>
@@ -125,9 +117,9 @@ internal sealed class ResolveDependencyAttribute(
 /// <param name="lifetime">Dependency service lifetime.</param>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 internal sealed class ResolveDependencyIgnoreAttribute(
-    ResolveDependencyServiceLifetime lifetime = ResolveDependencyServiceLifetime.Scoped) : Attribute
+    ResolveDependencyLifetime lifetime = ResolveDependencyScoped) : Attribute
 {
-    public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
+    public ResolveDependencyLifetime Lifetime { get; } = lifetime;
 }
 
 /// <summary>

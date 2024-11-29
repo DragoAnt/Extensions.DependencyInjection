@@ -4,14 +4,16 @@ namespace DragoAnt.Extensions.DependencyInjection;
 
 internal readonly struct DependencyModel(
     INamedTypeSymbol instanceClassSymbol,
-    ResolveDependencyServiceLifetime lifetime,
+    ResolveDependencyLifetime lifetime,
     ImmutableArray<INamedTypeSymbol> interfaces)
 {
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
 
     public IEnumerable<string> Interfaces => interfaces.Select(s => s.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
 
-    public ResolveDependencyServiceLifetime Lifetime { get; } = lifetime;
+    public ResolveDependencyLifetime Lifetime => lifetime;
+
+    
 
     public void CollectNamespaces(ISet<string> namespaces)
     {

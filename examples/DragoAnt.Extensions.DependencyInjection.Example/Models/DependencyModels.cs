@@ -1,14 +1,12 @@
-﻿using static DragoAnt.Extensions.DependencyInjection.ResolveDependencyServiceLifetime;
-
-namespace DragoAnt.Extensions.DependencyInjection.Example.Models;
+﻿namespace DragoAnt.Extensions.DependencyInjection.Example.Models;
 
 public abstract class DepModelBase
 {
-   public Guid GetGuid() => Guid.NewGuid(); 
+    public Guid GetGuid() => Guid.NewGuid();
 }
 
 [ResolveDependency]
-public sealed partial class ScopedDepModel: DepModelBase
+public sealed partial class ScopedDepModel : DepModelBase
 {
 }
 
@@ -16,23 +14,17 @@ partial class ScopedDepModel
 {
 }
 
-[ResolveDependency(Singleton)]
-public sealed partial class SingletonDepModel:DepModelBase
-{
-    
-}
-
-[ResolveDependency(Transient)]
-public sealed partial class TransientDepModel:DepModelBase
+[ResolveDependency(ResolveDependencySingleton)]
+public sealed partial class SingletonDepModel : DepModelBase
 {
 }
 
-[ResolveDependency(Transient)]
+[ResolveDependency]
 public abstract class BaseHierarchyDepModel : DepModelBase, IHierarchyDepModel
 {
 }
 
-[ResolveDependency(Singleton)]
+[ResolveDependency(ResolveDependencySingleton)]
 public interface IHierarchyDepModel
 {
 }
@@ -41,19 +33,18 @@ public class HierarchyDepModel : BaseHierarchyDepModel
 {
 }
 
-[ResolveDependency(Singleton)]
+[ResolveDependency(ResolveDependencySingleton)]
 public class SingletonHierarchyDepModel : BaseHierarchyDepModel
 {
 }
 
-
 public class GenericInterfaceDepModel : BaseHierarchyDepModel, IGenericInterfaceDepModel<int>
 {
-   public int Get() => 1;
+    public int Get() => 1;
 }
 
-[ResolveDependency(Singleton)]
+[ResolveDependency(ResolveDependencySingleton)]
 public interface IGenericInterfaceDepModel<out T>
 {
-   T Get();
+    T Get();
 }

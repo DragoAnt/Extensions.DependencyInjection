@@ -6,7 +6,7 @@ internal readonly struct FactoryModel(
     INamedTypeSymbol instanceClassSymbol,
     FactoryInterfaceModel? generatingInterface,
     ImmutableArray<FactoryInterfaceModel> factoryInterfaces,
-    ResolveFactoryServiceLifetime lifetime,
+    ResolveDependencyLifetime lifetime,
     ImmutableArray<MethodModel> constructors)
 {
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
@@ -14,7 +14,7 @@ internal readonly struct FactoryModel(
     private ImmutableArray<FactoryInterfaceModel> FactoryInterfaces => factoryInterfaces;
 
     public FactoryInterfaceModel? GeneratingInterface { get; } = generatingInterface;
-    public ResolveFactoryServiceLifetime Lifetime { get; } = lifetime;
+    public ResolveDependencyLifetime Lifetime { get; } = lifetime;
     public ImmutableArray<MethodModel> Constructors { get; } = constructors;
 
     /// <summary>

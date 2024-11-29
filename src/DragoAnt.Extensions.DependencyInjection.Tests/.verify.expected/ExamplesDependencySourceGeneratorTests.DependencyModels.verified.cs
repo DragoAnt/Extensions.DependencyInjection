@@ -34,7 +34,6 @@ public static partial class TestAssemblyDependencyExtensions
         services.AddSingleton<SingletonHierarchyDepModel>();
         services.AddSingleton<BaseHierarchyDepModel>(p => p.GetRequiredService<SingletonHierarchyDepModel>());
         services.AddSingleton<IHierarchyDepModel>(p => p.GetRequiredService<SingletonHierarchyDepModel>());
-        services.AddTransient<TransientDepModel>();
     }
 
 }

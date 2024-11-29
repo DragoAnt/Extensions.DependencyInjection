@@ -113,7 +113,7 @@ namespace DragoAnt.Extensions.DependencyInjection
 
         foreach (var dependency in Data.Dependencies.OrderBy(v => v.InstanceClassName))
         {
-            var addService = $"services.Add{dependency.Lifetime}";
+            var addService = $"services.Add{dependency.Lifetime.ToServiceLifetime()}";
 
             this.Write("        ");
             
@@ -157,7 +157,7 @@ namespace DragoAnt.Extensions.DependencyInjection
 
         foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
         {
-            var addService = $"services.Add{factory.Lifetime}";
+            var addService = $"services.Add{factory.Lifetime.ToServiceLifetime()}";
             var interfaces = factory.GetInterfaces().ToImmutableArray();
             if (interfaces.Length > 1)
             {
