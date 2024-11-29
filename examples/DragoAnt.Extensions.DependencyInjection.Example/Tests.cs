@@ -90,6 +90,21 @@ public class ModelTests
         var act2 = () => complexViewModelFactory.Create();
         act2.Should().Throw<NotSupportedException>();
     }
+    
+    [Fact]
+    public void GenericFactoryInterface()
+    {
+        using var scope = _serviceProvider.CreateScope();
+
+        var genericViewModelFactory = scope.ServiceProvider.GetRequiredService<IGenericViewModelFactory>();
+
+        var model = genericViewModelFactory.Create<IGenericModel, GenericModel>(new GenericModel(), new());
+        model.Should().NotBeNull();
+        
+        var customFactory = scope.ServiceProvider.GetRequiredService<IGenericFactory>();
+        var model2 = genericViewModelFactory.Create<IGenericModel, GenericModel>(new GenericModel(), new());
+        model2.Should().NotBeNull();
+    }
 
     [Fact]
     public void Dependencies()

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -6,6 +7,84 @@ namespace DragoAnt.Extensions.DependencyInjection;
 
 public static class SymbolExtensions
 {
+    public static string ToDisplayString(this ImmutableArray<ITypeParameterSymbol> typeParameters)
+    {
+        if (typeParameters.Length <= 0) return string.Empty;
+        var typeParameterNames = string.Join(", ", typeParameters.Select(tp => tp.Name));
+        return $"<{typeParameterNames}>";
+    }
+
+    public static bool HasConstraints(this ITypeParameterSymbol typeParameterSymbol, bool interfaceImplementation)
+    {
+        if (typeParameterSymbol.HasReferenceTypeConstraint)
+        {
+            return true;
+        }
+
+        if (typeParameterSymbol.HasValueTypeConstraint)
+        {
+            return true;
+        }
+
+        if (!interfaceImplementation && typeParameterSymbol.ConstraintTypes.Length > 0)
+        {
+            return true;
+        }
+
+        if (!interfaceImplementation && typeParameterSymbol.HasConstructorConstraint)
+        {
+            return true;
+        }
+
+        if (!interfaceImplementation && typeParameterSymbol.HasNotNullConstraint)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static IEnumerable<string> GetConstraints(this ITypeParameterSymbol typeParameterSymbol, bool interfaceImplementation)
+    {
+        if (typeParameterSymbol.HasReferenceTypeConstraint)
+        {
+            yield return "class";
+        }
+
+        if (typeParameterSymbol.HasValueTypeConstraint)
+        {
+            yield return "struct";
+        }
+
+        if (!interfaceImplementation)
+        {
+            foreach (var constraintType in typeParameterSymbol.ConstraintTypes)
+            {
+                yield return constraintType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            }
+        }
+
+        if (!interfaceImplementation && typeParameterSymbol.HasNotNullConstraint)
+        {
+            yield return "not null";
+        }
+
+        if (!interfaceImplementation && typeParameterSymbol.HasConstructorConstraint)
+        {
+            yield return "new()";
+        }
+    }
+
+    public static string GetConstraintClause(this ITypeParameterSymbol typeParameterSymbol, bool interfaceImplementation)
+        => typeParameterSymbol.HasConstraints(interfaceImplementation)
+            ? $"where {typeParameterSymbol.Name} : {string.Join(", ", typeParameterSymbol.GetConstraints(interfaceImplementation))}"
+            : string.Empty;
+
+    public static IEnumerable<string> GetTypeParameterConstraintClauses(this ImmutableArray<ITypeParameterSymbol> typeParameters, bool interfaceImplementation)
+        => typeParameters
+            .Select(typeParameter => typeParameter.GetConstraintClause(interfaceImplementation))
+            .Where(s => !string.IsNullOrEmpty(s));
+
     public static IEnumerable<AttributeData> GetClassAttributes(this ClassDeclarationSyntax classNode, SemanticModel semanticModel, bool wholeHierarchy = true)
     {
         var baseTypeSyntax = classNode.BaseList?.Types.FirstOrDefault();

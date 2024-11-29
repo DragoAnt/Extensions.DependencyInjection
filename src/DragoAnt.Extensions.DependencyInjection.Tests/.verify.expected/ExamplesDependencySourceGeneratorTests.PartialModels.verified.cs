@@ -41,8 +41,8 @@ internal sealed class PartialViewModelFactory : IPartialFactory<PartialViewModel
         _provider = provider;        
     }
 
-    PartialViewModel IPartialFactory<PartialViewModel>.Create() =>
-        throw new System.NotSupportedException();
-    PartialViewModel IPartialFactory<PartialViewModel>.Create(string exportPath) =>
-        new PartialViewModel(exportPath);
+    PartialViewModel IPartialFactory<PartialViewModel>.Create() 
+         => throw new System.NotSupportedException();
+    PartialViewModel IPartialFactory<PartialViewModel>.Create(string exportPath) 
+         => new PartialViewModel(exportPath);
 }

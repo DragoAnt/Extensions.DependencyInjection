@@ -10,6 +10,9 @@ internal readonly struct FactoryModel(
     ImmutableArray<MethodModel> constructors)
 {
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
+
+    public string InstanceClassDefinition  
+        => instanceClassSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     public string FactoryClassName => $"{InstanceClassName}Factory";
     private ImmutableArray<FactoryInterfaceModel> FactoryInterfaces => factoryInterfaces;
 

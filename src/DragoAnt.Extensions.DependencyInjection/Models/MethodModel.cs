@@ -2,14 +2,23 @@
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
-internal readonly struct MethodModel(string name, ITypeSymbol returnType, ImmutableArray<MethodParameterModel> parameters)
+internal readonly struct MethodModel(
+    string name,
+    ImmutableArray<ITypeParameterSymbol> typeParameters,
+    ITypeSymbol returnType,
+    ImmutableArray<MethodParameterModel> parameters)
 {
     public bool IsEmpty => ReturnType is null;
-    public string Name { get; } = name;
+    public string Name { get; } = name + typeParameters.ToDisplayString();
     public ITypeSymbol ReturnType { get; } = returnType;
     public string ReturnTypeName => ReturnType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     public ImmutableArray<MethodParameterModel> Parameters { get; } = parameters;
 
+    public bool HasTypeParameterConstraints(bool interfaceImplementation)
+        => typeParameters.Any(p => p.HasConstraints(interfaceImplementation));
+
+    public IEnumerable<string> GetTypeParameterClauses(bool interfaceImplementation)
+        => typeParameters.GetTypeParameterConstraintClauses(interfaceImplementation);
 
     public void CollectNamespaces(ISet<string> namespaces)
     {

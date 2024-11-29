@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Verify" />
+    <PackageReference Include="Verify.DiffPlex" />
+    <PackageReference Include="Verify.Xunit" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\examples\DragoAnt.Extensions.DependencyInjection.Example\DragoAnt.Extensions.DependencyInjection.Example.csproj" />
+    <ProjectReference Include="..\DragoAnt.Extensions.DependencyInjection.Referenced\DragoAnt.Extensions.DependencyInjection.Referenced.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".verify.expected\*.cs" />
+  </ItemGroup>
+</Project>
