@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 
 namespace DragoAnt.Extensions.DependencyInjection;
 
@@ -20,10 +21,6 @@ internal readonly struct FactoryModel(
     public ResolveDependencyLifetime Lifetime { get; } = lifetime;
     public ImmutableArray<MethodModel> Constructors { get; } = constructors;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="namespaces"></param>
     public void CollectNamespaces(ISet<string> namespaces)
     {
         instanceClassSymbol.CollectNamespaces(namespaces);
@@ -49,5 +46,12 @@ internal readonly struct FactoryModel(
         {
             yield return factoryInterface;
         }
+    }
+
+    public DependencyModel CreateDependency()
+    {
+        //NOTE: We will already add usings during creating factory itself
+        return new DependencyModel(false, Lifetime, FrozenSet<string>.Empty, FactoryClassName,
+            [..GetInterfaces().Select(i => i.Name)]);
     }
 }
