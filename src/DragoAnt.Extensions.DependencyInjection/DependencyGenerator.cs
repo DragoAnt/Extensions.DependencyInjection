@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxKind;
 
-
 namespace DragoAnt.Extensions.DependencyInjection;
 
 [Generator]
@@ -20,100 +19,44 @@ public class DependencyGenerator : IIncrementalGenerator
 
         var combined = classDeclarations.Collect().Combine(context.AnalyzerConfigOptionsProvider).Combine(context.CompilationProvider);
 
-        context.RegisterSourceOutput(
-            combined, (ctx, nextProvider) =>
+        context.RegisterSourceOutput(combined, (ctx, nextProvider) =>
+        {
+            var (data, compilation) = nextProvider;
+            var (items, optionsProvider) = data;
+            var (rootNamespace, alwaysGenerateMethod, customDependenciesEnabled, extensionsClassName, methodName, fullMethodName)
+                = optionsProvider.GetOptionsProviderParams(compilation);
+
+            string generatedCode;
+            try
             {
-                var (data, compilation) = nextProvider;
-                var (items, optionsProvider) = data;
+                var errors = items.Where(i => i.IsInvalid).Select(i => i.GetError()).ToImmutableArray();
 
-                if (!optionsProvider.GlobalOptions.TryGetBuildProperty("RootNamespace", out var rootNamespace) || rootNamespace is null)
+                var factories = items.Where(i => i is { IsInvalid: false, Factory: not null })
+                    .Select(i => i.Factory!.Value).Distinct(new FactoryModelEqualityComparer()).ToImmutableArray();
+
+                //NOTE: Distinct for partial classes
+                var dependencies = items.Where(i => i is { IsInvalid: false, Dependency: not null })
+                    .Select(i => i.Dependency!.Value).Distinct(new DependencyModelEqualityComparer())
+                    .Concat(factories.Select(f => f.CreateDependency()))
+                    .ToImmutableArray();
+
+                generatedCode = new DependencyGeneratorTemplate
                 {
-                    rootNamespace = compilation.AssemblyName;
-                    if (rootNamespace is null || string.IsNullOrEmpty(rootNamespace))
-                    {
-                        throw new InvalidOperationException(
-                            "RootNamespace PropertyGroup is required. Open csproj file and add <RootNamespace> PropertyGroup to your project.");
-                    }
-                }
-
-                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.MethodSuffix_SkippedNamePartsCount,
-                        out var countOfPartsVal) ||
-                    countOfPartsVal is null ||
-                    !int.TryParse(countOfPartsVal, out var skippedParts))
-                {
-                    skippedParts = 0;
-                }
-
-                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.MethodSuffix, out var methodSuffix) ||
-                    methodSuffix is null ||
-                    string.IsNullOrWhiteSpace(methodSuffix))
-                {
-                    methodSuffix = GetDefaultMethodSuffix(rootNamespace, skippedParts);
-                }
-
-                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.AlwaysGenerateMethod,
-                        out var alwaysGenerateMethodVal) ||
-                    alwaysGenerateMethodVal is null ||
-                    !bool.TryParse(alwaysGenerateMethodVal, out var alwaysGenerateMethod))
-                {
-                    alwaysGenerateMethod = false;
-                }
-
-                if (!optionsProvider.GlobalOptions.TryGetBuildProperty(BuildProperties.CustomDependencies,
-                        out var customDependenciesEnabledVal) ||
-                    alwaysGenerateMethodVal is null ||
-                    !bool.TryParse(customDependenciesEnabledVal, out var customDependenciesEnabled))
-                {
-                    customDependenciesEnabled = false;
-                }
-
-                string generatedCode;
-                var extensionsClassName = $"{methodSuffix}DependencyExtensions";
-                var methodName = $"Add{methodSuffix}Dependencies";
-                try
-                {
-                    var errors = items.Where(i => i.IsInvalid).Select(i => i.GetError()).ToImmutableArray();
-                    
-                    var factories = items.Where(i => i is { IsInvalid: false, Factory: not null })
-                        .Select(i => i.Factory!.Value).Distinct(new FactoryModelEqualityComparer()).ToImmutableArray();
-                    
-                    //NOTE: Distinct for partial classes
-                    var dependencies = items.Where(i => i is { IsInvalid: false, Dependency: not null })
-                        .Select(i => i.Dependency!.Value).Distinct(new DependencyModelEqualityComparer())
-                        .Concat(factories.Select(f => f.CreateDependency()))
-                        .ToImmutableArray();
-
-                    generatedCode = new DependencyGeneratorTemplate
-                    {
-                        Data = new(extensionsClassName, methodName, rootNamespace, 
-                            alwaysGenerateMethod, customDependenciesEnabled, 
-                            errors, dependencies, factories)
-                    }.TransformText();
-                }
-                catch (Exception e)
-                {
-                    generatedCode = e.ToString();
-                }
+                    Data = new(fullMethodName, extensionsClassName, methodName, rootNamespace,
+                        alwaysGenerateMethod, customDependenciesEnabled,
+                        errors, dependencies, factories)
+                }.TransformText();
+            }
+            catch (Exception e)
+            {
+                generatedCode = e.ToString();
+            }
 
 
-                ctx.AddSource($"{extensionsClassName}.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
-            });
+            ctx.AddSource($"{extensionsClassName}.g.cs", SourceText.From(generatedCode, Encoding.UTF8));
+        });
     }
 
-    public static string GetDefaultMethodSuffix(string rootNamespace, int skippedParts)
-    {
-        var parts = rootNamespace.Split('.');
-        skippedParts = Math.Min(parts.Length - 1, skippedParts);
-
-        var methodSuffix = parts.Skip(skippedParts).Aggregate(new StringBuilder(),
-            (current, part) =>
-            {
-                current.Append(part);
-                return current;
-            }).ToString();
-
-        return methodSuffix;
-    }
 
     private sealed class FactoryModelEqualityComparer : IEqualityComparer<FactoryModel>
     {

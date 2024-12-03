@@ -38,7 +38,7 @@ using <#= usingNs #>;
 #>
 using static Microsoft.Extensions.DependencyInjection.ServiceLifetime;
 
-[assembly:ResolveAssembly("<#= Data.Namespace #>.<#= Data.ExtensionsClassName #>.<#= Data.MethodCodeName #>")]
+[assembly:ResolveAssembly("<#= Data.FullMethodName #>")]
 
 namespace <#= Data.Namespace #>;
 

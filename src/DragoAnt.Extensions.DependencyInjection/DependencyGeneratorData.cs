@@ -3,6 +3,7 @@
 namespace DragoAnt.Extensions.DependencyInjection.Templates;
 
 internal sealed class ResolveDependenciesData(
+    string fullMethodName,
     string extensionsClassName,
     string methodCodeName,
     string ns,
@@ -13,12 +14,15 @@ internal sealed class ResolveDependenciesData(
     ImmutableArray<FactoryModel> factories)
 {
     public ImmutableArray<string> Errors => errors;
+    
+    public string FullMethodName { get; } = fullMethodName;
     public string MethodCodeName => methodCodeName;
+    public string ExtensionsClassName => extensionsClassName;
     public string Namespace => ns;
     public ImmutableArray<FactoryModel> Factories => factories;
     public ImmutableArray<DependencyModel> Dependencies => dependencies;
     public bool AlwaysGenerateAddDependenciesMethod => alwaysGenerateAddDependenciesMethod;
-    public object ExtensionsClassName => extensionsClassName;
+    
 
     public bool CustomDependenciesEnabled => customDependenciesEnabled;
 

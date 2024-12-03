@@ -1,8 +1,5 @@
 ﻿namespace DragoAnt.Extensions.DependencyInjection.Tests;
 
-using System;
-using Xunit;
-
 public class GetDefaultMethodSuffixTests
 {
     [Theory]
@@ -16,7 +13,7 @@ public class GetDefaultMethodSuffixTests
     public void GetDefaultMethodSuffix_ValidInput_ReturnsExpected(string rootNamespace, int countOfParts, string expected)
     {
         // Act
-        var result = DependencyGenerator.GetDefaultMethodSuffix(rootNamespace, countOfParts);
+        var result = OptionsProviderExtensions.GetDefaultMethodSuffix(rootNamespace, countOfParts);
 
         // Assert
         Assert.Equal(expected, result);

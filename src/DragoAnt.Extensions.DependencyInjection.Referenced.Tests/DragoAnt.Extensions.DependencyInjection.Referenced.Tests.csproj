@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DragoAnt.Extensions.DependencyInjection.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\DragoAnt.Extensions.DependencyInjection\code\ResolveAttributes.cs">
+      <Link>EmbeddedCodeBase\code\ResolveAttributes.cs</Link>
+    </EmbeddedResource>
+    <Compile Include="..\DragoAnt.Extensions.DependencyInjection.Tests\GlobalUsings.cs">
+      <Link>GlobalUsings.cs</Link>
+    </Compile>
+    <Compile Include="..\DragoAnt.Extensions.DependencyInjection.Tests\Utils\EmbeddedCodeBaseResourceReader.cs">
+      <Link>Utils\EmbeddedCodeBaseResourceReader.cs</Link>
+    </Compile>
     <None Include=".verify.expected\*.cs" />
   </ItemGroup>
 </Project>

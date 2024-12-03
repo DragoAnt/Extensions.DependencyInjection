@@ -68,19 +68,7 @@ namespace DragoAnt.Extensions.DependencyInjection
 
             this.Write("using static Microsoft.Extensions.DependencyInjection.ServiceLifetime;\r\n\r\n[assembly:ResolveAssembly(\"");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(Data.Namespace));
-            
-            #line default
-            #line hidden
-            this.Write(".");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(Data.ExtensionsClassName));
-            
-            #line default
-            #line hidden
-            this.Write(".");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(Data.MethodCodeName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Data.FullMethodName));
             
             #line default
             #line hidden
