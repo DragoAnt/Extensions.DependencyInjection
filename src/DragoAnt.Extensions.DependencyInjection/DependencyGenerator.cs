@@ -73,11 +73,15 @@ public class DependencyGenerator : IIncrementalGenerator
                 try
                 {
                     var errors = items.Where(i => i.IsInvalid).Select(i => i.GetError()).ToImmutableArray();
-                    //NOTE: Distinct for partial classes
-                    var dependencies = items.Where(i => i is { IsInvalid: false, Dependency: not null })
-                        .Select(i => i.Dependency!.Value).Distinct(new DependencyModelEqualityComparer()).ToImmutableArray();
+                    
                     var factories = items.Where(i => i is { IsInvalid: false, Factory: not null })
                         .Select(i => i.Factory!.Value).Distinct(new FactoryModelEqualityComparer()).ToImmutableArray();
+                    
+                    //NOTE: Distinct for partial classes
+                    var dependencies = items.Where(i => i is { IsInvalid: false, Dependency: not null })
+                        .Select(i => i.Dependency!.Value).Distinct(new DependencyModelEqualityComparer())
+                        .Concat(factories.Select(f => f.CreateDependency()))
+                        .ToImmutableArray();
 
                     generatedCode = new DependencyGeneratorTemplate
                     {

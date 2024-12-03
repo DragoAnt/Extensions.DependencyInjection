@@ -36,16 +36,23 @@ internal static class ModelsExtensions
         }
 
         var attributes = GetResolveAttributes(classSymbol);
+        FactoryModel? factory = null;
         if (attributes.FirstOrDefault(attr => AttributeNames.ResolveFactory.IsMatchAttr(attr.Attr)) is { Attr: { } resolveFactoryAttr })
         {
-            var factory = GetFactory(resolveFactoryAttr, classSymbol, attributes);
-            return new DependencyItem(null, factory);
+            factory = GetFactory(resolveFactoryAttr, classSymbol, attributes);
         }
 
-        return GetDependency(classSymbol, attributes);
+        var dependency = GetDependency(classSymbol, attributes);
+
+        if (dependency is null && factory is null)
+        {
+            return null;
+        }
+
+        return new DependencyItem(dependency, factory);
     }
 
-    private static DependencyItem? GetDependency(INamedTypeSymbol classSymbol, ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
+    private static DependencyModel? GetDependency(INamedTypeSymbol classSymbol, ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> attributes)
     {
         var ignoreDependency = classSymbol.GetAttributes().FirstOrDefault(attr => AttributeNames.ResolveDependencyIgnore.IsMatchAttr(attr));
         if (ignoreDependency is not null)
@@ -59,21 +66,27 @@ internal static class ModelsExtensions
             return null;
         }
 
-        var lifetime = GetDependencyLifetime(classSymbol, dependenciesAttributes, out var interfaces);
+        var lifetime = ParseAttributes(classSymbol, dependenciesAttributes, out var interfaces, out var itselfAttribute);
 
-        var dependency = new DependencyModel(classSymbol, lifetime, [..interfaces]);
-        return new DependencyItem(dependency, null);
+        var customFactoryMethod = itselfAttribute?.NamedArguments
+            .FirstOrDefault(arg => arg.Key == nameof(ResolveDependencyAttribute.CustomFactoryMethodName))
+            .Value.Value as string;
+
+        return DependencyModel.Create(itselfAttribute is not null, lifetime, classSymbol, [..interfaces], customFactoryMethod);
     }
 
-    private static ResolveDependencyLifetime GetDependencyLifetime(
+    private static ResolveDependencyLifetime ParseAttributes(
         INamedTypeSymbol classSymbol,
         ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> dependenciesAttributes,
-        out List<INamedTypeSymbol> interfaces)
+        out List<INamedTypeSymbol> interfaces,
+        out AttributeData? itselfAttribute)
     {
         ResolveDependencyLifetime classLifetime = default;
         ResolveDependencyLifetime lifetime = default;
 
         interfaces = [];
+        itselfAttribute = null;
+
         foreach (var (attr, type) in dependenciesAttributes)
         {
             var attrLifetime = attr.ConstructorArguments
@@ -89,6 +102,7 @@ internal static class ModelsExtensions
 
             if (SymbolEqualityComparer.Default.Equals(classSymbol, type))
             {
+                itselfAttribute = attr;
                 classLifetime = attrLifetime;
             }
             else

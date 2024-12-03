@@ -9,7 +9,6 @@
 // ------------------------------------------------------------------------------
 namespace DragoAnt.Extensions.DependencyInjection
 {
-    using System.Collections.Immutable;
     using DragoAnt.Extensions.DependencyInjection.Templates;
     using System;
     
@@ -67,7 +66,7 @@ namespace DragoAnt.Extensions.DependencyInjection
 
         }
 
-            this.Write("\r\n[assembly:ResolveAssembly(\"");
+            this.Write("using static Microsoft.Extensions.DependencyInjection.ServiceLifetime;\r\n\r\n[assembly:ResolveAssembly(\"");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(Data.Namespace));
             
@@ -111,119 +110,148 @@ namespace DragoAnt.Extensions.DependencyInjection
             #line hidden
             this.Write("(this IServiceCollection services)\r\n    {\r\n");
 
-        foreach (var dependency in Data.Dependencies.OrderBy(v => v.InstanceClassName))
+        if (Data.Dependencies.Any(d => d.Interfaces.Length > 1))
         {
-            var addService = $"services.Add{dependency.Lifetime.ToServiceLifetime()}";
 
-            this.Write("        ");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
-            
-            #line default
-            #line hidden
-            this.Write("<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
-            
-            #line default
-            #line hidden
-            this.Write(">();\r\n");
+            this.Write("        Func<IServiceProvider,object> factory;\r\n");
 
-            foreach (var iface in dependency.Interfaces)
-            {
-
-            this.Write("        ");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
-            
-            #line default
-            #line hidden
-            this.Write("<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(iface));
-            
-            #line default
-            #line hidden
-            this.Write(">(p => p.GetRequiredService<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
-            
-            #line default
-            #line hidden
-            this.Write(">());\r\n");
-
-            }
         }
 
-        foreach (var factory in Data.Factories.OrderBy(v => v.FactoryClassName))
+        foreach (var dependency in Data.Dependencies.OrderBy(v => v.InstanceClassName))
         {
-            var addService = $"services.Add{factory.Lifetime.ToServiceLifetime()}";
-            var interfaces = factory.GetInterfaces().ToImmutableArray();
-            if (interfaces.Length > 1)
+
+            this.Write("\r\n");
+
+            var lifetime = dependency.Lifetime.ToServiceLifetime();
+            if (dependency.Interfaces.Length == 1 && !dependency.ItselfRegistration)
             {
 
-            this.Write("\r\n        ");
+            this.Write("        services.Add(new ServiceDescriptor(typeof(");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
-            
-            #line default
-            #line hidden
-            this.Write("<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryClassName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.Interfaces[0]));
             
             #line default
             #line hidden
-            this.Write(">();\r\n");
+            this.Write("), typeof(");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write("), ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
+            
+            #line default
+            #line hidden
+            this.Write("));\r\n");
 
-                foreach (var iface in interfaces)
-                {
-
-            this.Write("        ");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
-            
-            #line default
-            #line hidden
-            this.Write("<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(iface.Name));
-            
-            #line default
-            #line hidden
-            this.Write(">(p => p.GetRequiredService<");
-            
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryClassName));
-            
-            #line default
-            #line hidden
-            this.Write(">());\r\n");
-
-                }
             }
             else
             {
+                if (dependency.CustomFactoryMethod is not null && !string.IsNullOrEmpty(dependency.CustomFactoryMethod))
+                {
 
-            this.Write("        ");
+            this.Write("        services.Add(new ServiceDescriptor(typeof(");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(addService));
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
             #line default
             #line hidden
-            this.Write("<");
+            this.Write("), ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(interfaces[0].Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.CustomFactoryMethod));
             
             #line default
             #line hidden
             this.Write(", ");
             
-            this.Write(this.ToStringHelper.ToStringWithCulture(factory.FactoryClassName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
+            
+            #line default
+            #line hidden
+            this.Write("));\r\n");
+
+                }
+                else
+                {
+
+            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write("), typeof(");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write("), ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
+            
+            #line default
+            #line hidden
+            this.Write("));\r\n");
+
+                }
+
+                if (dependency.Interfaces.Length == 1)
+                {
+
+            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.Interfaces[0]));
+            
+            #line default
+            #line hidden
+            this.Write("), static p => p.GetRequiredService<");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write(">(), ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
+            
+            #line default
+            #line hidden
+            this.Write("));\r\n");
+
+                }
+                else if (dependency.Interfaces.Length > 1)
+                {
+
+            this.Write("        factory = static p => p.GetRequiredService<");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
             #line default
             #line hidden
             this.Write(">();\r\n");
 
+                    foreach (var iface in dependency.Interfaces)
+                    {
+
+            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(iface));
+            
+            #line default
+            #line hidden
+            this.Write("), factory, ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
+            
+            #line default
+            #line hidden
+            this.Write("));\r\n");
+
+                    }
+                }
             }
         }
 
@@ -239,7 +267,32 @@ namespace DragoAnt.Extensions.DependencyInjection
         if (Data.CustomDependenciesEnabled)
         {
 
-            this.Write("    /// <summary>\r\n    /// Custom dependencies registration\r\n    /// </summary>\r\n    private static partial void AddCustomDependencies(IServiceCollection services);\r\n");
+            this.Write("    /// <summary>\r\n    /// Custom dependencies registration.\r\n    /// </summary>\r\n    private static partial void AddCustomDependencies(IServiceCollection services);\r\n");
+
+        }
+
+        foreach (var dependencyWithFactoryMethod in Data.Dependencies.Where(d => !string.IsNullOrEmpty(d.CustomFactoryMethod)))
+        {
+
+            this.Write("    /// <summary>\r\n    /// Custom factory method for <see cref=\"");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependencyWithFactoryMethod.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write("\"/>. \r\n    /// </summary>\r\n    private static partial ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependencyWithFactoryMethod.InstanceClassName));
+            
+            #line default
+            #line hidden
+            this.Write(" ");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(dependencyWithFactoryMethod.CustomFactoryMethod!));
+            
+            #line default
+            #line hidden
+            this.Write("(IServiceProvider provider);\r\n");
 
         }
 

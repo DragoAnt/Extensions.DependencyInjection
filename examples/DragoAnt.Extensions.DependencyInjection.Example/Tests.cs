@@ -10,9 +10,16 @@ public class ModelTests
 
     public ModelTests()
     {
-        var services = new ServiceCollection();
+        IServiceCollection services = new ServiceCollection();
 
         services.AddExampleDependencies();
+
+        Func<IServiceProvider,object> factory;
+        
+        factory = static p => p.GetRequiredService<IBaseInterface>();
+        
+        services.Add(new ServiceDescriptor(typeof(IBaseInterface), factory, ServiceLifetime.Scoped));
+        
         _serviceProvider = services.BuildServiceProvider();
     }
 

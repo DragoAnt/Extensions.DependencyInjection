@@ -109,6 +109,12 @@ internal sealed class ResolveDependencyAttribute(
     ResolveDependencyLifetime lifetime = ResolveDependencyScoped) : Attribute
 {
     public ResolveDependencyLifetime Lifetime { get; } = lifetime;
+
+    /// <summary>
+    /// Custom factory method for initialize instance of the marked class. Partial factory method with the name will be generated.
+    /// Can be used with non-abstract class only.
+    /// </summary>
+    public string? CustomFactoryMethodName { get; set; }
 }
 
 /// <summary>

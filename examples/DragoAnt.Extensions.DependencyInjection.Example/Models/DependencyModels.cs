@@ -20,7 +20,7 @@ public sealed partial class SingletonDepModel : DepModelBase
 }
 
 [ResolveDependency]
-public abstract class BaseHierarchyDepModel : DepModelBase, IHierarchyDepModel
+public abstract class BaseHierarchyDepModel : DepModelBase, IHierarchyDepModel, ILevel1Interface
 {
 }
 
@@ -38,13 +38,44 @@ public class SingletonHierarchyDepModel : BaseHierarchyDepModel
 {
 }
 
-public class GenericInterfaceDepModel : BaseHierarchyDepModel, IGenericInterfaceDepModel<int>
+public partial class GenericInterfaceDepModel : BaseHierarchyDepModel, IGenericInterfaceDepModel<int>
 {
     public int Get() => 1;
 }
 
+partial class GenericInterfaceDepModel
+{
+}
+
 [ResolveDependency(ResolveDependencySingleton)]
-public interface IGenericInterfaceDepModel<out T>
+public interface IGenericInterfaceDepModel<out T> : ILevel1Interface
 {
     T Get();
+}
+
+[ResolveDependency(ResolveDependencySingleton)]
+public interface ILevel1Interface : IBaseInterface
+{
+}
+
+[ResolveDependency(ResolveDependencySingleton)]
+public interface IBaseInterface
+{
+}
+
+[ResolveDependency]
+public class SelfRegistration
+{
+}
+
+[ResolveDependency(CustomFactoryMethodName = "GetSelfCustomFactoryRegistration")]
+public class SelfCustomFactoryRegistration
+{
+}
+
+[ResolveFactory]
+[ResolveDependency(CustomFactoryMethodName = "GetDbContext")]
+public class DbContext(string connString) : IBaseInterface
+{
+    public string ConnString { get; } = connString;
 }
