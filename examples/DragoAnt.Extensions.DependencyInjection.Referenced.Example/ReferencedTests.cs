@@ -13,7 +13,7 @@ public class ReferencedTests
     {
         var services = new ServiceCollection();
 
-        services.AddReferencedDependencies();
+        services.AddDependencies();
         _serviceProvider = services.BuildServiceProvider();
     }
 
@@ -93,8 +93,14 @@ public class ReferencedTests
     }
 
     [Fact]
-    public void Dependencies()
+    public void OwnDependencies()
     {
-        //TODO: Tests for Dependencies
+        using var scope = _serviceProvider.CreateScope();
+
+        var model = scope.ServiceProvider.GetRequiredService<IOwnModel>();
+        model.Should().NotBeNull();
+
+        var model2 = _serviceProvider.GetRequiredService<SelfOwnModel>();
+        model2.Should().NotBeNull();
     }
 }

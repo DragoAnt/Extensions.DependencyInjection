@@ -9,6 +9,7 @@ public abstract class BaseReferencedDependenciesSourceGeneratorTests
     private static readonly SyntaxTree[] CommonSyntaxTrees
         =
         [
+            ParseText(ReadEmbeddedCode("code.ResolveAttributes.cs")),
         ];
 
     protected string RunFactoryGenerator(params string[] inputSource)

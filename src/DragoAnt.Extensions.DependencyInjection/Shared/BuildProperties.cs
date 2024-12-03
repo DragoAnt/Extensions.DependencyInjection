@@ -1,7 +1,7 @@
 ﻿namespace DragoAnt.Extensions.DependencyInjection;
 
 // ReSharper disable InconsistentNaming
-internal static partial class BuildProperties
+internal static class BuildProperties
 {
     /// <summary>
     /// Suffix for Add_Suffix_Dependencies name
@@ -14,7 +14,7 @@ internal static partial class BuildProperties
     public const string MethodSuffix_SkippedNamePartsCount = "DragoAnt_MethodSuffix_SkippedNamePartsCount";
 
     /// <summary>
-    /// Always generate AddDependencies method
+    /// Always generate AddDependencies method. By default - true.
     /// </summary>
     public const string AlwaysGenerateMethod = "DragoAnt_AlwaysGenerateMethod";
 

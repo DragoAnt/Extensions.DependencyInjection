@@ -11,7 +11,12 @@ public class ReferencedDependenciesSourceGeneratorTests : BaseReferencedDependen
     }
     
     [Fact]
-    public Task ReferencedMethod() => RunAndVerifyFactoryGeneratorExamples("public class Test {}");    
+    public Task ReferencedMethod() => RunAndVerifyFactoryGeneratorExamples(
+        """
+        [assembly:ResolveAssembly("DragoAnt.Extensions.DependencyInjection.Referenced.Example.ReferencedExampleDependencyExtensions.AddReferencedExampleDependencies")]
+        
+        public class Test {}
+        """);
     
     private Task RunAndVerifyFactoryGeneratorExamples(params string[] exampleCodeSources)
     {
