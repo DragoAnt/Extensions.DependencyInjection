@@ -160,7 +160,7 @@ internal static class ModelsExtensions
             throw new DependencyGeneratorException("No constructors were found for factory.", null!);
         }
 
-        return new FactoryModel(classSymbol, generatingInterface, factoryInterfaces, lifetime, ctors);
+        return new FactoryModel(classSymbol, classSymbol.DeclaredAccessibility == Public, generatingInterface, factoryInterfaces, lifetime, ctors);
     }
 
     private static IEnumerable<FactoryInterfaceModel> GetContractInterfaces(

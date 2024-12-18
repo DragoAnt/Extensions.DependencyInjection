@@ -298,7 +298,13 @@ namespace DragoAnt.Extensions.DependencyInjection
             
             #line default
             #line hidden
-            this.Write("\"/>.\r\n/// </summary>\r\npublic interface ");
+            this.Write("\"/>.\r\n/// </summary>\r\n");
+            
+            this.Write(this.ToStringHelper.ToStringWithCulture(factory.IsPublic ? "public" : "internal"));
+            
+            #line default
+            #line hidden
+            this.Write(" interface ");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(generatingInterface.Name));
             

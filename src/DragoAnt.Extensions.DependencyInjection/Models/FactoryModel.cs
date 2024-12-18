@@ -5,15 +5,18 @@ namespace DragoAnt.Extensions.DependencyInjection;
 
 internal readonly struct FactoryModel(
     INamedTypeSymbol instanceClassSymbol,
+    bool isPublic,
     FactoryInterfaceModel? generatingInterface,
     ImmutableArray<FactoryInterfaceModel> factoryInterfaces,
     ResolveDependencyLifetime lifetime,
     ImmutableArray<MethodModel> constructors)
 {
+    public bool IsPublic { get; } = isPublic;
     public string InstanceClassName { get; } = instanceClassSymbol.Name;
 
-    public string InstanceClassDefinition  
+    public string InstanceClassDefinition
         => instanceClassSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
     public string FactoryClassName => $"{InstanceClassName}Factory";
     private ImmutableArray<FactoryInterfaceModel> FactoryInterfaces => factoryInterfaces;
 

@@ -152,7 +152,7 @@ public static partial class <#= Data.ExtensionsClassName #>
 /// <summary>
 /// Factory contract for <see cref="<#= crefClassName #>"/>.
 /// </summary>
-public interface <#= generatingInterface.Name #>
+<#= factory.IsPublic ? "public" : "internal" #> interface <#= generatingInterface.Name #>
 {
 <#
                 foreach (var method in generatingInterface.Methods)
