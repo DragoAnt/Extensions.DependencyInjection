@@ -21,10 +21,23 @@ internal readonly struct DependencyModel(
     {
         var usings = CollectNamespaces(instanceClass, interfaces);
         return new DependencyModel(itselfRegistration, lifetime, usings,
-            instanceClass.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-            [..interfaces.Select(s => s.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)).Distinct()],
+            ToRegisterName(instanceClass),
+            [..interfaces.Select(symbol => ToInterfaceRegisterName(symbol, instanceClass.IsGenericType)).Distinct()],
             customFactoryMethod);
+
+        static string ToRegisterName(INamedTypeSymbol symbol)
+            => (symbol.IsGenericType
+                    ? symbol.ConstructUnboundGenericType()
+                    : symbol)
+                .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
+        static string ToInterfaceRegisterName(INamedTypeSymbol symbol, bool isParentGenericType)
+            => (isParentGenericType && symbol.IsGenericType
+                    ? symbol.ConstructUnboundGenericType()
+                    : symbol)
+                .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     }
+
 
     public ResolveDependencyLifetime Lifetime => lifetime;
 

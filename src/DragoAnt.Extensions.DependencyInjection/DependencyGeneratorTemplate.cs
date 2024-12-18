@@ -101,7 +101,7 @@ namespace DragoAnt.Extensions.DependencyInjection
         if (Data.Dependencies.Any(d => d.Interfaces.Length > 1))
         {
 
-            this.Write("        Func<IServiceProvider,object> factory;\r\n");
+            this.Write("        Func<IServiceProvider, object> factory;\r\n");
 
         }
 
@@ -140,7 +140,7 @@ namespace DragoAnt.Extensions.DependencyInjection
                 if (dependency.CustomFactoryMethod is not null && !string.IsNullOrEmpty(dependency.CustomFactoryMethod))
                 {
 
-            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            this.Write("        services.Add(new(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
@@ -164,7 +164,7 @@ namespace DragoAnt.Extensions.DependencyInjection
                 else
                 {
 
-            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            this.Write("        services.Add(new(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
@@ -189,19 +189,19 @@ namespace DragoAnt.Extensions.DependencyInjection
                 if (dependency.Interfaces.Length == 1)
                 {
 
-            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            this.Write("        services.Add(new(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.Interfaces[0]));
             
             #line default
             #line hidden
-            this.Write("), static p => p.GetRequiredService<");
+            this.Write("), static p => p.GetRequiredService(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
             #line default
             #line hidden
-            this.Write(">(), ");
+            this.Write(")), ");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(lifetime));
             
@@ -213,18 +213,18 @@ namespace DragoAnt.Extensions.DependencyInjection
                 else if (dependency.Interfaces.Length > 1)
                 {
 
-            this.Write("        factory = static p => p.GetRequiredService<");
+            this.Write("        factory = static p => p.GetRequiredService(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.InstanceClassName));
             
             #line default
             #line hidden
-            this.Write(">();\r\n");
+            this.Write("));\r\n");
 
                     foreach (var iface in dependency.Interfaces)
                     {
 
-            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            this.Write("        services.Add(new(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(iface));
             
