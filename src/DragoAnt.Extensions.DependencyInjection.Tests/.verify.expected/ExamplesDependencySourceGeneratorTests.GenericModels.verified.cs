@@ -5,7 +5,7 @@
 
 #nullable enable
 
-using DragoAnt.Extensions.DependencyInjection.Referenced.Example;
+using DragoAnt.Extensions.DependencyInjection.Example.Models;
 using Microsoft.Extensions.DependencyInjection;
 using static Microsoft.Extensions.DependencyInjection.ServiceLifetime;
 
@@ -25,7 +25,7 @@ public static partial class TestAssemblyDependencyExtensions
     public static void AddTestAssemblyDependencies(this IServiceCollection services)
     {
 
-        services.Add(new(typeof(SelfRegistrationModel), typeof(SelfRegistrationModel), Scoped));
+        services.Add(new ServiceDescriptor(typeof(IMultiGenericModel<,>), typeof(MultiGenericModel<,>), Scoped));
     }
 
 }

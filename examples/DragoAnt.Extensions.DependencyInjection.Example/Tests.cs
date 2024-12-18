@@ -4,6 +4,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DragoAnt.Extensions.DependencyInjection.Example;
 
+internal sealed class IGenericModelWrapper<T>(GenericModel<T> model) : IGenericModel<T>
+{
+    Guid IGenericModel2<T>.Method2() => model.Method2();
+    Guid IGenericModel<T>.Method1() => model.Method1();
+}
+
+internal sealed class IGenericModelWrapper2<T>(GenericModel<T> model) : IGenericModel2<T>
+{
+    Guid IGenericModel2<T>.Method2() => model.Method2();
+}
+
 public class ModelTests
 {
     private readonly ServiceProvider _serviceProvider;
@@ -14,14 +25,21 @@ public class ModelTests
 
         services.AddExampleDependencies();
 
-        Func<IServiceProvider,object> factory;
-        
+        Func<IServiceProvider, object> factory;
+
         factory = static p => p.GetRequiredService<IBaseInterface>();
-        
+
         services.Add(new ServiceDescriptor(typeof(IBaseInterface), factory, ServiceLifetime.Scoped));
-        
+
+        //TODO: Move wrappers to generation
+        // services.AddScoped(typeof(GenericModel<>)); // Register the implementation.
+        // services.AddScoped(typeof(IGenericModel<>), typeof(IGenericModelWrapper<>));
+        // services.AddScoped(typeof(IGenericModel2<>), typeof(IGenericModelWrapper2<>));
+
         _serviceProvider = services.BuildServiceProvider();
     }
+
+    
 
     [Fact]
     public void TestScoped()
@@ -97,7 +115,7 @@ public class ModelTests
         var act2 = () => complexViewModelFactory.Create();
         act2.Should().Throw<NotSupportedException>();
     }
-    
+
     [Fact]
     public void GenericFactoryInterface()
     {
@@ -107,10 +125,43 @@ public class ModelTests
 
         var model = genericViewModelFactory.Create<IGenericModel, GenericModel>(new GenericModel(), new());
         model.Should().NotBeNull();
-        
+
         var customFactory = scope.ServiceProvider.GetRequiredService<IGenericFactory>();
         var model2 = genericViewModelFactory.Create<IGenericModel, GenericModel>(new GenericModel(), new());
         model2.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void TestGenericModels()
+    {
+        //TODO: Move wrappers to generation
+        
+        using var scope = _serviceProvider.CreateScope();
+
+        var model = scope.ServiceProvider.GetRequiredService<IGenericModel<int>>();
+        model.Should().NotBeNull();
+
+        var model2 = scope.ServiceProvider.GetRequiredService<IGenericModel2<int>>();
+        model.Should().NotBeNull();
+
+        model.Method2().Should().Be(model2.Method2());
+
+        var model3 = scope.ServiceProvider.GetRequiredService<IMultiGenericModel<int, string>>();
+        model3.Should().NotBeNull();
+    }
+    
+    [Fact]
+    public void TestHandGenericModels()
+    {
+        using var scope = _serviceProvider.CreateScope();
+
+        var model = scope.ServiceProvider.GetRequiredService<IHandGenericModel<int>>();
+        model.Should().NotBeNull();
+
+        var model2 = scope.ServiceProvider.GetRequiredService<HandGenericModel<int>>();
+        model2.Should().NotBeNull();
+        
+        model.Method1().Should().Be(model2.Method1());
     }
 
     [Fact]

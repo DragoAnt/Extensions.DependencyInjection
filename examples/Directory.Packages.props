@@ -4,8 +4,8 @@
     <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="1.7.1-beta" />
-    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="1.7.0" />
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection" Version="1.7.1" />
+    <PackageVersion Include="DragoAnt.Extensions.DependencyInjection.Referenced" Version="1.7.1" />
     <PackageVersion Include="FluentAssertions" Version="6.12.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />

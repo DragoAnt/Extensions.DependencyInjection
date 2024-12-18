@@ -57,7 +57,7 @@ public static partial class <#= Data.ExtensionsClassName #>
         if (Data.Dependencies.Any(d => d.Interfaces.Length > 1))
         {
 #>
-        Func<IServiceProvider,object> factory;
+        Func<IServiceProvider, object> factory;
 <#
         }
 
@@ -70,7 +70,7 @@ public static partial class <#= Data.ExtensionsClassName #>
             if (dependency.Interfaces.Length == 1 && !dependency.ItselfRegistration)
             {
 #>
-        services.Add(new ServiceDescriptor(typeof(<#= dependency.Interfaces[0] #>), typeof(<#= dependency.InstanceClassName #>), <#= lifetime #>));
+        services.Add(new(typeof(<#= dependency.Interfaces[0] #>), typeof(<#= dependency.InstanceClassName #>), <#= lifetime #>));
 <#
             }
             else
@@ -78,31 +78,31 @@ public static partial class <#= Data.ExtensionsClassName #>
                 if (dependency.CustomFactoryMethod is not null && !string.IsNullOrEmpty(dependency.CustomFactoryMethod))
                 {
 #>
-        services.Add(new ServiceDescriptor(typeof(<#= dependency.InstanceClassName #>), <#= dependency.CustomFactoryMethod #>, <#= lifetime #>));
+        services.Add(new(typeof(<#= dependency.InstanceClassName #>), <#= dependency.CustomFactoryMethod #>, <#= lifetime #>));
 <#
                 }
                 else
                 {
 #>
-        services.Add(new ServiceDescriptor(typeof(<#= dependency.InstanceClassName #>), typeof(<#= dependency.InstanceClassName #>), <#= lifetime #>));
+        services.Add(new(typeof(<#= dependency.InstanceClassName #>), typeof(<#= dependency.InstanceClassName #>), <#= lifetime #>));
 <#
                 }
 
                 if (dependency.Interfaces.Length == 1)
                 {
 #>
-        services.Add(new ServiceDescriptor(typeof(<#= dependency.Interfaces[0] #>), static p => p.GetRequiredService<<#= dependency.InstanceClassName #>>(), <#= lifetime #>));
+        services.Add(new(typeof(<#= dependency.Interfaces[0] #>), static p => p.GetRequiredService(typeof(<#= dependency.InstanceClassName #>)), <#= lifetime #>));
 <#
                 }
                 else if (dependency.Interfaces.Length > 1)
                 {
 #>
-        factory = static p => p.GetRequiredService<<#= dependency.InstanceClassName #>>();
+        factory = static p => p.GetRequiredService(typeof(<#= dependency.InstanceClassName #>));
 <#
                     foreach (var iface in dependency.Interfaces)
                     {
 #>
-        services.Add(new ServiceDescriptor(typeof(<#= iface #>), factory, <#= lifetime #>));
+        services.Add(new(typeof(<#= iface #>), factory, <#= lifetime #>));
 <#
                     }
                 }
