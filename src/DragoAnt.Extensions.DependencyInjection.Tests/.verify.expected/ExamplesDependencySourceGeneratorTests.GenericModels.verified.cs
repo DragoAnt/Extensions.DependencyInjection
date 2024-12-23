@@ -25,7 +25,7 @@ public static partial class TestAssemblyDependencyExtensions
     public static void AddTestAssemblyDependencies(this IServiceCollection services)
     {
 
-        services.Add(new ServiceDescriptor(typeof(IMultiGenericModel<,>), typeof(MultiGenericModel<,>), Scoped));
+        services.Add(new(typeof(IMultiGenericModel<,>), typeof(MultiGenericModel<,>), Scoped));
     }
 
 }

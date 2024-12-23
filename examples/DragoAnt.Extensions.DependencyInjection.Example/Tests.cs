@@ -29,7 +29,7 @@ public class ModelTests
 
         factory = static p => p.GetRequiredService<IBaseInterface>();
 
-        services.Add(new ServiceDescriptor(typeof(IBaseInterface), factory, ServiceLifetime.Scoped));
+        services.Add(new(typeof(IBaseInterface), factory, ServiceLifetime.Scoped));
 
         //TODO: Move wrappers to generation
         // services.AddScoped(typeof(GenericModel<>)); // Register the implementation.
@@ -39,7 +39,6 @@ public class ModelTests
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    
 
     [Fact]
     public void TestScoped()
@@ -135,7 +134,7 @@ public class ModelTests
     public void TestGenericModels()
     {
         //TODO: Move wrappers to generation
-        
+
         using var scope = _serviceProvider.CreateScope();
 
         var model = scope.ServiceProvider.GetRequiredService<IGenericModel<int>>();
@@ -149,7 +148,7 @@ public class ModelTests
         var model3 = scope.ServiceProvider.GetRequiredService<IMultiGenericModel<int, string>>();
         model3.Should().NotBeNull();
     }
-    
+
     [Fact]
     public void TestHandGenericModels()
     {
@@ -160,7 +159,7 @@ public class ModelTests
 
         var model2 = scope.ServiceProvider.GetRequiredService<HandGenericModel<int>>();
         model2.Should().NotBeNull();
-        
+
         model.Method1().Should().Be(model2.Method1());
     }
 

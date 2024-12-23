@@ -9,6 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace DragoAnt.Extensions.DependencyInjection.Referenced
 {
+    using DragoAnt.Extensions.T4;
     using System;
     
     /// <summary>

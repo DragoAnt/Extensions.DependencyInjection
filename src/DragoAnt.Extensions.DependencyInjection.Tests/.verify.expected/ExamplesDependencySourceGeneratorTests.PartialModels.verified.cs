@@ -28,7 +28,7 @@ public static partial class TestAssemblyDependencyExtensions
     public static void AddTestAssemblyDependencies(this IServiceCollection services)
     {
 
-        services.Add(new ServiceDescriptor(typeof(IPartialFactory<PartialViewModel>), typeof(PartialViewModelFactory), Scoped));
+        services.Add(new(typeof(IPartialFactory<PartialViewModel>), typeof(PartialViewModelFactory), Scoped));
     }
 
 }

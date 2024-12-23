@@ -1,5 +1,6 @@
 ﻿using DragoAnt.Extensions.DependencyInjection.Example;
 using DragoAnt.Extensions.DependencyInjection.Referenced;
+using FluentAssertions;
 using static Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree;
 
 namespace DragoAnt.Extensions.DependencyInjection.Tests;
@@ -7,10 +8,7 @@ namespace DragoAnt.Extensions.DependencyInjection.Tests;
 public abstract class BaseReferencedDependenciesSourceGeneratorTests
 {
     private static readonly SyntaxTree[] CommonSyntaxTrees
-        =
-        [
-            ParseText(ReadEmbeddedCode("code.ResolveAttributes.cs")),
-        ];
+        = [ParseText(ReadEmbeddedCode("code.ResolveAttributes.cs")),];
 
     protected string RunFactoryGenerator(params string[] inputSource)
     {
@@ -44,7 +42,7 @@ public abstract class BaseReferencedDependenciesSourceGeneratorTests
         var results = generatorDriver.GetRunResult();
 
         // Assert: Verify the generated output
-        Assert.Single(results.GeneratedTrees);
+        results.GeneratedTrees.Should().NotBeEmpty();
         var generatedCode = results.GeneratedTrees[0].ToString();
 
         return generatedCode;

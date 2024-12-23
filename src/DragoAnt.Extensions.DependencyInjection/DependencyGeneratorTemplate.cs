@@ -10,6 +10,7 @@
 namespace DragoAnt.Extensions.DependencyInjection
 {
     using DragoAnt.Extensions.DependencyInjection.Templates;
+    using DragoAnt.Extensions.T4;
     using System;
     
     /// <summary>
@@ -114,7 +115,7 @@ namespace DragoAnt.Extensions.DependencyInjection
             if (dependency.Interfaces.Length == 1 && !dependency.ItselfRegistration)
             {
 
-            this.Write("        services.Add(new ServiceDescriptor(typeof(");
+            this.Write("        services.Add(new(typeof(");
             
             this.Write(this.ToStringHelper.ToStringWithCulture(dependency.Interfaces[0]));
             
