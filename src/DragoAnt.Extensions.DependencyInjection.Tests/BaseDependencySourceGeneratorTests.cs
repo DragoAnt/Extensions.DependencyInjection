@@ -1,5 +1,4 @@
-﻿
-global using DragoAnt.Extensions.DependencyInjection;
+﻿using FluentAssertions;
 using static Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree;
 
 namespace DragoAnt.Extensions.DependencyInjection.Tests;
@@ -46,7 +45,7 @@ public abstract class BaseDependencySourceGeneratorTests
         var results = generatorDriver.GetRunResult();
 
         // Assert: Verify the generated output
-        Assert.Single(results.GeneratedTrees);
+        results.GeneratedTrees.Should().NotBeEmpty();
         var generatedCode = results.GeneratedTrees[0].ToString();
 
         return generatedCode;

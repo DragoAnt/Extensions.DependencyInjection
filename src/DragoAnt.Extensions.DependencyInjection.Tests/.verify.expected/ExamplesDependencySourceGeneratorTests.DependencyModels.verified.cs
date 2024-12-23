@@ -30,7 +30,7 @@ public static partial class TestAssemblyDependencyExtensions
         services.Add(new(typeof(DbContext), GetDbContext, Scoped));
         services.Add(new(typeof(IBaseInterface), static p => p.GetRequiredService(typeof(DbContext)), Scoped));
 
-        services.Add(new ServiceDescriptor(typeof(IDbContextFactory), typeof(DbContextFactory), Scoped));
+        services.Add(new(typeof(IDbContextFactory), typeof(DbContextFactory), Scoped));
 
         services.Add(new(typeof(GenericInterfaceDepModel), typeof(GenericInterfaceDepModel), Singleton));
         factory = static p => p.GetRequiredService(typeof(GenericInterfaceDepModel));
