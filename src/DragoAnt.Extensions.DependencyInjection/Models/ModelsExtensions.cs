@@ -72,7 +72,7 @@ internal static class ModelsExtensions
             .FirstOrDefault(arg => arg.Key == nameof(ResolveDependencyAttribute.CustomFactoryMethodName))
             .Value.Value as string;
 
-        return DependencyModel.Create(itselfAttribute is not null, lifetime, classSymbol, [..interfaces], customFactoryMethod);
+        return DependencyModel.Create(itselfAttribute is not null, lifetime, classSymbol, interfaces.ToImmutableArray(), customFactoryMethod);
     }
 
     private static ResolveDependencyLifetime ParseAttributes(
@@ -151,7 +151,9 @@ internal static class ModelsExtensions
         if (!skipGenerateInterface)
         {
             generatingInterface = new FactoryInterfaceModel($"I{className}Factory", null,
-                [..ctors.Select(m => new MethodModel("Create", classSymbol.TypeParameters, classSymbol, [..m.Parameters.Where(p => p.IsExplicitParameter)]))]);
+                ctors.Select(m => new MethodModel("Create", classSymbol.TypeParameters, classSymbol,
+                        m.Parameters.Where(p => p.IsExplicitParameter).ToImmutableArray()))
+                    .ToImmutableArray());
         }
 
         var factoryInterfaces = GetContractInterfaces(attributes, classSymbol).ToImmutableArray();
@@ -217,13 +219,10 @@ internal static class ModelsExtensions
     private static ImmutableArray<(AttributeData Attr, INamedTypeSymbol Type)> GetResolveAttributes(INamedTypeSymbol classSymbol)
     {
         var attributes = classSymbol.GetAllAttributes();
-        return
-        [
-            ..attributes.Where(data =>
-                AttributeNames.ResolveDependency.IsMatchAttr(data.Attr) ||
-                AttributeNames.ResolveFactory.IsMatchAttr(data.Attr) ||
-                AttributeNames.ResolveFactoryContract.IsMatchAttr(data.Attr)),
-        ];
+        return attributes.Where(data =>
+            AttributeNames.ResolveDependency.IsMatchAttr(data.Attr) ||
+            AttributeNames.ResolveFactory.IsMatchAttr(data.Attr) ||
+            AttributeNames.ResolveFactoryContract.IsMatchAttr(data.Attr)).ToImmutableArray();
     }
 
     private static MethodModel GetMethodModel(
