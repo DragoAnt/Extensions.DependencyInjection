@@ -22,7 +22,8 @@ internal readonly struct DependencyModel(
         var usings = CollectNamespaces(instanceClass, interfaces);
         return new DependencyModel(itselfRegistration, lifetime, usings,
             ToRegisterName(instanceClass),
-            [..interfaces.Select(symbol => ToInterfaceRegisterName(symbol, instanceClass.IsGenericType)).Distinct()],
+            interfaces.Select(symbol => ToInterfaceRegisterName(symbol, instanceClass.IsGenericType))
+                .Distinct().ToImmutableArray(),
             customFactoryMethod);
 
         static string ToRegisterName(INamedTypeSymbol symbol)
