@@ -4,7 +4,7 @@ Issues and pull requests are welcome. For anything larger than a small fix, open
 
 ## Build and test
 
-You need the .NET SDK pinned in [global.json](./global.json). Then run the same steps as CI:
+You need the .NET SDK pinned in [global.json](./global.json), plus the .NET 9 runtime for the tests. Then run the same steps as CI:
 
 ```sh
 dotnet restore src/DragoAnt.Extensions.DependencyInjection.slnx
