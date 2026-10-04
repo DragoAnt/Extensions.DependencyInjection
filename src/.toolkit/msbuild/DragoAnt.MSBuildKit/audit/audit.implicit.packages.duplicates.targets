@@ -1,0 +1,34 @@
+<Project>
+
+  <!-- MSKIT_DUP001: Directory.Packages.props declares a <PackageVersion> the kit already declares
+       (the kit's items carry ControlledBy metadata). NuGet would otherwise report NU1506 and pick
+       one silently. MSKit_SkipAudit_ImplicitPackageDuplicates=True bypasses the check. -->
+
+  <PropertyGroup>
+    <MSKit_SkipAudit_ImplicitPackageDuplicates Condition="'$(MSKit_SkipAudit_ImplicitPackageDuplicates)'==''">False</MSKit_SkipAudit_ImplicitPackageDuplicates>
+  </PropertyGroup>
+
+  <Target Name="MSKit_CheckImplicitPackageDuplicates"
+          BeforeTargets="CollectPackageReferences;Restore;Build"
+          Condition="'$(MSKit_SkipAudit_ImplicitPackageDuplicates)'!='True'
+                     AND '$(ManagePackageVersionsCentrally)'=='true'">
+    <ItemGroup>
+      <_MSKit_ConsumerIdentities Include="%(PackageVersion.Identity)"
+                                 Condition="'%(PackageVersion.ControlledBy)'==''" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_MSKit_ConsumerIdsStr>;@(_MSKit_ConsumerIdentities, ';');</_MSKit_ConsumerIdsStr>
+    </PropertyGroup>
+    <ItemGroup>
+      <_MSKit_DuplicateReport Include="@(PackageVersion)"
+                              Condition="'%(PackageVersion.ControlledBy)'!=''
+                                         AND $(_MSKit_ConsumerIdsStr.Contains(';%(PackageVersion.Identity);'))" />
+    </ItemGroup>
+
+    <Error Code="MSKIT_DUP001"
+           Condition=" '@(_MSKit_DuplicateReport)' != '' "
+           Text="Directory.Packages.props declares &lt;PackageVersion&gt; entries the kit already provides:%0A%0A@(_MSKit_DuplicateReport->'  %(Identity)  &#x2190; provided by %(ControlledBy)','%0A')%0A%0AFix: remove those &lt;PackageVersion Include=&quot;...&quot; /&gt; lines. To pin another version, set the kit's version property instead (for example &lt;MSKit_PackageVersion_XunitV3&gt;), or turn the kit's versions off with &lt;MSKit_ImplicitPackageVersions&gt;False&lt;/MSKit_ImplicitPackageVersions&gt;.%0ATo bypass this check: &lt;MSKit_SkipAudit_ImplicitPackageDuplicates&gt;True&lt;/MSKit_SkipAudit_ImplicitPackageDuplicates&gt;"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

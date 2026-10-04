@@ -1,0 +1,20 @@
+<Project>
+
+  <!-- InternalsVisibleTo configuration warnings. -->
+
+  <!-- Gated like test.project.internalsVisibleTo.targets: only non-test projects emit InternalsVisibleTo. -->
+  <Target Name="ValidateMSKitTestsDirSet" BeforeTargets="BeforeCompile" Condition="'$(InternalsVisibleToAllTestsProjects)'=='True'">
+    <Warning Code="MSKIT_TEST030" Condition="'$(MSKit_TestsDir)'==''"
+             Text="MSKit_TestsDir is empty — cannot auto-emit InternalsVisibleTo for sibling .Tests projects.%0AFix: set MSKit_TestsDir in Directory.Build.props:%0A  &lt;PropertyGroup&gt;%0A    &lt;MSKit_TestsDir&gt;$(MSBuildThisFileDirectory)tests&lt;/MSKit_TestsDir&gt;%0A  &lt;/PropertyGroup&gt;%0ATo disable auto InternalsVisibleTo, add to csproj:%0A  &lt;PropertyGroup&gt;%0A    &lt;InternalsVisibleToAllTestsProjects&gt;False&lt;/InternalsVisibleToAllTestsProjects&gt;%0A  &lt;/PropertyGroup&gt;"
+             File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <!-- Warn when MSKit_TestsDir points to a non-existent directory.
+       Gate: InternalsVisibleToAllTestsProjects==True — see ValidateMSKitTestsDirSet for rationale. -->
+  <Target Name="ValidateMSKitTestsDirExists" BeforeTargets="BeforeCompile" Condition="'$(InternalsVisibleToAllTestsProjects)'=='True'">
+    <Warning Code="MSKIT_TEST031" Condition="'$(MSKit_TestsDir)'!='' And !Exists('$(MSKit_TestsDir)')"
+             Text="MSKit_TestsDir='$(MSKit_TestsDir)' does not exist.%0AFix: point MSKit_TestsDir to an existing directory in Directory.Build.props:%0A  &lt;PropertyGroup&gt;%0A    &lt;MSKit_TestsDir&gt;$(MSBuildThisFileDirectory)tests&lt;/MSKit_TestsDir&gt;%0A  &lt;/PropertyGroup&gt;%0ATo disable auto InternalsVisibleTo, add to csproj:%0A  &lt;PropertyGroup&gt;%0A    &lt;InternalsVisibleToAllTestsProjects&gt;False&lt;/InternalsVisibleToAllTestsProjects&gt;%0A  &lt;/PropertyGroup&gt;"
+             File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

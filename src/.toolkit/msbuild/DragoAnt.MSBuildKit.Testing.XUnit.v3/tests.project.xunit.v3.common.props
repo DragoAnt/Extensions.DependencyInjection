@@ -1,0 +1,8 @@
+<Project>
+
+  <!-- Reached through $(TestsProjectCommonPropsPath) for a project whose name auto-detect misses. -->
+  <PropertyGroup>
+    <UseMicrosoftTestingPlatformRunner Condition="'$(EnableMicrosoftTestingPlatform)'=='True'">true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Runtime.CompilerServices.MethodImplOptions" Static="True" />
+    <Using Include="System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes"
+           Condition="'$(TargetFramework)' != 'netstandard2.0'"
+           Static="True" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - actions/*
+          - DragoAnt/*
+          - NuGet/*
+
+  - package-ecosystem: nuget
+    directory: /src
+    schedule:
+      interval: weekly
+    groups:
+      microsoft:
+        patterns:
+          - Microsoft.*
+          - System.*
+      testing:
+        patterns:
+          - xunit*
+          - Verify*
+          - FluentAssertions
+    ignore:
+      # Versions after 32.0.0 require a paid maintenance subscription.
+      - dependency-name: Verify
+        versions:
+          - '>32.0.0'
+      - dependency-name: Verify.XunitV3
+        versions:
+          - '>32.0.0'
+      # 8.x requires a commercial license.
+      - dependency-name: FluentAssertions
+        update-types:
+          - version-update:semver-major
+      # The generators load inside the compiler, so Roslyn stays at the oldest version the supported SDKs ship.
+      - dependency-name: Microsoft.CodeAnalysis.*
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor

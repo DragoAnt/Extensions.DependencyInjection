@@ -1,0 +1,32 @@
+<Project InitialTargets="RestrictPackageReferenceAudit">
+
+  <!-- MSKIT_RES001 / MSKIT_RES002: a referenced package is banned (Type="Error") or discouraged
+       (Type="Warning") by an MSKit_RestrictPackageReference item:
+         <MSKit_RestrictPackageReference Include="Moq" Type="Error" Message="Use NSubstitute." />
+       SkipGlobalRestriction="True" on one PackageReference downgrades it to a warning. -->
+
+  <Target Name="RestrictPackageReferenceAudit" BeforeTargets="Restore;Build;CoreCompile">
+    <ItemGroup>
+      <MSKit_PackageReferenceNotAllowed Include="@(MSKit_RestrictPackageReference)"
+                                        Condition="'@(MSKit_RestrictPackageReference)'!='' And '@(PackageReference)'!='' and '%(Identity)'!=''" />
+      <MSKit_PackageReferenceNotAllowed Update="@(PackageReference)" Condition="'%(PackageReference.SkipGlobalRestriction)'=='True'"
+                                        SkipGlobalRestriction="True" />
+    </ItemGroup>
+
+    <Error Code="MSKIT_RES001"
+      Condition="'%(MSKit_PackageReferenceNotAllowed.Identity)'!='' And '%(MSKit_PackageReferenceNotAllowed.Type)'=='Error' And '%(MSKit_PackageReferenceNotAllowed.SkipGlobalRestriction)'!='True'"
+      Text="Package '%(MSKit_PackageReferenceNotAllowed.Identity)' is prohibited. %(MSKit_PackageReferenceNotAllowed.Message)%0AFix: remove the PackageReference or use the suggested alternative. To allow this one reference, add SkipGlobalRestriction=&quot;True&quot; to it."
+      File="$(MSBuildProjectFullPath)" />
+
+    <Warning Code="MSKIT_RES001"
+      Condition="'%(MSKit_PackageReferenceNotAllowed.Identity)'!='' And '%(MSKit_PackageReferenceNotAllowed.Type)'=='Error' And '%(MSKit_PackageReferenceNotAllowed.SkipGlobalRestriction)'=='True'"
+      Text="Package '%(MSKit_PackageReferenceNotAllowed.Identity)' is prohibited (allowed here by SkipGlobalRestriction). %(MSKit_PackageReferenceNotAllowed.Message)"
+      File="$(MSBuildProjectFullPath)" />
+
+    <Warning Code="MSKIT_RES002"
+      Condition="'%(MSKit_PackageReferenceNotAllowed.Identity)'!='' And '%(MSKit_PackageReferenceNotAllowed.Type)'=='Warning' And '%(MSKit_PackageReferenceNotAllowed.SkipGlobalRestriction)'!='True'"
+      Text="Package '%(MSKit_PackageReferenceNotAllowed.Identity)' is discouraged. %(MSKit_PackageReferenceNotAllowed.Message)%0ATo silence this for one reference, add SkipGlobalRestriction=&quot;True&quot; to it."
+      File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

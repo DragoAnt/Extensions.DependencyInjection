@@ -1,0 +1,8 @@
+<Project>
+
+  <!-- UserSecretsId is set in the csproj, after every props file, so this lives in targets. -->
+  <PropertyGroup Condition="'$(UserSecretsId)'!=''">
+    <LocalSecretsDir Condition="'$(LocalSecretsDir)'==''">$(MSKit_LocalSecretsBaseDirectory)$(UserSecretsId)</LocalSecretsDir>
+  </PropertyGroup>
+
+</Project>

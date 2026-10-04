@@ -1,0 +1,29 @@
+<Project>
+
+  <!-- MSKIT_PRE001: a stable-branch build references a prerelease version of one of your own
+       packages (ids starting with MSKit_PrereleasePackagePrefix). Warning by default;
+       MSKit_PrereleasePackageCheckAsWarning=false makes it an error. -->
+
+  <PropertyGroup>
+    <MSKit_PrereleasePackageCheckAsWarning Condition="'$(MSKit_PrereleasePackageCheckAsWarning)'==''">true</MSKit_PrereleasePackageCheckAsWarning>
+  </PropertyGroup>
+
+  <Target Condition="'$(MSKit_IsStableBranch)'=='true' AND '$(MSKit_PrereleasePackagePrefix)'!=''" Name="CheckPrereleasePackages" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_MSKit_PackagesWithVersion Include="@(PackageReference)" Condition="'%(PackageReference.Version)' != ''" />
+      <_MSKit_PackagesWithVersion Include="@(PackageVersion)" Condition="'%(PackageVersion.Version)' != ''" />
+      <_MSKit_PrereleaseReferences Include="@(_MSKit_PackagesWithVersion)"
+                                   Condition="$([System.String]::Copy('%(_MSKit_PackagesWithVersion.Identity)').StartsWith('$(MSKit_PrereleasePackagePrefix)')) AND $([System.String]::Copy('%(_MSKit_PackagesWithVersion.Version)').Contains('-'))" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_MSKit_PrereleaseText>Prerelease $(MSKit_PrereleasePackagePrefix)* packages referenced on stable branch '$(MSKit_Branch)':%0A@(_MSKit_PrereleaseReferences->'  %(Identity) %(Version)', '%0A')%0AFix: replace them with stable versions in Directory.Packages.props or the csproj.</_MSKit_PrereleaseText>
+    </PropertyGroup>
+    <Warning Code="MSKIT_PRE001"
+             Condition="'@(_MSKit_PrereleaseReferences)'!='' AND '$(MSKit_PrereleasePackageCheckAsWarning)'=='true'"
+             Text="$(_MSKit_PrereleaseText)" />
+    <Error Code="MSKIT_PRE001"
+           Condition="'@(_MSKit_PrereleaseReferences)'!='' AND '$(MSKit_PrereleasePackageCheckAsWarning)'!='true'"
+           Text="$(_MSKit_PrereleaseText)" />
+  </Target>
+
+</Project>

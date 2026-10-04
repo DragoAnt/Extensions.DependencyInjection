@@ -1,0 +1,27 @@
+<Project>
+
+  <!-- Maps the GitHub Actions environment onto the kit's CI properties. Actions sets
+       GITHUB_RUN_ID for every job, so its presence is what marks a CI build. -->
+  <PropertyGroup>
+    <MSKit_IsGitHubCI Condition="'$(GITHUB_ACTIONS)'=='true' OR '$(GITHUB_RUN_ID)'!=''">True</MSKit_IsGitHubCI>
+    <MSKit_IsDevEnv Condition="'$(GITHUB_RUN_ID)'!=''">False</MSKit_IsDevEnv>
+
+    <MSKit_CIPipelineId Condition="'$(MSKit_CIPipelineId)'==''">$(GITHUB_RUN_ID)</MSKit_CIPipelineId>
+    <!-- The run number, not the run id: run ids are ~11 digits and overflow version parts. -->
+    <MSKit_BuildNumber Condition="'$(MSKit_BuildNumber)'==''">$(GITHUB_RUN_NUMBER)</MSKit_BuildNumber>
+    <MSKit_CommitSha Condition="'$(MSKit_IsDevEnv)'!='True' AND '$(MSKit_CommitSha)'==''">$(GITHUB_SHA)</MSKit_CommitSha>
+
+    <MSKit_IsReleaseTag Condition="'$(MSKit_IsReleaseTag)'=='' AND '$(GITHUB_REF_TYPE)'=='tag'">True</MSKit_IsReleaseTag>
+    <MSKit_ReleaseTagRaw Condition="'$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ReleaseTagRaw)'==''">$(GITHUB_REF_NAME)</MSKit_ReleaseTagRaw>
+    <MSKit_ReleaseTag Condition="'$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ReleaseTag)'==''">$([System.Text.RegularExpressions.Regex]::Replace('$(MSKit_ReleaseTagRaw)', '^[vV]', ''))</MSKit_ReleaseTag>
+
+    <MSKit_PullRequestNumber Condition="'$(MSKit_PullRequestNumber)'=='' AND ('$(GITHUB_EVENT_NAME)'=='pull_request' OR '$(GITHUB_EVENT_NAME)'=='pull_request_target')">$([System.Text.RegularExpressions.Regex]::Match('$(GITHUB_REF)', 'refs/pull/(\d+)/').Groups[1].Value)</MSKit_PullRequestNumber>
+    <MSKit_PullRequestNumber Condition="'$(MSKit_PullRequestNumber)'=='' AND $([System.Text.RegularExpressions.Regex]::IsMatch('$(GITHUB_REF_NAME)', '^\d+/merge$'))">$([System.Text.RegularExpressions.Regex]::Match('$(GITHUB_REF_NAME)', '^\d+').Value)</MSKit_PullRequestNumber>
+
+    <RepositoryUrl Condition="'$(RepositoryUrl)'=='' AND '$(GITHUB_REPOSITORY)'!=''">$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY)</RepositoryUrl>
+    <RepositoryUrl Condition="'$(RepositoryUrl)'=='/$(GITHUB_REPOSITORY)'">https://github.com/$(GITHUB_REPOSITORY)</RepositoryUrl>
+
+    <MSKit_VcsProvider>GitHub</MSKit_VcsProvider>
+  </PropertyGroup>
+
+</Project>

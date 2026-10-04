@@ -1,0 +1,38 @@
+<Project>
+
+  <!-- version.props renders statically so -getProperty:Version works, but it runs before the
+       csproj body. This target renders again once a csproj-level VersionPrefix or template is
+       final, and sets PackageVersion for pack. -->
+  <Target Name="RenderVersionFromTemplate"
+          Condition="'$(MSKit_VersionStrategy)'!='Manual' AND '$(MSKit_ExplicitVersion)'==''"
+          BeforeTargets="GenerateNuspec;CoreCompile;GetAssemblyVersion">
+
+    <PropertyGroup>
+      <_MSKit_Ph_prefix>$(VersionPrefix)</_MSKit_Ph_prefix>
+
+      <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsStableBranch)'=='true'">$(MSKit_StableVersionTemplate)</_MSKit_EffectiveTemplate>
+      <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsStableBranch)'!='true'">$(MSKit_VersionTemplate)</_MSKit_EffectiveTemplate>
+      <_MSKit_EffectiveTemplate Condition="'$(MSKit_PullRequestNumber)'!='' AND '$(MSKit_PullRequestVersionTemplate)'!=''">$(MSKit_PullRequestVersionTemplate)</_MSKit_EffectiveTemplate>
+      <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ReleaseVersionTemplate)'!=''">$(MSKit_ReleaseVersionTemplate)</_MSKit_EffectiveTemplate>
+
+      <_MSKit_Rendered>$(_MSKit_EffectiveTemplate)</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{prefix}', '$(_MSKit_Ph_prefix)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildNumber}', '$(_MSKit_Ph_buildNumber)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{pipelineId}', '$(_MSKit_Ph_pipelineId)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchSlug}', '$(_MSKit_Ph_branchSlug)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchTicket}', '$(_MSKit_Ph_branchTicket)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchAspectSuffix}', '$(_MSKit_Ph_branchAspectSuffix)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildDateUtcDash}', '$(_MSKit_Ph_buildDateUtcDash)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildDateUtcDot}', '$(_MSKit_Ph_buildDateUtcDot)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{versionTag}', '$(_MSKit_Ph_versionTag)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{releaseTag}', '$(_MSKit_Ph_releaseTag)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{prNumber}', '$(_MSKit_Ph_prNumber)'))</_MSKit_Rendered>
+      <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{commitShaShort}', '$(_MSKit_Ph_commitShaShort)'))</_MSKit_Rendered>
+
+      <Version>$(_MSKit_Rendered)</Version>
+      <PackageVersion>$(_MSKit_Rendered)</PackageVersion>
+    </PropertyGroup>
+
+  </Target>
+
+</Project>

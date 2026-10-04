@@ -1,0 +1,5 @@
+<Project>
+
+  <!-- A test helper library needs no runner wiring; its references come from the routine targets. -->
+
+</Project>

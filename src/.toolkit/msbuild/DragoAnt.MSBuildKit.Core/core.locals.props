@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_LocalSecretsBaseDirectory Condition="'$(MSKit_LocalSecretsBaseDirectory)'=='' AND $([MSBuild]::IsOsPlatform('Windows'))">$([System.Environment]::GetFolderPath(SpecialFolder.ApplicationData))\Microsoft\UserSecrets\</MSKit_LocalSecretsBaseDirectory>
+    <MSKit_LocalSecretsBaseDirectory Condition="'$(MSKit_LocalSecretsBaseDirectory)'=='' AND ($([MSBuild]::IsOsPlatform('Linux')) OR $([MSBuild]::IsOsPlatform('OSX')))">$([System.Environment]::GetFolderPath(SpecialFolder.UserProfile))/.microsoft/usersecrets/</MSKit_LocalSecretsBaseDirectory>
+  </PropertyGroup>
+
+</Project>

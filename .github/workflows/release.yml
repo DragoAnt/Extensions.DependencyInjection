@@ -1,0 +1,99 @@
+name: release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Version from tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Validate tag
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          version="${TAG#[vV]}"
+          ident='(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
+          semver="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-$ident(\.$ident)*)?$"
+          if ! [[ "$version" =~ $semver ]]; then
+            echo "::error::release tag '$TAG' is not a SemVer version (vMAJOR.MINOR.PATCH[-prerelease], no build metadata)"
+            exit 1
+          fi
+          if [[ "$version" == 9999.* ]]; then
+            echo "::error::9999.x is the local development version and is never published"
+            exit 1
+          fi
+          if [[ "$PRERELEASE" == "true" && "$version" != *-* ]]; then
+            echo "::error::the release is marked pre-release but '$TAG' has no -suffix"
+            exit 1
+          fi
+          if [[ "$PRERELEASE" != "true" && "$version" == *-* ]]; then
+            echo "::error::'$TAG' is a pre-release version; tick 'Set as a pre-release' on the release"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Package version: $version"
+
+  build:
+    name: Build, test, pack
+    needs: version
+    uses: DragoAnt/.github/.github/workflows/dotnet-build.yml@c9f20c11ebd297193a910d965d33bdf37c0d6c42 # main
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pack: true
+      solution: src/DragoAnt.Extensions.DependencyInjection.slnx
+
+  publish:
+    name: Publish to nuget.org
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: nuget
+      url: https://www.nuget.org/profiles/${{ vars.NUGET_USER || 'DragoAnt' }}
+    permissions:
+      id-token: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ needs.build.outputs.packages-artifact }}
+          path: packages
+
+      - name: NuGet login (Trusted Publishing)
+        id: login
+        continue-on-error: true
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ vars.NUGET_USER || 'DragoAnt' }}
+
+      - name: Push
+        env:
+          OIDC_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+          FALLBACK_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+        run: |
+          if [ -n "$OIDC_KEY" ]; then
+            key="$OIDC_KEY"
+            echo "Pushing with a short-lived nuget.org Trusted Publishing key."
+          elif [ -n "$FALLBACK_KEY" ]; then
+            key="$FALLBACK_KEY"
+            echo "::warning::nuget.org Trusted Publishing login failed, falling back to the NUGET_ORG_API_KEY secret. Add a Trusted Publishing policy on nuget.org (this repository, workflow file of this workflow, environment 'nuget') and delete the secret."
+          else
+            echo "::error::nuget.org Trusted Publishing login failed and no NUGET_ORG_API_KEY secret is available. Add a Trusted Publishing policy on nuget.org for this repository, this workflow file and environment 'nuget' (or set the NUGET_USER variable if the policy owner is not 'DragoAnt')."
+            exit 1
+          fi
+          dotnet nuget push "packages/*.nupkg" --api-key "$key" --source https://api.nuget.org/v3/index.json --skip-duplicate

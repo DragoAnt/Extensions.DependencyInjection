@@ -1,0 +1,25 @@
+<Project InitialTargets="CreateMTPTestConfigJson">
+
+  <PropertyGroup>
+    <MTPTestConfigFileName Condition="'$(MTPTestConfigFileName)'==''">testconfig.json</MTPTestConfigFileName>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestsProject)'=='True'">
+    <Content Include="$(MTPTestConfigFileName)" CopyToOutputDirectory="PreserveNewest"
+             Condition="Exists('$(MTPTestConfigFileName)')" />
+  </ItemGroup>
+
+  <!-- Opt-in scaffold: MSKit_ScaffoldTestConfig=True writes a starter testconfig.json on a local build. -->
+  <Target Condition="'$(MSKit_ScaffoldTestConfig)'=='True' AND '$(MSKit_IsDevEnv)'=='True' AND '$(IsTestsProject)'=='True' AND !Exists('$(MTPTestConfigFileName)')"
+          Name="CreateMTPTestConfigJson">
+    <PropertyGroup>
+      <MTPTestConfigJson>
+{
+    "diagnosticMessages": false
+}
+      </MTPTestConfigJson>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(MTPTestConfigFileName)" Overwrite="true" Lines="$(MTPTestConfigJson)" />
+  </Target>
+
+</Project>

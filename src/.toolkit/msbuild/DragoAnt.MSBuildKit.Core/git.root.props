@@ -1,0 +1,29 @@
+<Project>
+
+  <!-- GitHub Actions checks out tags and pull requests detached, so .git/HEAD holds a SHA there:
+       the CI ref name wins over the local HEAD whenever Actions is running. -->
+  <PropertyGroup Condition="'$(MSKit_Branch)'=='' AND '$(GITHUB_ACTIONS)'=='true' AND '$(GITHUB_HEAD_REF)'!=''">
+    <MSKit_Branch>$(GITHUB_HEAD_REF)</MSKit_Branch>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSKit_Branch)'=='' AND '$(GITHUB_ACTIONS)'=='true' AND '$(GITHUB_REF_NAME)'!=''">
+    <MSKit_Branch>$(GITHUB_REF_NAME)</MSKit_Branch>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MSKit_GitRoot Condition="'$(MSKit_GitRoot)'==''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git'))</MSKit_GitRoot>
+    <MSKit_GitRoot Condition="'$(MSKit_GitRoot)'==''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git/HEAD'))</MSKit_GitRoot>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSKit_GitRoot)'!=''">
+    <_MSKit_GitHeadFile Condition="Exists('$(MSKit_GitRoot)/.git/HEAD')">$(MSKit_GitRoot)/.git/HEAD</_MSKit_GitHeadFile>
+    <!-- In a git worktree .git is a file pointing at the worktree's own git dir. -->
+    <_MSKit_GitDirPointer Condition="'$(_MSKit_GitHeadFile)'=='' AND Exists('$(MSKit_GitRoot)/.git')">$([System.IO.File]::ReadAllText('$(MSKit_GitRoot)/.git').Trim().Replace('gitdir: ', ''))</_MSKit_GitDirPointer>
+    <_MSKit_GitDirPointer Condition="'$(_MSKit_GitDirPointer)'!='' AND !$([System.IO.Path]::IsPathRooted('$(_MSKit_GitDirPointer)'))">$(MSKit_GitRoot)/$(_MSKit_GitDirPointer)</_MSKit_GitDirPointer>
+    <_MSKit_GitHeadFile Condition="'$(_MSKit_GitDirPointer)'!='' AND Exists('$(_MSKit_GitDirPointer)/HEAD')">$(_MSKit_GitDirPointer)/HEAD</_MSKit_GitHeadFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSKit_Branch)'=='' AND '$(_MSKit_GitHeadFile)'!=''">
+    <MSKit_Branch>$([System.IO.File]::ReadAllText('$(_MSKit_GitHeadFile)').Trim().Replace('ref: refs/heads/', ''))</MSKit_Branch>
+  </PropertyGroup>
+
+</Project>

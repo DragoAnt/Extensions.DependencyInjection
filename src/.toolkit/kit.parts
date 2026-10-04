@@ -1,0 +1,20 @@
+# DragoAnt.MSBuildKit parts: <name> <default|optional> [required parts...]
+# The folder of a part is msbuild/DragoAnt.MSBuildKit.<name> ("Trunk" is msbuild/DragoAnt.MSBuildKit).
+Core default
+Trunk default
+Vcs.GitHub default
+TfmConstants default
+Packaging default
+Testing default
+Testing.XUnit.v3 default Testing
+Locals.Compile default
+Locals.DirectorySecrets default
+Locals.Secrets default
+PrivateAssets default
+Project.RoslynComponent optional
+Project.CodeAnalyzer optional Project.RoslynComponent
+Project.CodeFixer optional Project.RoslynComponent Project.CodeAnalyzer
+Project.SourceGenerator optional Project.RoslynComponent
+PackageAsProj optional
+ProjMetadata optional
+EF optional

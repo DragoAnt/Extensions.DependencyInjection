@@ -1,0 +1,6 @@
+<Project>
+
+  <!-- Imported last so the version defaults also reach references added by other parts. -->
+  <Import Project="$(MSBuildThisFileDirectory)implicit.package.targets" />
+
+</Project>

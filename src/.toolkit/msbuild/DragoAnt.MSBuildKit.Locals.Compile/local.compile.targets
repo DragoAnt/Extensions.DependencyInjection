@@ -1,0 +1,40 @@
+<Project InitialTargets="CreateLocalCompileFiles">
+
+  <PropertyGroup>
+    <_LocalCompileNamespace>$(RootNamespace)</_LocalCompileNamespace>
+    <_LocalCompileNamespace Condition="'$(_LocalCompileNamespace)'==''">$(MSBuildProjectName)</_LocalCompileNamespace>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UserSecretsId)' != ''">
+    <LocalCompileFile Include="@(LocalCompile->'$(LocalSecretsDir)/%(Filename)%(Extension)')"
+                      Template="$(LocalCompileTemplateDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LocalCompileFile Update="@(LocalCompileFile)" Visible="False" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="@(LocalCompileFile)">
+      <Link>%(Filename)</Link>
+    </Compile>
+  </ItemGroup>
+
+  <!-- Create LocalCompile files in LocalSecretsDir from templates in .toolkit/.local/LocalCompile/.
+       Templates contain the real code (may have ctor args, interface impls, etc.).
+       Default namespace-only stub is generated only when a new LocalCompile item has no template yet. -->
+  <Target Condition="'@(LocalCompileFile)'!=''" Name="CreateLocalCompileFiles">
+    <MakeDir Directories="$(LocalSecretsDir)" Condition="!Exists('$(LocalSecretsDir)')" />
+
+    <MakeDir Directories="$(LocalCompileTemplateDir)" Condition="!Exists('$(LocalCompileTemplateDir)')" />
+
+    <WriteLinesToFile
+      File="%(LocalCompileFile.Template)"
+      Condition="!Exists('%(LocalCompileFile.Template)')"
+      Lines="namespace $(_LocalCompileNamespace)%3B" />
+
+    <Copy Condition="!Exists('%(LocalCompileFile.Identity)')"
+          SourceFiles="%(Template)" DestinationFiles="%(Identity)" />
+  </Target>
+
+</Project>

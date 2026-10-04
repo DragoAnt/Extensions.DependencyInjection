@@ -1,0 +1,80 @@
+<Project>
+
+  <!-- nuget.org metadata defaults for a packable project. Every value yields to one you set in the
+       csproj or Directory.Build.props. The rules and their sources are listed in the README
+       ("Packaging rules"); the checks live in audit/audit.package.targets. -->
+
+  <PropertyGroup>
+    <PackageId Condition="'$(PackageId)'==''">$(MSBuildProjectName)</PackageId>
+    <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)'==''">false</PackageRequireLicenseAcceptance>
+    <RepositoryType Condition="'$(RepositoryType)'==''">git</RepositoryType>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)'=='' AND '$(RepositoryUrl)'!=''">$(RepositoryUrl)</PackageProjectUrl>
+
+    <!-- Symbols go to nuget.org as a .snupkg next to the .nupkg; skipped when there is no
+         separate PDB to ship. -->
+    <IncludeSymbols Condition="'$(IncludeSymbols)'=='' And '$(IncludeBuildOutput)'!='false' And '$(DebugType)'!='embedded' And '$(DebugType)'!='none'">true</IncludeSymbols>
+    <IncludeSymbols Condition="'$(IncludeSymbols)'==''">false</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(SymbolPackageFormat)'==''">snupkg</SymbolPackageFormat>
+
+    <!-- Package validation: API compatibility across target frameworks, and against the last
+         release when MSKit_PackageValidationBaselineVersion (or PackageValidationBaselineVersion)
+         names it. -->
+    <EnablePackageValidation Condition="'$(EnablePackageValidation)'==''">true</EnablePackageValidation>
+    <PackageValidationBaselineVersion Condition="'$(PackageValidationBaselineVersion)'=='' AND '$(MSKit_PackageValidationBaselineVersion)'!=''">$(MSKit_PackageValidationBaselineVersion)</PackageValidationBaselineVersion>
+  </PropertyGroup>
+
+  <!-- README: package.readme.md next to the csproj, else README.md next to it, packed as readme.md.
+       Set MSKit_PackageReadmeSourcePath to use another file. -->
+  <PropertyGroup Condition="'$(PackageReadmeFile)'==''">
+    <MSKit_PackageReadmeSourcePath Condition="'$(MSKit_PackageReadmeSourcePath)'=='' AND Exists('$(MSBuildProjectDirectory)/package.readme.md')">$(MSBuildProjectDirectory)/package.readme.md</MSKit_PackageReadmeSourcePath>
+    <MSKit_PackageReadmeSourcePath Condition="'$(MSKit_PackageReadmeSourcePath)'=='' AND Exists('$(MSBuildProjectDirectory)/README.md')">$(MSBuildProjectDirectory)/README.md</MSKit_PackageReadmeSourcePath>
+    <PackageReadmeFile Condition="'$(MSKit_PackageReadmeSourcePath)'!='' AND Exists('$(MSKit_PackageReadmeSourcePath)')">readme.md</PackageReadmeFile>
+    <_MSKit_PacksReadme Condition="'$(PackageReadmeFile)'!=''">True</_MSKit_PacksReadme>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackageReadmeFile)'!='' AND '$(_MSKit_PacksReadme)'!='True' AND '$(MSKit_PackageReadmeSourcePath)'==''">
+    <MSKit_PackageReadmeSourcePath>$(MSBuildProjectDirectory)/$(PackageReadmeFile)</MSKit_PackageReadmeSourcePath>
+  </PropertyGroup>
+
+  <!-- Icon: PackageIconPath (the kit's company layer points it at .toolkit/res/package.icon.png),
+       packed as icon.png. -->
+  <PropertyGroup Condition="'$(PackageIcon)'=='' AND '$(PackageIconPath)'!='' AND Exists('$(PackageIconPath)')">
+    <PackageIcon>icon.png</PackageIcon>
+    <_MSKit_PacksIcon>True</_MSKit_PacksIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSKit_PackageIconSourcePath Condition="'$(MSKit_PackageIconSourcePath)'=='' AND '$(_MSKit_PacksIcon)'=='True'">$(PackageIconPath)</MSKit_PackageIconSourcePath>
+    <MSKit_PackageIconSourcePath Condition="'$(MSKit_PackageIconSourcePath)'=='' AND '$(PackageIcon)'!=''">$(MSBuildProjectDirectory)/$(PackageIcon)</MSKit_PackageIconSourcePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Condition="'$(_MSKit_PacksReadme)'=='True'" Include="$(MSKit_PackageReadmeSourcePath)" Pack="true" PackagePath="\$(PackageReadmeFile)" Visible="false" />
+    <None Condition="'$(_MSKit_PacksIcon)'=='True'" Include="$(PackageIconPath)" Pack="true" PackagePath="\icon.png" Visible="false" />
+
+    <None Include="build/**" PackagePath="build/" Pack="true" />
+    <None Include="buildMultiTargeting/**" PackagePath="buildMultiTargeting/" Pack="true" />
+    <None Include="buildTransitive/**" PackagePath="buildTransitive/" Pack="true" />
+  </ItemGroup>
+
+  <!-- Repository and project URLs are only final after Source Link has read the git remote,
+       so the defaults that depend on them are resolved in a target. -->
+  <PropertyGroup>
+    <_MSKit_ResolvePackageUrlsDependsOn Condition="'$(SourceControlInformationFeatureSupported)'=='true'">InitializeSourceControlInformation</_MSKit_ResolvePackageUrlsDependsOn>
+  </PropertyGroup>
+  <Target Name="MSKit_ResolvePackageUrls"
+          BeforeTargets="GenerateNuspec"
+          DependsOnTargets="$(_MSKit_ResolvePackageUrlsDependsOn)">
+    <PropertyGroup>
+      <_MSKit_RepoUrl>$(RepositoryUrl)</_MSKit_RepoUrl>
+      <_MSKit_RepoUrl Condition="'$(_MSKit_RepoUrl)'==''">$(PrivateRepositoryUrl)</_MSKit_RepoUrl>
+      <_MSKit_RepoUrl Condition="$(_MSKit_RepoUrl.EndsWith('.git'))">$(_MSKit_RepoUrl.Substring(0, $([MSBuild]::Subtract($(_MSKit_RepoUrl.Length), 4))))</_MSKit_RepoUrl>
+      <PackageProjectUrl Condition="'$(PackageProjectUrl)'==''">$(_MSKit_RepoUrl)</PackageProjectUrl>
+
+      <_MSKit_IsGitHubUrl Condition="$(PackageProjectUrl.StartsWith('https://github.com/'))">True</_MSKit_IsGitHubUrl>
+      <PackageReleaseNotes Condition="'$(PackageReleaseNotes)'=='' AND '$(MSKit_DefaultReleaseNotes)'!='False' AND '$(_MSKit_IsGitHubUrl)'=='True' AND '$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ReleaseTagRaw)'!=''">$(PackageProjectUrl)/releases/tag/$(MSKit_ReleaseTagRaw)</PackageReleaseNotes>
+      <PackageReleaseNotes Condition="'$(PackageReleaseNotes)'=='' AND '$(MSKit_DefaultReleaseNotes)'!='False' AND '$(_MSKit_IsGitHubUrl)'=='True'">$(PackageProjectUrl)/releases</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <Import Project="$(MSBuildThisFileDirectory)package.inspect.targets" />
+
+</Project>

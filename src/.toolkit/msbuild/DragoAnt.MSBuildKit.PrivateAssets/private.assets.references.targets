@@ -1,0 +1,14 @@
+<Project>
+
+  <!-- MSKit_ProjectReferenceAsPrivateAssets=True / MSKit_PackageReferenceAsPrivateAssets=True keep
+       a project's references from flowing to the projects and packages that depend on it. -->
+
+  <ItemGroup Condition="'$(MSKit_ProjectReferenceAsPrivateAssets)'=='True'">
+    <ProjectReference Update="@(ProjectReference)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSKit_PackageReferenceAsPrivateAssets)'=='True'">
+    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

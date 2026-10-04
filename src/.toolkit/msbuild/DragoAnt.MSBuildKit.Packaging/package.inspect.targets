@@ -1,0 +1,110 @@
+<Project>
+
+  <!-- Reads the package README and icon for the MSKIT_PKG checks. Inline C#, compiled once per
+       build by the RoslynCodeTaskFactory that ships with MSBuild. -->
+  <UsingTask TaskName="MSKit_InspectPackageAssets"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <ReadmePath ParameterType="System.String" />
+      <IconPath ParameterType="System.String" />
+      <AllowedImageHosts ParameterType="System.String" />
+      <RelativeImages ParameterType="System.String" Output="true" />
+      <DisallowedImages ParameterType="System.String" Output="true" />
+      <RelativeLinks ParameterType="System.String" Output="true" />
+      <HtmlTags ParameterType="System.String" Output="true" />
+      <Alerts ParameterType="System.String" Output="true" />
+      <HasMermaid ParameterType="System.Boolean" Output="true" />
+      <IconIsPng ParameterType="System.Boolean" Output="true" />
+      <IconWidth ParameterType="System.Int32" Output="true" />
+      <IconHeight ParameterType="System.Int32" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+var relativeImages = new List<string>();
+var disallowedImages = new List<string>();
+var relativeLinks = new List<string>();
+var htmlTags = new List<string>();
+var alerts = new List<string>();
+
+if (!string.IsNullOrEmpty(ReadmePath) && File.Exists(ReadmePath))
+{
+    var text = File.ReadAllText(ReadmePath);
+    HasMermaid = Regex.IsMatch(text, @"^\s*(```|~~~)\s*mermaid\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+    var prose = Regex.Replace(text, @"^\s*(```|~~~)[\s\S]*?^\s*\1\s*$", "", RegexOptions.Multiline);
+    prose = Regex.Replace(prose, @"`[^`\r\n]*`", "");
+
+    var hosts = (AllowedImageHosts ?? "").Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(h => h.Trim().ToLowerInvariant()).Where(h => h.Length > 0).ToList();
+
+    var images = new List<string>();
+    foreach (Match m in Regex.Matches(prose, @"!\[[^\]]*\]\(\s*<?([^)\s>]+)"))
+        images.Add(m.Groups[1].Value);
+    foreach (Match m in Regex.Matches(prose, @"<img\b[^>]*\bsrc\s*=\s*[""']([^""']+)[""']", RegexOptions.IgnoreCase))
+        images.Add(m.Groups[1].Value);
+
+    foreach (var url in images.Distinct())
+    {
+        Uri uri;
+        if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || (uri.Scheme != "https" && uri.Scheme != "http"))
+        {
+            relativeImages.Add(url);
+            continue;
+        }
+        var host = uri.Host.ToLowerInvariant();
+        var allowed = hosts.Contains(host)
+            || (host == "github.com" && Regex.IsMatch(uri.AbsolutePath, @"^/[^/]+/[^/]+/(actions/)?workflows/[^/]+/badge\.svg$", RegexOptions.IgnoreCase));
+        if (!allowed)
+            disallowedImages.Add(url);
+    }
+
+    foreach (Match m in Regex.Matches(prose, @"(?<!!)\[[^\]]*\]\(\s*<?([^)\s>]+)"))
+    {
+        var target = m.Groups[1].Value;
+        if (target.StartsWith("#") || Regex.IsMatch(target, @"^[A-Za-z][A-Za-z0-9+.-]*:"))
+            continue;
+        relativeLinks.Add(target);
+    }
+
+    foreach (Match m in Regex.Matches(prose, @"</?([A-Za-z][A-Za-z0-9-]*)(\s[^<>]*)?/?>"))
+    {
+        if (m.Value.Contains("://") || m.Value.Contains("@"))
+            continue;
+        htmlTags.Add("<" + m.Groups[1].Value.ToLowerInvariant() + ">");
+    }
+
+    foreach (Match m in Regex.Matches(prose, @"^\s*>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]", RegexOptions.Multiline | RegexOptions.IgnoreCase))
+        alerts.Add("[!" + m.Groups[1].Value.ToUpperInvariant() + "]");
+}
+
+if (!string.IsNullOrEmpty(IconPath) && File.Exists(IconPath))
+{
+    var header = new byte[24];
+    using (var stream = File.OpenRead(IconPath))
+    {
+        var read = stream.Read(header, 0, header.Length);
+        IconIsPng = read == 24 && header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47;
+    }
+    if (IconIsPng)
+    {
+        IconWidth = (header[16] << 24) | (header[17] << 16) | (header[18] << 8) | header[19];
+        IconHeight = (header[20] << 24) | (header[21] << 16) | (header[22] << 8) | header[23];
+    }
+}
+
+RelativeImages = string.Join(", ", relativeImages.Distinct());
+DisallowedImages = string.Join(", ", disallowedImages.Distinct());
+RelativeLinks = string.Join(", ", relativeLinks.Distinct());
+HtmlTags = string.Join(", ", htmlTags.Distinct());
+Alerts = string.Join(", ", alerts.Distinct());
+]]></Code>
+    </Task>
+  </UsingTask>
+
+</Project>

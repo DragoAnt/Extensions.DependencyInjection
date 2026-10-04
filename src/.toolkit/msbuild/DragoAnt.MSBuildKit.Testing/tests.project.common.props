@@ -1,0 +1,22 @@
+<Project>
+
+  <!-- Explicit endpoint for a runnable test project whose name the auto-detect regex does not
+       match. Set MSKit_TestingFramework before the import (MSKIT_TEST010 checks it). -->
+  <PropertyGroup>
+    <_MSKit_TestingFrameworkAtCommonPropsImport>$(MSKit_TestingFramework)</_MSKit_TestingFrameworkAtCommonPropsImport>
+    <_MSKit_TestsProjectCommonPropsImported>True</_MSKit_TestsProjectCommonPropsImported>
+    <IsTestsProject>True</IsTestsProject>
+    <EnableMicrosoftTestingPlatform Condition="'$(EnableMicrosoftTestingPlatform)'==''">True</EnableMicrosoftTestingPlatform>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)tests.project.props"
+          Condition="'$(_MSKit_TestsProjectPropsImported)'!='True'" />
+
+  <PropertyGroup Condition="'$(MSKit_TestingFramework_CommonPropsPath)'==''">
+    <MSKit_TestingFramework_CommonPropsPath Condition="'$(MSKit_TestingFramework)'=='xunit.v3'">$(_MSKit_TestingFramework_xunit_v3_CommonPropsPath)</MSKit_TestingFramework_CommonPropsPath>
+  </PropertyGroup>
+
+  <Import Project="$(MSKit_TestingFramework_CommonPropsPath)"
+          Condition="'$(MSKit_TestingFramework_CommonPropsPath)'!=''" />
+
+</Project>

@@ -1,0 +1,46 @@
+<Project>
+
+  <!-- Filename-based detection of Roslyn project types. Override a regex in Directory.Build.props,
+       or turn detection off with MSKit_Disable<Type>AutoDetect=true and import the matching
+       $(<Type>CommonPropsPath) explicitly. The lookbehind keeps the kit's own part names from
+       matching themselves. -->
+  <PropertyGroup>
+    <MSKit_CodeAnalyzerProjectNameRegex Condition="'$(MSKit_CodeAnalyzerProjectNameRegex)'==''">(?&lt;!^DragoAnt\.MSBuildKit\.Project)\.Analyzers$</MSKit_CodeAnalyzerProjectNameRegex>
+    <MSKit_CodeFixerProjectNameRegex Condition="'$(MSKit_CodeFixerProjectNameRegex)'==''">(?&lt;!^DragoAnt\.MSBuildKit\.Project)\.CodeFixes$</MSKit_CodeFixerProjectNameRegex>
+    <MSKit_SourceGeneratorProjectNameRegex Condition="'$(MSKit_SourceGeneratorProjectNameRegex)'==''">(?&lt;!^DragoAnt\.MSBuildKit\.Project)\.SourceGenerator$</MSKit_SourceGeneratorProjectNameRegex>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MSKit_IsCodeAnalyzerAutoDetected Condition="'$(MSKit_IsCodeAnalyzerAutoDetected)'==''
+                                                  AND '$(IsCodeAnalyzer)'==''
+                                                  AND '$(MSKit_DisableCodeAnalyzerAutoDetect)'!='true'
+                                                  AND '$(MSKit_CodeAnalyzerProjectNameRegex)'!=''">$([System.Text.RegularExpressions.Regex]::IsMatch($(MSBuildProjectName), $(MSKit_CodeAnalyzerProjectNameRegex)))</MSKit_IsCodeAnalyzerAutoDetected>
+    <IsCodeAnalyzer Condition="'$(IsCodeAnalyzer)'=='' AND '$(MSKit_IsCodeAnalyzerAutoDetected)'=='True'">True</IsCodeAnalyzer>
+
+    <MSKit_IsCodeFixerAutoDetected Condition="'$(MSKit_IsCodeFixerAutoDetected)'==''
+                                               AND '$(IsCodeFixer)'==''
+                                               AND '$(MSKit_DisableCodeFixerAutoDetect)'!='true'
+                                               AND '$(MSKit_CodeFixerProjectNameRegex)'!=''">$([System.Text.RegularExpressions.Regex]::IsMatch($(MSBuildProjectName), $(MSKit_CodeFixerProjectNameRegex)))</MSKit_IsCodeFixerAutoDetected>
+    <IsCodeFixer Condition="'$(IsCodeFixer)'=='' AND '$(MSKit_IsCodeFixerAutoDetected)'=='True'">True</IsCodeFixer>
+
+    <MSKit_IsSourceGeneratorAutoDetected Condition="'$(MSKit_IsSourceGeneratorAutoDetected)'==''
+                                                     AND '$(IsSourceGenerator)'==''
+                                                     AND '$(MSKit_DisableSourceGeneratorAutoDetect)'!='true'
+                                                     AND '$(MSKit_SourceGeneratorProjectNameRegex)'!=''">$([System.Text.RegularExpressions.Regex]::IsMatch($(MSBuildProjectName), $(MSKit_SourceGeneratorProjectNameRegex)))</MSKit_IsSourceGeneratorAutoDetected>
+    <IsSourceGenerator Condition="'$(IsSourceGenerator)'=='' AND '$(MSKit_IsSourceGeneratorAutoDetected)'=='True'">true</IsSourceGenerator>
+  </PropertyGroup>
+
+  <!-- Snapshots of the regexes the detection used; audits read these, not a later csproj override. -->
+  <PropertyGroup>
+    <_MSKit_CodeAnalyzerProjectNameRegex_Shared>$(MSKit_CodeAnalyzerProjectNameRegex)</_MSKit_CodeAnalyzerProjectNameRegex_Shared>
+    <_MSKit_CodeFixerProjectNameRegex_Shared>$(MSKit_CodeFixerProjectNameRegex)</_MSKit_CodeFixerProjectNameRegex_Shared>
+    <_MSKit_SourceGeneratorProjectNameRegex_Shared>$(MSKit_SourceGeneratorProjectNameRegex)</_MSKit_SourceGeneratorProjectNameRegex_Shared>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MSKit_AutoDetectedProjectType Include="CodeAnalyzer" Condition="'$(MSKit_IsCodeAnalyzerAutoDetected)'=='True'" />
+    <MSKit_AutoDetectedProjectType Include="CodeFixer" Condition="'$(MSKit_IsCodeFixerAutoDetected)'=='True'" />
+    <MSKit_AutoDetectedProjectType Include="SourceGenerator" Condition="'$(MSKit_IsSourceGeneratorAutoDetected)'=='True'" />
+  </ItemGroup>
+
+</Project>

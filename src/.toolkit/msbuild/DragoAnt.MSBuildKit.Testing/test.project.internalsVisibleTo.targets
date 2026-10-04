@@ -1,0 +1,31 @@
+<Project>
+
+  <!-- Every non-test project shows its internals to the test projects found under MSKit_TestsDir
+       (default: the solution directory), and to Castle's DynamicProxyGenAssembly2 so NSubstitute
+       can mock internal types. -->
+  <PropertyGroup>
+    <MSKit_TestsDir Condition="'$(MSKit_TestsDir)'==''">$(MSKit_SlnFileDirectory)</MSKit_TestsDir>
+    <MSKit_TestsDir Condition="'$(MSKit_TestsDir)'=='' AND '$(MSKit_GitRoot)'!=''">$(MSKit_GitRoot)/</MSKit_TestsDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSKit_TestsDir)'!='' AND !$(MSKit_TestsDir.EndsWith('/')) AND !$(MSKit_TestsDir.EndsWith('\'))">
+    <MSKit_TestsDir>$(MSKit_TestsDir)/</MSKit_TestsDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSKit_TestsDir)'!='' And Exists('$(MSKit_TestsDir)')">
+    <_AllCsprojsUnderTestsDir Include="$(MSKit_TestsDir)**/*.csproj" Exclude="$(MSKit_TestsDir)**/bin/**;$(MSKit_TestsDir)**/obj/**;$(MSKit_TestsDir)**/node_modules/**" />
+  </ItemGroup>
+
+  <!-- Metadata batching over %(Filename) only filters per item inside a target. -->
+  <Target Name="_MSKit_PopulateInternalsVisibleTo"
+          BeforeTargets="BeforeCompile"
+          Condition="'$(MSKit_TestsDir)'!='' And Exists('$(MSKit_TestsDir)')">
+    <ItemGroup>
+      <InternalVisibleToProj Include="@(_AllCsprojsUnderTestsDir)"
+                             Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)', '$(_MSKit_TestsProjectNameRegex_Shared)'))
+                                        OR $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)', '$(_MSKit_TestsLibProjectNameRegex_Shared)'))" />
+      <InternalsVisibleTo Include="@(InternalVisibleToProj->'%(Filename)')" />
+      <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+  </Target>
+
+</Project>

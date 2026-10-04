@@ -1,0 +1,15 @@
+<Project>
+
+  <!-- Explicit endpoints for test projects whose names the auto-detect regex does not match:
+         <Import Project="$(TestsProjectCommonPropsPath)" />      runnable tests
+         <Import Project="$(TestsLibProjectCommonPropsPath)" />   test helper libraries -->
+  <PropertyGroup>
+    <TestsProjectCommonPropsPath>$(MSBuildThisFileDirectory)tests.project.common.props</TestsProjectCommonPropsPath>
+    <TestsLibProjectCommonPropsPath>$(MSBuildThisFileDirectory)tests.lib.project.common.props</TestsLibProjectCommonPropsPath>
+    <MSKit_TestsAssertions Condition="'$(MSKit_TestsAssertions)'==''">AwesomeAssertions</MSKit_TestsAssertions>
+    <MSKit_TestsMocking Condition="'$(MSKit_TestsMocking)'==''">NSubstitute</MSKit_TestsMocking>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)tests.project.props" />
+
+</Project>

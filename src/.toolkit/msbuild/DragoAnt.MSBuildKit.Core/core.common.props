@@ -1,0 +1,32 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_Diagnostic Condition="'$(MSKit_Diagnostic)'==''">false</MSKit_Diagnostic>
+    <!-- True on a developer machine; the Vcs.GitHub part flips it to False on GitHub Actions. -->
+    <MSKit_IsDevEnv Condition="'$(MSKit_IsDevEnv)'==''">True</MSKit_IsDevEnv>
+
+    <!-- A Version that exists before the kit loads (-p:Version=... or Directory.Build.props
+         above the import) is the caller's decision: the version engine then renders nothing. -->
+    <MSKit_ExplicitVersion Condition="'$(MSKit_ExplicitVersion)'==''">$(Version)</MSKit_ExplicitVersion>
+
+    <MSKit_ImplicitPackageVersions Condition="'$(MSKit_ImplicitPackageVersions)'==''">True</MSKit_ImplicitPackageVersions>
+
+    <MSKit_Templates Condition="'$(MSKit_Templates)'==''">$(MSBuildThisFileDirectory)../../.local/</MSKit_Templates>
+
+    <MSKit_SlnFileDirectory Condition="'$(MSKit_SlnFileDirectory)'=='' AND '$(SlnxFilePath)'!=''">$([System.IO.Path]::GetDirectoryName('$(SlnxFilePath)').Replace('\', '/').TrimEnd('/'))/</MSKit_SlnFileDirectory>
+    <MSKit_SlnFileDirectory Condition="'$(MSKit_SlnFileDirectory)'==''">$(MSBuildThisFileDirectory)../../../</MSKit_SlnFileDirectory>
+    <MSKit_SlnFileDirectory>$([System.IO.Path]::GetFullPath('$(MSKit_SlnFileDirectory)').Replace('\', '/').TrimEnd('/'))/</MSKit_SlnFileDirectory>
+
+    <MSKit_SlnFileName Condition="'$(MSKit_SlnFileName)'=='' AND '$(SlnxFilePath)'!=''">$([System.IO.Path]::GetFileNameWithoutExtension('$(SlnxFilePath)'))</MSKit_SlnFileName>
+
+    <MSKit_ToolkitMSBuildDir Condition="'$(MSKit_ToolkitMSBuildDir)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../').Replace('\', '/').TrimEnd('/'))/</MSKit_ToolkitMSBuildDir>
+    <MSKit_ToolkitDir Condition="'$(MSKit_ToolkitDir)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../').Replace('\', '/').TrimEnd('/'))/</MSKit_ToolkitDir>
+
+    <_ProjectObjDir>$(BaseIntermediateOutputPath)</_ProjectObjDir>
+    <_ProjectObjDir Condition="'$(_ProjectObjDir)'==''">obj</_ProjectObjDir>
+    <MSKit_ProjectObjDir Condition="$([System.IO.Path]::IsPathRooted('$(_ProjectObjDir)'))">$(_ProjectObjDir)</MSKit_ProjectObjDir>
+    <MSKit_ProjectObjDir Condition="'$(MSKit_ProjectObjDir)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/$(_ProjectObjDir)'))</MSKit_ProjectObjDir>
+    <MSKit_ProjectObjDir>$([System.IO.Path]::GetFullPath('$(MSKit_ProjectObjDir)').TrimEnd('/').Replace('\', '/'))</MSKit_ProjectObjDir>
+  </PropertyGroup>
+
+</Project>

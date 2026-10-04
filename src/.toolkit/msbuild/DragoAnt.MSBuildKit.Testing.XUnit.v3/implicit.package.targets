@@ -1,0 +1,26 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_PackageVersion_XunitV3 Condition="'$(MSKit_PackageVersion_XunitV3)'==''">4.0.1</MSKit_PackageVersion_XunitV3>
+    <MSKit_PackageVersion_XunitV3Assert Condition="'$(MSKit_PackageVersion_XunitV3Assert)'==''">$(MSKit_PackageVersion_XunitV3)</MSKit_PackageVersion_XunitV3Assert>
+    <MSKit_PackageVersion_XunitV3ExtensibilityCore Condition="'$(MSKit_PackageVersion_XunitV3ExtensibilityCore)'==''">$(MSKit_PackageVersion_XunitV3)</MSKit_PackageVersion_XunitV3ExtensibilityCore>
+    <MSKit_PackageVersion_XunitRunnerVisualStudio Condition="'$(MSKit_PackageVersion_XunitRunnerVisualStudio)'==''">4.0.0</MSKit_PackageVersion_XunitRunnerVisualStudio>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSKit_ImplicitPackageVersions)'=='True' AND '$(ManagePackageVersionsCentrally)'=='true'">
+    <PackageVersion Include="xunit.v3" Version="$(MSKit_PackageVersion_XunitV3)" ControlledBy="DragoAnt.MSBuildKit.Testing.XUnit.v3" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="$(MSKit_PackageVersion_XunitV3)" ControlledBy="DragoAnt.MSBuildKit.Testing.XUnit.v3" />
+    <PackageVersion Include="xunit.v3.assert" Version="$(MSKit_PackageVersion_XunitV3Assert)" ControlledBy="DragoAnt.MSBuildKit.Testing.XUnit.v3" />
+    <PackageVersion Include="xunit.v3.extensibility.core" Version="$(MSKit_PackageVersion_XunitV3ExtensibilityCore)" ControlledBy="DragoAnt.MSBuildKit.Testing.XUnit.v3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="$(MSKit_PackageVersion_XunitRunnerVisualStudio)" ControlledBy="DragoAnt.MSBuildKit.Testing.XUnit.v3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSKit_ImplicitPackageVersions)'=='True' AND '$(ManagePackageVersionsCentrally)'!='true'">
+    <PackageReference Update="xunit.v3"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_XunitV3)</Version></PackageReference>
+    <PackageReference Update="xunit.v3.mtp-v2"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_XunitV3)</Version></PackageReference>
+    <PackageReference Update="xunit.v3.assert"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_XunitV3Assert)</Version></PackageReference>
+    <PackageReference Update="xunit.v3.extensibility.core"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_XunitV3ExtensibilityCore)</Version></PackageReference>
+    <PackageReference Update="xunit.runner.visualstudio"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_XunitRunnerVisualStudio)</Version></PackageReference>
+  </ItemGroup>
+
+</Project>

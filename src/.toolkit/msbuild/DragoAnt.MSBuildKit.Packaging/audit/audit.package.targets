@@ -1,0 +1,128 @@
+<Project>
+
+  <!-- nuget.org package checks, MSKIT_PKG001..019, run by `dotnet pack`. They are warnings on a
+       developer machine and errors on CI (MSKit_PackageChecksAsErrors). Turn single checks off with
+       MSKit_SkipPackageChecks=MSKIT_PKG004;MSKIT_PKG016 (or by listing the code in NoWarn), or all
+       of them with MSKit_SkipPackageChecks=All. -->
+
+  <PropertyGroup>
+    <MSKit_PackageChecksAsErrors Condition="'$(MSKit_PackageChecksAsErrors)'=='' AND '$(MSKit_IsDevEnv)'!='True'">True</MSKit_PackageChecksAsErrors>
+    <MSKit_PackageDescriptionMinLength Condition="'$(MSKit_PackageDescriptionMinLength)'==''">30</MSKit_PackageDescriptionMinLength>
+    <MSKit_SemVerRegex Condition="'$(MSKit_SemVerRegex)'==''">^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$</MSKit_SemVerRegex>
+    <MSKit_PackageIconSize Condition="'$(MSKit_PackageIconSize)'==''">128</MSKit_PackageIconSize>
+    <!-- https://learn.microsoft.com/nuget/nuget-org/package-readme-on-nuget-org#allowed-domains-for-images-and-badges
+         github.com is allowed only for Actions workflow badges, which the check handles itself. -->
+    <MSKit_PackageReadmeAllowedImageHosts Condition="'$(MSKit_PackageReadmeAllowedImageHosts)'==''">api.codacy.com;api.codeclimate.com;api.dependabot.com;api.reuse.software;api.travis-ci.com;app.codacy.com;app.deepsource.com;avatars.githubusercontent.com;badgen.net;badges.gitter.im;camo.githubusercontent.com;caniuse.bitsofco.de;cdn.jsdelivr.net;cdn.syncfusion.com;ci.appveyor.com;circleci.com;cloudback.it;codecov.io;codefactor.io;coveralls.io;dev.azure.com;devpod.sh;flat.badgen.net;gitlab.com;i.imgur.com;img.shields.io;infragistics.com;isitmaintained.com;media.githubusercontent.com;opencollective.com;raw.github.com;raw.githubusercontent.com;snyk.io;sonarcloud.io;travis-ci.com;travis-ci.org;user-images.githubusercontent.com</MSKit_PackageReadmeAllowedImageHosts>
+    <_MSKit_PkgRules>https://learn.microsoft.com/nuget/create-packages/package-authoring-best-practices</_MSKit_PkgRules>
+    <_MSKit_PkgReadmeRules>https://learn.microsoft.com/nuget/nuget-org/package-readme-on-nuget-org</_MSKit_PkgReadmeRules>
+  </PropertyGroup>
+
+  <Target Name="MSKit_PackageChecks"
+          BeforeTargets="GenerateNuspec"
+          DependsOnTargets="MSKit_ResolvePackageUrls"
+          Condition="'$(IsPackable)'=='True' AND '$(MSKit_SkipPackageChecks)'!='All' AND '$(MSKit_SkipPackageChecks)'!='True'">
+
+    <MSKit_InspectPackageAssets ReadmePath="$(MSKit_PackageReadmeSourcePath)"
+                                IconPath="$(MSKit_PackageIconSourcePath)"
+                                AllowedImageHosts="$(MSKit_PackageReadmeAllowedImageHosts)">
+      <Output TaskParameter="RelativeImages" PropertyName="_MSKit_RelativeImages" />
+      <Output TaskParameter="DisallowedImages" PropertyName="_MSKit_DisallowedImages" />
+      <Output TaskParameter="RelativeLinks" PropertyName="_MSKit_RelativeLinks" />
+      <Output TaskParameter="HtmlTags" PropertyName="_MSKit_HtmlTags" />
+      <Output TaskParameter="Alerts" PropertyName="_MSKit_Alerts" />
+      <Output TaskParameter="HasMermaid" PropertyName="_MSKit_HasMermaid" />
+      <Output TaskParameter="IconIsPng" PropertyName="_MSKit_IconIsPng" />
+      <Output TaskParameter="IconWidth" PropertyName="_MSKit_IconWidth" />
+      <Output TaskParameter="IconHeight" PropertyName="_MSKit_IconHeight" />
+    </MSKit_InspectPackageAssets>
+
+    <PropertyGroup>
+      <_MSKit_Description>$(PackageDescription)</_MSKit_Description>
+      <_MSKit_Description Condition="'$(_MSKit_Description)'==''">$(Description)</_MSKit_Description>
+      <_MSKit_Description>$(_MSKit_Description.Trim())</_MSKit_Description>
+      <_MSKit_DescriptionIsPlaceholder Condition="'$(_MSKit_Description)'=='' OR '$(_MSKit_Description)'=='Package Description' OR '$(_MSKit_Description)'=='$(PackageId)' OR '$(_MSKit_Description)'=='$(MSBuildProjectName)'">True</_MSKit_DescriptionIsPlaceholder>
+      <_MSKit_PkgVersion>$(PackageVersion)</_MSKit_PkgVersion>
+      <_MSKit_PkgVersion Condition="'$(_MSKit_PkgVersion)'==''">$(Version)</_MSKit_PkgVersion>
+      <_MSKit_RepoUrlFinal>$(RepositoryUrl)</_MSKit_RepoUrlFinal>
+      <_MSKit_RepoUrlFinal Condition="'$(_MSKit_RepoUrlFinal)'==''">$(PrivateRepositoryUrl)</_MSKit_RepoUrlFinal>
+      <_MSKit_LicenseIsOpen Condition="'$(PackageLicenseExpression)'!=''">True</_MSKit_LicenseIsOpen>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_MSKit_PkgFinding Include="MSKIT_PKG001" Condition="'$(_MSKit_DescriptionIsPlaceholder)'=='True'"
+                         Text="Package '$(PackageId)' has no real Description ('$(_MSKit_Description)'). nuget.org search shows it first: say what the package does and what sets it apart, in one or two sentences."
+                         Rule="$(_MSKit_PkgRules)#description" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG002" Condition="'$(_MSKit_DescriptionIsPlaceholder)'!='True' AND $(_MSKit_Description.Length) &lt; $(MSKit_PackageDescriptionMinLength)"
+                         Text="Package '$(PackageId)' Description is $(_MSKit_Description.Length) characters ('$(_MSKit_Description)'); write at least $(MSKit_PackageDescriptionMinLength): what it does and for whom (MSKit_PackageDescriptionMinLength sets the bar)."
+                         Rule="$(_MSKit_PkgRules)#description" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG003" Condition="'$(PackageReadmeFile)'==''"
+                         Text="Package '$(PackageId)' ships no README. Add package.readme.md next to the csproj: what it is, how to start, a short example, where to give feedback."
+                         Rule="$(_MSKit_PkgRules)#readme" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG004" Condition="'$(PackageTags)'==''"
+                         Text="Package '$(PackageId)' has no PackageTags. Add a few search terms that are not already in the package id."
+                         Rule="$(_MSKit_PkgRules)#tags" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG005" Condition="'$(PackageIcon)'==''"
+                         Text="Package '$(PackageId)' has no icon. Set PackageIconPath to a 128x128 PNG (the company layer of the kit sets one for every package)."
+                         Rule="$(_MSKit_PkgRules)#icon" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG006" Condition="'$(PackageLicenseExpression)'=='' AND '$(PackageLicenseFile)'==''"
+                         Text="Package '$(PackageId)' has no licence. Without one nobody may use it. Set PackageLicenseExpression to an SPDX id (for example MIT)."
+                         Rule="$(_MSKit_PkgRules)#licensing" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG007" Condition="'$(PackageLicenseUrl)'!=''"
+                         Text="Package '$(PackageId)' uses the deprecated PackageLicenseUrl. Replace it with PackageLicenseExpression (an SPDX id) or PackageLicenseFile."
+                         Rule="$(_MSKit_PkgRules)#licensing" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG008" Condition="'$(PackageIconUrl)'!=''"
+                         Text="Package '$(PackageId)' uses the deprecated PackageIconUrl. Pack the image and point PackageIcon (or the kit's PackageIconPath) at it."
+                         Rule="$(_MSKit_PkgRules)#icon" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG009" Condition="'$(_MSKit_RelativeImages)'!=''"
+                         Text="The package README of '$(PackageId)' has relative images, which nuget.org does not render: $(_MSKit_RelativeImages). Use absolute https URLs from an allowed host."
+                         Rule="$(_MSKit_PkgReadmeRules)#allowed-domains-for-images-and-badges" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG010" Condition="'$(_MSKit_HtmlTags)'!=''"
+                         Text="The package README of '$(PackageId)' contains HTML, which nuget.org does not render: $(_MSKit_HtmlTags). Use Markdown instead."
+                         Rule="$(_MSKit_PkgReadmeRules)#supported-markdown-features" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG011" Condition="'$(_MSKit_Alerts)'!=''"
+                         Text="The package README of '$(PackageId)' uses GitHub alert blocks, which nuget.org shows as plain quotes: $(_MSKit_Alerts). Use a bold lead-in such as **Note:** instead."
+                         Rule="$(_MSKit_PkgReadmeRules)#supported-markdown-features" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG012" Condition="'$(_MSKit_DisallowedImages)'!=''"
+                         Text="The package README of '$(PackageId)' loads images from hosts nuget.org blocks: $(_MSKit_DisallowedImages). Host them on an allowed domain (img.shields.io, raw.githubusercontent.com, ...)."
+                         Rule="$(_MSKit_PkgReadmeRules)#allowed-domains-for-images-and-badges" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG013" Condition="'$(_MSKit_PkgVersion)'!='' AND !$([System.Text.RegularExpressions.Regex]::IsMatch('$(_MSKit_PkgVersion)', '$(MSKit_SemVerRegex)'))"
+                         Text="Package '$(PackageId)' version '$(_MSKit_PkgVersion)' is not SemVer 2.0 (MAJOR.MINOR.PATCH[-prerelease][+metadata])."
+                         Rule="$(_MSKit_PkgRules)#package-version" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG014" Condition="'$(_MSKit_RepoUrlFinal)'=='' OR '$(PackageProjectUrl)'==''"
+                         Text="Package '$(PackageId)' has no repository or project URL. Set RepositoryUrl, or build from a git clone whose origin remote Source Link can read."
+                         Rule="$(_MSKit_PkgRules)#repository-type-and-url" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG015" Condition="'$(MSKit_PackageIconSourcePath)'!='' AND Exists('$(MSKit_PackageIconSourcePath)') AND ('$(_MSKit_IconIsPng)'!='True' OR '$(_MSKit_IconWidth)'!='$(MSKit_PackageIconSize)' OR '$(_MSKit_IconHeight)'!='$(MSKit_PackageIconSize)')"
+                         Text="Package '$(PackageId)' icon is not a $(MSKit_PackageIconSize)x$(MSKit_PackageIconSize) PNG (PNG: $(_MSKit_IconIsPng), size: $(_MSKit_IconWidth)x$(_MSKit_IconHeight))."
+                         Rule="$(_MSKit_PkgRules)#icon" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG016" Condition="'$(PackageReleaseNotes)'==''"
+                         Text="Package '$(PackageId)' has no PackageReleaseNotes. Set them, or a link to the changelog (on GitHub the kit links the releases page by default)."
+                         Rule="$(_MSKit_PkgRules)#release-notes" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG017" Condition="'$(_MSKit_RelativeLinks)'!=''"
+                         Text="The package README of '$(PackageId)' has relative links, which break on nuget.org: $(_MSKit_RelativeLinks). Use absolute URLs."
+                         Rule="$(_MSKit_PkgReadmeRules)" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG018" Condition="'$(_MSKit_LicenseIsOpen)'=='True' AND $(Copyright.ToLowerInvariant().Contains('all rights reserved'))"
+                         Text="Package '$(PackageId)' is licensed '$(PackageLicenseExpression)' but its Copyright says 'all rights reserved' ('$(Copyright)'). Use 'Copyright (c) YEAR OWNER'."
+                         Rule="$(_MSKit_PkgRules)#copyright" />
+      <_MSKit_PkgFinding Include="MSKIT_PKG019" Condition="'$(_MSKit_HasMermaid)'=='True'"
+                         Text="The package README of '$(PackageId)' contains a Mermaid diagram, which nuget.org shows as code. Link to the diagram on GitHub instead."
+                         Rule="$(_MSKit_PkgReadmeRules)#supported-markdown-features" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_MSKit_PkgSkip Include="$(MSKit_SkipPackageChecks)" />
+      <_MSKit_PkgSkip Include="$(NoWarn)" />
+      <_MSKit_PkgFinding Remove="@(_MSKit_PkgSkip)" />
+    </ItemGroup>
+
+    <Warning Condition="'@(_MSKit_PkgFinding)'!='' AND '$(MSKit_PackageChecksAsErrors)'!='True'"
+             Code="%(_MSKit_PkgFinding.Identity)"
+             Text="%(_MSKit_PkgFinding.Text) Rule: %(_MSKit_PkgFinding.Rule) (to skip: MSKit_SkipPackageChecks=%(_MSKit_PkgFinding.Identity))"
+             File="$(MSBuildProjectFullPath)" />
+    <Error Condition="'@(_MSKit_PkgFinding)'!='' AND '$(MSKit_PackageChecksAsErrors)'=='True'"
+           ContinueOnError="ErrorAndContinue"
+           Code="%(_MSKit_PkgFinding.Identity)"
+           Text="%(_MSKit_PkgFinding.Text) Rule: %(_MSKit_PkgFinding.Rule) (to skip: MSKit_SkipPackageChecks=%(_MSKit_PkgFinding.Identity))"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

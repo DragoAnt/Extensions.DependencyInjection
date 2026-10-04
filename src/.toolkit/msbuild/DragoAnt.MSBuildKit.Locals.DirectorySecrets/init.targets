@@ -1,0 +1,10 @@
+<Project>
+
+  <Import Condition="'$(MSKit_SlnSecretsCleanUp)'=='True'"
+          Project="$(MSBuildThisFileDirectory)local.directory.secrets.cleanup.targets" />
+
+  <ImportGroup Condition="'$(MSKit_IsDevEnv)'=='True'">
+    <Import Project="$(MSBuildThisFileDirectory)local.directory.secrets.targets" />
+  </ImportGroup>
+
+</Project>

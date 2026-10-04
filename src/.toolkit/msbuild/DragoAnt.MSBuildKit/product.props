@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <AssemblyTitle Condition="'$(AssemblyTitle)'==''">$(MSBuildProjectName)</AssemblyTitle>
+    <Year>$([System.DateTime]::UtcNow.Year)</Year>
+    <LegalTrademarks Condition="'$(LegalTrademarks)'==''">$(ManufacturerName)</LegalTrademarks>
+    <Company Condition="'$(Company)'==''">$(FullManufacturerName)</Company>
+    <!-- Licence-neutral on purpose: 'All rights reserved' contradicts an open-source licence. -->
+    <Copyright Condition="'$(Copyright)'==''">Copyright (c) $(Year) $(FullManufacturerName)</Copyright>
+    <Authors Condition="'$(Authors)'==''">$(ManufacturerName)</Authors>
+  </PropertyGroup>
+
+</Project>

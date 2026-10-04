@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build and test
+    uses: DragoAnt/.github/.github/workflows/dotnet-build.yml@c9f20c11ebd297193a910d965d33bdf37c0d6c42 # main
+    with:
+      version: 0.0.0-ci.${{ github.run_number }}
+      solution: src/DragoAnt.Extensions.DependencyInjection.slnx

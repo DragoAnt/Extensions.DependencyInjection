@@ -1,0 +1,42 @@
+<Project>
+
+  <!-- Central package versions for the test stack. Each one is a property you can override in
+       Directory.Build.props; MSKit_ImplicitPackageVersions=False turns them all off. -->
+  <PropertyGroup>
+    <MSKit_PackageVersion_FluentAssertions Condition="'$(MSKit_PackageVersion_FluentAssertions)'==''">[7.2.2]</MSKit_PackageVersion_FluentAssertions>
+    <MSKit_PackageVersion_Shouldly Condition="'$(MSKit_PackageVersion_Shouldly)'==''">4.3.0</MSKit_PackageVersion_Shouldly>
+    <MSKit_PackageVersion_AwesomeAssertions Condition="'$(MSKit_PackageVersion_AwesomeAssertions)'==''">9.6.0</MSKit_PackageVersion_AwesomeAssertions>
+    <MSKit_PackageVersion_NSubstitute Condition="'$(MSKit_PackageVersion_NSubstitute)'==''">6.2.0</MSKit_PackageVersion_NSubstitute>
+    <MSKit_PackageVersion_NSubstituteAnalyzersCSharp Condition="'$(MSKit_PackageVersion_NSubstituteAnalyzersCSharp)'==''">1.0.17</MSKit_PackageVersion_NSubstituteAnalyzersCSharp>
+    <MSKit_PackageVersion_MicrosoftNetTestSdk Condition="'$(MSKit_PackageVersion_MicrosoftNetTestSdk)'==''">18.10.1</MSKit_PackageVersion_MicrosoftNetTestSdk>
+    <MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport)'==''">2.4.1</MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport>
+    <MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage)'==''">18.11.2</MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSKit_ImplicitPackageVersions)'=='True' AND '$(ManagePackageVersionsCentrally)'=='true'">
+    <PackageVersion Include="FluentAssertions" Version="$(MSKit_PackageVersion_FluentAssertions)" ControlledBy="DragoAnt.MSBuildKit.Testing"
+                    Condition="'$(MSKit_TestsAssertions)'=='FluentAssertions'" />
+    <PackageVersion Include="Shouldly" Version="$(MSKit_PackageVersion_Shouldly)" ControlledBy="DragoAnt.MSBuildKit.Testing"
+                    Condition="'$(MSKit_TestsAssertions)'=='Shouldly'" />
+    <PackageVersion Include="AwesomeAssertions" Version="$(MSKit_PackageVersion_AwesomeAssertions)" ControlledBy="DragoAnt.MSBuildKit.Testing"
+                    Condition="'$(MSKit_TestsAssertions)'=='AwesomeAssertions'" />
+    <PackageVersion Include="NSubstitute" Version="$(MSKit_PackageVersion_NSubstitute)" ControlledBy="DragoAnt.MSBuildKit.Testing" />
+    <PackageVersion Include="NSubstitute.Analyzers.CSharp" Version="$(MSKit_PackageVersion_NSubstituteAnalyzersCSharp)" ControlledBy="DragoAnt.MSBuildKit.Testing" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="$(MSKit_PackageVersion_MicrosoftNetTestSdk)" ControlledBy="DragoAnt.MSBuildKit.Testing" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport)" ControlledBy="DragoAnt.MSBuildKit.Testing" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage)" ControlledBy="DragoAnt.MSBuildKit.Testing" />
+  </ItemGroup>
+
+  <!-- Without Central Package Management the same versions go straight onto the references. -->
+  <ItemGroup Condition="'$(MSKit_ImplicitPackageVersions)'=='True' AND '$(ManagePackageVersionsCentrally)'!='true'">
+    <PackageReference Update="FluentAssertions"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_FluentAssertions)</Version></PackageReference>
+    <PackageReference Update="Shouldly"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_Shouldly)</Version></PackageReference>
+    <PackageReference Update="AwesomeAssertions"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_AwesomeAssertions)</Version></PackageReference>
+    <PackageReference Update="NSubstitute"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_NSubstitute)</Version></PackageReference>
+    <PackageReference Update="NSubstitute.Analyzers.CSharp"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_NSubstituteAnalyzersCSharp)</Version></PackageReference>
+    <PackageReference Update="Microsoft.NET.Test.Sdk"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_MicrosoftNetTestSdk)</Version></PackageReference>
+    <PackageReference Update="Microsoft.Testing.Extensions.TrxReport"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport)</Version></PackageReference>
+    <PackageReference Update="Microsoft.Testing.Extensions.CodeCoverage"><Version Condition="'%(Version)'==''">$(MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage)</Version></PackageReference>
+  </ItemGroup>
+
+</Project>

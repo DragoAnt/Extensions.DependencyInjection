@@ -1,0 +1,10 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)core.common.props" />
+  <Import Project="$(MSBuildThisFileDirectory)git.root.props" />
+  <Import Project="$(MSBuildThisFileDirectory)git.routine.props" />
+  <Import Project="$(MSBuildThisFileDirectory)tfm.routine.props" />
+  <Import Project="$(MSBuildThisFileDirectory)core.locals.props" />
+  <Import Project="$(MSBuildThisFileDirectory)project-types.autodetect.props" />
+
+</Project>

@@ -1,0 +1,35 @@
+<Project>
+
+  <!-- The owner layer: loaded first, so every value here is a default the kit parts and your
+       Directory.Build.props can override. Fork the kit and change this file to use it for
+       another owner; everything else is owner-neutral. -->
+  <PropertyGroup>
+    <ManufacturerName>DragoAnt</ManufacturerName>
+    <FullManufacturerName>DragoAnt</FullManufacturerName>
+
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)'=='' AND '$(PackageLicenseFile)'==''">MIT</PackageLicenseExpression>
+    <PackageIconPath Condition="'$(PackageIconPath)'==''">$(MSBuildThisFileDirectory)../res/package.icon.png</PackageIconPath>
+    <MSKit_PrereleasePackagePrefix Condition="'$(MSKit_PrereleasePackagePrefix)'==''">DragoAnt.</MSKit_PrereleasePackagePrefix>
+
+    <MSKit_IsStableBranchRegex Condition="'$(MSKit_IsStableBranchRegex)'==''">^(main|release/.+)$</MSKit_IsStableBranchRegex>
+    <MSKit_VersionStrategy Condition="'$(MSKit_VersionStrategy)'==''">ReleaseTag</MSKit_VersionStrategy>
+
+    <!-- Libraries are the norm in these repositories; test and sample projects opt out. -->
+    <IsPackable Condition="'$(IsPackable)'==''">True</IsPackable>
+
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)'==''">True</TreatWarningsAsErrors>
+    <!-- CS1591: public members without XML docs. xUnit1051: CancellationToken overloads in tests. -->
+    <NoWarn>CS1591;xUnit1051;$(NoWarn)</NoWarn>
+    <!-- A newly disclosed vulnerability in a dependency stays a warning, so the fix can be
+         scheduled instead of blocking every build. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+
+    <MSKit_TestingFramework Condition="'$(MSKit_TestingFramework)'==''">xunit.v3</MSKit_TestingFramework>
+    <MSKit_TestsAssertions Condition="'$(MSKit_TestsAssertions)'==''">AwesomeAssertions</MSKit_TestsAssertions>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MSKit_RestrictPackageReference Include="Moq" Type="Error" Message="Use NSubstitute for test doubles." />
+  </ItemGroup>
+
+</Project>

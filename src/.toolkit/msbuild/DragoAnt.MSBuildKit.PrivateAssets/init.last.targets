@@ -1,0 +1,5 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)private.assets.references.targets" />
+
+</Project>
