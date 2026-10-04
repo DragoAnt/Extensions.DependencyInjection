@@ -1,0 +1,82 @@
+<Project>
+
+  <!-- Runnable-test-project checks, MSKIT_TEST010..026. BeforeTargets includes CoreCompile so they
+       fire before generated entry-point code can mask them with compiler errors. -->
+
+  <Target Name="ValidateTestingFrameworkSetBeforeCommonPropsImport"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsProjectCommonPropsImported)'=='True'
+                      AND '$(_MSKit_TestingFrameworkAtCommonPropsImport)'==''">
+    <Error Code="MSKIT_TEST010"
+           File="$(MSBuildProjectFullPath)"
+           Text="MSKit_TestingFramework was not set when $(TestsProjectCommonPropsPath) was imported.%0AFix: set it BEFORE the Import:%0A  &lt;PropertyGroup&gt;%0A    &lt;MSKit_TestingFramework&gt;xunit.v3&lt;/MSKit_TestingFramework&gt;%0A  &lt;/PropertyGroup&gt;%0A  &lt;Import Project=&quot;$(TestsProjectCommonPropsPath)&quot; /&gt;" />
+  </Target>
+
+  <Target Name="ValidateTestingFrameworkUnchangedSinceImport"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsProjectCommonPropsImported)'=='True'
+                      AND '$(_MSKit_TestingFrameworkAtCommonPropsImport)'!=''
+                      AND '$(_MSKit_TestingFrameworkAtCommonPropsImport)'!='$(MSKit_TestingFramework)'">
+    <Error Code="MSKIT_TEST011"
+           File="$(MSBuildProjectFullPath)"
+           Text="MSKit_TestingFramework changed after $(TestsProjectCommonPropsPath) was imported (at import: '$(_MSKit_TestingFrameworkAtCommonPropsImport)', final: '$(MSKit_TestingFramework)').%0AFix: move the framework PropertyGroup above the Import." />
+  </Target>
+
+  <Target Name="ValidateTestingFrameworkCommonPropsPathResolved"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsProjectCommonPropsImported)'=='True'
+                      AND '$(MSKit_TestingFramework_CommonPropsPath)'==''
+                      AND '$(MSKit_TestingFramework)'!=''">
+    <Error Code="MSKIT_TEST012"
+           File="$(MSBuildProjectFullPath)"
+           Text="No framework wiring found for MSKit_TestingFramework='$(MSKit_TestingFramework)'.%0AFix: use a framework the kit ships (xunit.v3), or point MSKit_TestingFramework_CommonPropsPath at your own props file." />
+  </Target>
+
+  <!-- MSKIT_TEST013 reads the csproj text, comments stripped, so a direct declaration is caught
+       even when the name would also match auto-detect. -->
+  <Target Name="ValidateIsTestsProjectNotSetDirectly"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(IsTestsProject)'=='True'
+                      AND '$(_MSKit_TestsProjectCommonPropsImported)'!='True'
+                      AND Exists('$(MSBuildProjectFullPath)')">
+    <PropertyGroup>
+      <_MSKit_CsprojText013>$([System.IO.File]::ReadAllText('$(MSBuildProjectFullPath)'))</_MSKit_CsprojText013>
+      <_MSKit_CsprojText013>$([System.Text.RegularExpressions.Regex]::Replace($(_MSKit_CsprojText013), '&lt;!--[\s\S]*?--&gt;', ''))</_MSKit_CsprojText013>
+      <_MSKit_HasDirectIsTestsProject>$([System.Text.RegularExpressions.Regex]::IsMatch($(_MSKit_CsprojText013), '&lt;IsTestsProject\s*&gt;'))</_MSKit_HasDirectIsTestsProject>
+    </PropertyGroup>
+    <Error Code="MSKIT_TEST013"
+           File="$(MSBuildProjectFullPath)"
+           Condition="'$(_MSKit_HasDirectIsTestsProject)'=='True'"
+           Text="csproj '$(MSBuildProjectName)' declares &lt;IsTestsProject&gt; directly. That is set too late for the Microsoft.Testing.Platform wiring, which happens in the props phase.%0AFix: rename the project to match MSKit_TestsProjectNameRegex (default: names ending in .Tests), or replace the property with the explicit endpoint:%0A  &lt;PropertyGroup&gt;%0A    &lt;MSKit_TestingFramework&gt;xunit.v3&lt;/MSKit_TestingFramework&gt;%0A  &lt;/PropertyGroup&gt;%0A  &lt;Import Project=&quot;$(TestsProjectCommonPropsPath)&quot; /&gt;" />
+  </Target>
+
+  <Target Name="ValidateAutoDetectVsLibConflict"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(MSKit_IsTestsProjectAutoDetected)'=='True'
+                      AND ('$(IsTestsLibProject)'=='True' OR '$(_MSKit_TestsLibProjectCommonPropsImported)'=='True')
+                      AND '$(MSKit_IsTestsLibProjectAutoDetected)'!='True'">
+    <Error Code="MSKIT_TEST014"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project name '$(MSBuildProjectName)' matches the tests auto-detect regex '$(_MSKit_TestsProjectNameRegex_Shared)' but the project is marked as a test helper library. A project cannot be both.%0AFix one of:%0A  1. Rename the project so it no longer matches (e.g. 'Foo.Tests' to 'Foo.TestUtils')%0A  2. Override MSKit_TestsProjectNameRegex in Directory.Build.props%0A  3. Drop the IsTestsLibProject flag if this is a runnable test project" />
+  </Target>
+
+  <Target Name="ValidateTestingFrameworkSatelliteAttached"
+          BeforeTargets="CoreCompile;Build"
+          Condition="('$(IsTestsProject)'=='True' OR '$(IsTestsLibProject)'=='True')
+                      AND '$(MSKit_TestingFramework)'!=''
+                      AND '$(MSKit_TestingFrameworkAttached)'!='true'">
+    <Error Code="MSKIT_TEST026"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' has MSKit_TestingFramework='$(MSKit_TestingFramework)' but no installed kit part wires that framework.%0AFix: use xunit.v3 (part DragoAnt.MSBuildKit.Testing.XUnit.v3), or set MSKit_TestingFramework_CommonPropsPath to your own wiring." />
+  </Target>
+
+  <Target Name="ValidateTestingFrameworkIsSet"
+          BeforeTargets="CoreCompile;Build"
+          Condition="('$(IsTestsProject)'=='True' OR '$(IsTestsLibProject)'=='True')
+                      AND '$(MSKit_TestingFramework)'==''">
+    <Error Code="MSKIT_TEST025"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' is a test project but MSKit_TestingFramework is not set.%0AFix: add to Directory.Build.props:%0A  &lt;MSKit_TestingFramework&gt;xunit.v3&lt;/MSKit_TestingFramework&gt;" />
+  </Target>
+
+</Project>

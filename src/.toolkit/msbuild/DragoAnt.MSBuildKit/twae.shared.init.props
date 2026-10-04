@@ -1,0 +1,8 @@
+<Project>
+
+  <!-- Captured before the csproj body so MSKIT_SHARED020 can compare against the shared value. -->
+  <PropertyGroup>
+    <MSKit_TreatWarningsAsErrors_Shared>$(TreatWarningsAsErrors)</MSKit_TreatWarningsAsErrors_Shared>
+  </PropertyGroup>
+
+</Project>

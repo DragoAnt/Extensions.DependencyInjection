@@ -1,0 +1,28 @@
+<Project>
+
+  <!-- DragoAnt.MSBuildKit targets entry point; Directory.Build.targets imports it. Every
+       installed part's audit/*.targets is imported last. -->
+  <Import Project="$(MSKit_BeforeInitTargets)" Condition="'$(MSKit_BeforeInitTargets)' != '' and Exists('$(MSKit_BeforeInitTargets)')" />
+  <Import Project="$(MSBuildThisFileDirectory)init.company.targets" Condition="Exists('$(MSBuildThisFileDirectory)init.company.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Core/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Core/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Compile/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Compile/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.DirectorySecrets/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.DirectorySecrets/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Secrets/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Secrets/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.SourceGenerator/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.SourceGenerator/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Packaging/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Packaging/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.RoslynComponent/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.RoslynComponent/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.PrivateAssets/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.PrivateAssets/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.PackageAsProj/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.PackageAsProj/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.ProjMetadata/init.last.targets" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.ProjMetadata/init.last.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)*/audit/*.targets" />
+  <Import Project="$(MSKit_AfterInitTargets)" Condition="'$(MSKit_AfterInitTargets)' != '' and Exists('$(MSKit_AfterInitTargets)')" />
+
+</Project>

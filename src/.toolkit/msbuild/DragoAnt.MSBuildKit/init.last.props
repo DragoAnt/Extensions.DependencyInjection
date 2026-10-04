@@ -1,0 +1,11 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)twae.shared.init.props" />
+
+  <Import Condition="Exists('$(MSKit_SlnFileDirectory)Directory.GlobalUsings.props')"
+          Project="$(MSKit_SlnFileDirectory)Directory.GlobalUsings.props" />
+
+  <Import Condition="'$(MSKit_VersionStrategy)'!='Manual'"
+          Project="$(MSBuildThisFileDirectory)version.props" />
+
+</Project>

@@ -1,0 +1,15 @@
+<Project>
+
+  <!-- MSKIT_TEST005: xunit.v3 needs net8.0 or later. -->
+  <Target Name="ValidateXUnitV3TFM"
+          BeforeTargets="Build"
+          Condition="'$(IsTestsProject)'=='True'
+                      AND '$(MSKit_TestingFramework)'=='xunit.v3'
+                      AND '$(TargetFramework)'!=''
+                      AND '$(IsNET8_OR_GREATER)'!='True'">
+    <Error Code="MSKIT_TEST005"
+           File="$(MSBuildProjectFullPath)"
+           Text="MSKit_TestingFramework='xunit.v3' requires net8.0 or later. Current target framework: $(TargetFramework).%0AFix: target net8.0 or later in the test project." />
+  </Target>
+
+</Project>

@@ -1,0 +1,14 @@
+<Project>
+
+  <!--  We can init secrets in targets only due UserSecretsId set in csproj after all props.
+        LocalSecretsDir is computed by DragoAnt.MSBuildKit.Core (core.locals.targets). -->
+  <Import Project="$(MSBuildThisFileDirectory)local.secrets.props" />
+
+  <Import Condition="'$(MSKit_SecretsCleanUp)'=='True'"
+          Project="$(MSBuildThisFileDirectory)local.secrets.cleanup.targets" />
+
+  <ImportGroup Condition="'$(MSKit_IsDevEnv)'=='True'">
+    <Import Project="$(MSBuildThisFileDirectory)local.secrets.targets" />
+  </ImportGroup>
+
+</Project>

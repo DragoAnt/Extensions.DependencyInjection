@@ -1,0 +1,8 @@
+<Project>
+
+  <!-- https://xunit.net/docs/getting-started/v3/microsoft-testing-platform -->
+  <PropertyGroup>
+    <UseMicrosoftTestingPlatformRunner Condition="'$(EnableMicrosoftTestingPlatform)'=='True'">true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+</Project>

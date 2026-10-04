@@ -1,0 +1,26 @@
+<Project>
+
+  <!-- DragoAnt.MSBuildKit props entry point; Directory.Build.props imports it. Parts load in this
+       fixed order and only when installed. MSKit_BeforeInitProps / MSKit_AfterInitProps name your
+       own files to import before or after the kit. -->
+  <Import Project="$(MSKit_BeforeInitProps)" Condition="'$(MSKit_BeforeInitProps)' != '' and Exists('$(MSKit_BeforeInitProps)')" />
+  <Import Project="$(MSBuildThisFileDirectory)init.company.props" Condition="Exists('$(MSBuildThisFileDirectory)init.company.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Core/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Core/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Vcs.GitHub/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Vcs.GitHub/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Compile/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Compile/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.DirectorySecrets/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.DirectorySecrets/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Secrets/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Locals.Secrets/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.RoslynComponent/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.RoslynComponent/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeFixer/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeFixer/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.CodeAnalyzer/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.SourceGenerator/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Project.SourceGenerator/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.TfmConstants/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.TfmConstants/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Packaging/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Packaging/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.Testing.XUnit.v3/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.EF/init.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit.EF/init.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.last.props" Condition="Exists('$(MSBuildThisFileDirectory)DragoAnt.MSBuildKit/init.last.props')" />
+  <Import Project="$(MSKit_AfterInitProps)" Condition="'$(MSKit_AfterInitProps)' != '' and Exists('$(MSKit_AfterInitProps)')" />
+
+</Project>

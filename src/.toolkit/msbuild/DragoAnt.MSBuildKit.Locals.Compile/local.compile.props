@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup>
+    <LocalCompileTemplateDir Condition="'$(LocalCompileTemplateDir)'==''">$(MSKit_Templates)LocalCompile/</LocalCompileTemplateDir>
+  </PropertyGroup>
+
+</Project>

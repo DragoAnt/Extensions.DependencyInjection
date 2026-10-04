@@ -1,0 +1,12 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_TestingFrameworkAttached Condition="'$(MSKit_TestingFramework)'=='xunit.v3'">true</MSKit_TestingFrameworkAttached>
+    <_MSKit_TestingFramework_xunit_v3_CommonPropsPath>$(MSBuildThisFileDirectory)tests.project.xunit.v3.common.props</_MSKit_TestingFramework_xunit_v3_CommonPropsPath>
+    <_MSKit_TestingFramework_xunit_v3_LibCommonPropsPath>$(MSBuildThisFileDirectory)tests.lib.project.xunit.v3.common.props</_MSKit_TestingFramework_xunit_v3_LibCommonPropsPath>
+  </PropertyGroup>
+
+  <Import Condition="('$(IsTestsProject)'=='True' Or '$(IsTestsLibProject)'=='True') AND '$(MSKit_TestingFramework)'=='xunit.v3'"
+          Project="$(MSBuildThisFileDirectory)tests.project.xunit.v3.routine.props" />
+
+</Project>

@@ -1,0 +1,35 @@
+<Project InitialTargets="RestrictProjectReferenceAudit;RestrictAllowedPackageReferenceAudit">
+
+  <!-- MSKIT_RES003 / MSKIT_RES004: allow-list mode. With MSKit_RestrictProjectReferences=True
+       (or MSKit_RestrictPackageReferences=True, or MSKit_RestrictReferences=True for both), every
+       reference must carry Allowed="True". -->
+
+  <PropertyGroup>
+    <MSKit_RestrictReferences Condition="'$(MSKit_RestrictReferences)'==''">False</MSKit_RestrictReferences>
+    <MSKit_RestrictProjectReferences Condition="'$(MSKit_RestrictProjectReferences)'==''">$(MSKit_RestrictReferences)</MSKit_RestrictProjectReferences>
+    <MSKit_RestrictPackageReferences Condition="'$(MSKit_RestrictPackageReferences)'==''">$(MSKit_RestrictReferences)</MSKit_RestrictPackageReferences>
+  </PropertyGroup>
+
+  <Target Name="RestrictProjectReferenceAudit" Condition="'$(MSKit_RestrictProjectReferences)'=='True'" BeforeTargets="Restore;Build;CoreCompile">
+    <ItemGroup>
+      <MSKit_ProjectReferenceNotAllowed Include="@(ProjectReference)"
+                                        Condition=" '%(ProjectReference.Allowed)'!='True' AND '@(ProjectReference)'!='' AND '%(Identity)'!=''" />
+    </ItemGroup>
+    <Error Code="MSKIT_RES003"
+           Condition="'%(MSKit_ProjectReferenceNotAllowed.Identity)'!=''"
+           Text="ProjectReference '%(MSKit_ProjectReferenceNotAllowed.Identity)' is not allowed in this project.%0AFix: remove it, or mark it allowed: &lt;ProjectReference Include=&quot;%(MSKit_ProjectReferenceNotAllowed.Identity)&quot; Allowed=&quot;True&quot; /&gt;"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <Target Name="RestrictAllowedPackageReferenceAudit" Condition="'$(MSKit_RestrictPackageReferences)'=='True'" BeforeTargets="Restore;Build;CoreCompile">
+    <ItemGroup>
+      <_MSKit_PackageReferenceNotAllowListed Include="@(PackageReference)"
+                                             Condition=" '%(PackageReference.Allowed)'!='True' AND '@(PackageReference)'!='' AND '%(Identity)'!=''" />
+    </ItemGroup>
+    <Error Code="MSKIT_RES004"
+           Condition="'%(_MSKit_PackageReferenceNotAllowListed.Identity)'!=''"
+           Text="PackageReference '%(_MSKit_PackageReferenceNotAllowListed.Identity)' is not allowed in this project.%0AFix: remove it, or mark it allowed: &lt;PackageReference Include=&quot;%(_MSKit_PackageReferenceNotAllowListed.Identity)&quot; Allowed=&quot;True&quot; /&gt;"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

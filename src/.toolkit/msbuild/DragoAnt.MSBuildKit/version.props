@@ -1,0 +1,145 @@
+<Project>
+
+  <!-- Version engine. Each strategy ships default templates; override any template in
+       Directory.Build.props or a csproj. The placeholder set is closed and validated by
+       ValidateVersionTemplate (audit/audit.version.targets). The template is chosen in this order:
+         1. a release-tag build with MSKit_ReleaseVersionTemplate set
+         2. a pull-request build with MSKit_PullRequestVersionTemplate set
+         3. a stable branch (MSKit_IsStableBranch) -> MSKit_StableVersionTemplate
+         4. anything else -> MSKit_VersionTemplate -->
+
+  <PropertyGroup>
+    <MSKit_DeclaredVersionPrefix>$(VersionPrefix)</MSKit_DeclaredVersionPrefix>
+
+    <MSKit_VersionStrategy Condition="'$(MSKit_VersionStrategy)'==''">SemVer</MSKit_VersionStrategy>
+    <MSKit_VersionStrategy Condition="'$(MSKit_IsDevEnv)'=='True'">DevEnv</MSKit_VersionStrategy>
+
+    <MSKit_BuildNumber Condition="'$(MSKit_BuildNumber)'==''">0</MSKit_BuildNumber>
+    <MSKit_CIPipelineId Condition="'$(MSKit_CIPipelineId)'==''">0</MSKit_CIPipelineId>
+
+    <MSKit_ReleaseTagRegex Condition="'$(MSKit_ReleaseTagRegex)'==''">^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$</MSKit_ReleaseTagRegex>
+    <MSKit_IsReleaseTagValid>false</MSKit_IsReleaseTagValid>
+    <MSKit_IsReleaseTagValid Condition="'$(MSKit_ReleaseTag)'!='' AND $([System.Text.RegularExpressions.Regex]::IsMatch('$(MSKit_ReleaseTag)', '$(MSKit_ReleaseTagRegex)'))">true</MSKit_IsReleaseTagValid>
+  </PropertyGroup>
+
+  <!-- Set MSKit_BuildDateTimeUtc once in CI (property or env var) so every project in one build
+       renders the same date; otherwise each project reads UtcNow. -->
+  <PropertyGroup>
+    <MSKit_BuildDateTimeUtc Condition="'$(MSKit_BuildDateTimeUtc)'==''">$([System.Environment]::GetEnvironmentVariable('MSKit_BuildDateTimeUtc'))</MSKit_BuildDateTimeUtc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSKit_BuildDateTimeUtc)'!=''">
+    <_MSKit_Ph_buildDateUtcDash>$([System.DateTime]::Parse('$(MSKit_BuildDateTimeUtc)').ToUniversalTime().ToString(yyyyMMdd-HHmmss))</_MSKit_Ph_buildDateUtcDash>
+    <_MSKit_Ph_buildDateUtcDot>$([System.DateTime]::Parse('$(MSKit_BuildDateTimeUtc)').ToUniversalTime().ToString(yyyy.M.d))</_MSKit_Ph_buildDateUtcDot>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSKit_BuildDateTimeUtc)'==''">
+    <_MSKit_Ph_buildDateUtcDash>$([System.DateTime]::UtcNow.ToString(yyyyMMdd-HHmmss))</_MSKit_Ph_buildDateUtcDash>
+    <_MSKit_Ph_buildDateUtcDot>$([System.DateTime]::UtcNow.ToString(yyyy.M.d))</_MSKit_Ph_buildDateUtcDot>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(MSKit_VersionStrategy)'=='ReleaseTag'">
+      <PropertyGroup>
+        <VersionPrefix Condition="'$(VersionPrefix)'==''">0.0.0</VersionPrefix>
+        <MSKit_ReleaseVersionTemplate Condition="'$(MSKit_ReleaseVersionTemplate)'==''">{releaseTag}</MSKit_ReleaseVersionTemplate>
+        <MSKit_PullRequestVersionTemplate Condition="'$(MSKit_PullRequestVersionTemplate)'==''">{prefix}-pr.{prNumber}.{buildNumber}</MSKit_PullRequestVersionTemplate>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''">{prefix}-ci.{buildNumber}</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''">{prefix}-ci.{buildNumber}</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(MSKit_VersionStrategy)'=='SemVer'">
+      <PropertyGroup>
+        <VersionPrefix Condition="'$(VersionPrefix)'==''">1.0.0</VersionPrefix>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''">{prefix}-{buildDateUtcDash}-{branchTicket}{branchAspectSuffix}</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''">{prefix}</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(MSKit_VersionStrategy)'=='SemVer4'">
+      <PropertyGroup>
+        <VersionPrefix Condition="'$(VersionPrefix)'==''">1.0.0</VersionPrefix>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''">{prefix}.{buildNumber}-{buildDateUtcDash}-{branchTicket}{branchAspectSuffix}</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''">{prefix}.{buildNumber}</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(MSKit_VersionStrategy)'=='DateBased'">
+      <PropertyGroup>
+        <VersionPrefix>$(_MSKit_Ph_buildDateUtcDot)</VersionPrefix>
+        <MSKit_BuildNumber>$([MSBuild]::Modulo($(MSKit_CIPipelineId), 65535))</MSKit_BuildNumber>
+        <MSKit_BuildNumber Condition="$(MSKit_BuildNumber) == 0">1</MSKit_BuildNumber>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''">{buildDateUtcDot}.{buildNumber}-{branchTicket}{branchAspectSuffix}</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''">{buildDateUtcDot}.{buildNumber}</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(MSKit_VersionStrategy)'=='VersionTag'">
+      <PropertyGroup>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''">{versionTag}</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''">{versionTag}</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(MSKit_VersionStrategy)'=='DevEnv'">
+      <PropertyGroup>
+        <VersionPrefix>9999.0.0</VersionPrefix>
+        <MSKit_ReleaseVersionTemplate></MSKit_ReleaseVersionTemplate>
+        <MSKit_PullRequestVersionTemplate></MSKit_PullRequestVersionTemplate>
+        <MSKit_VersionTemplate>9999.0.0</MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate>9999.0.0</MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <MSKit_VersionTemplate Condition="'$(MSKit_VersionTemplate)'==''"></MSKit_VersionTemplate>
+        <MSKit_StableVersionTemplate Condition="'$(MSKit_StableVersionTemplate)'==''"></MSKit_StableVersionTemplate>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <PropertyGroup>
+    <_MSKit_Ph_prefix>$(VersionPrefix)</_MSKit_Ph_prefix>
+    <_MSKit_Ph_versionTag>$(VersionTag)</_MSKit_Ph_versionTag>
+    <_MSKit_Ph_releaseTag Condition="'$(MSKit_IsReleaseTagValid)'=='true'">$(MSKit_ReleaseTag)</_MSKit_Ph_releaseTag>
+    <!-- An invalid tag renders a valid placeholder so restore does not fail first with an opaque
+         error; ValidateReleaseTag then stops the build with MSKIT_VER006. -->
+    <_MSKit_Ph_releaseTag Condition="'$(MSKit_IsReleaseTagValid)'!='true'">0.0.0-invalid-release-tag</_MSKit_Ph_releaseTag>
+    <_MSKit_Ph_prNumber>$(MSKit_PullRequestNumber)</_MSKit_Ph_prNumber>
+    <_MSKit_Ph_buildNumber>$(MSKit_BuildNumber)</_MSKit_Ph_buildNumber>
+    <_MSKit_Ph_pipelineId>$(MSKit_CIPipelineId)</_MSKit_Ph_pipelineId>
+    <_MSKit_Ph_branchSlug>$([System.Text.RegularExpressions.Regex]::Replace('$(MSKit_Branch)', '[^0-9A-Za-z-]', '-'))</_MSKit_Ph_branchSlug>
+
+    <_MSKit_BranchTicketMatch>$([System.Text.RegularExpressions.Regex]::Match($(_MSKit_Ph_branchSlug), '[A-Za-z]+-\d+').Value)</_MSKit_BranchTicketMatch>
+    <_MSKit_Ph_branchTicket Condition="'$(_MSKit_BranchTicketMatch)'!=''">$(_MSKit_BranchTicketMatch)</_MSKit_Ph_branchTicket>
+    <_MSKit_Ph_branchTicket Condition="'$(_MSKit_BranchTicketMatch)'==''">$(_MSKit_Ph_branchSlug)</_MSKit_Ph_branchTicket>
+
+    <_MSKit_BranchAspectIdx>$(_MSKit_Ph_branchSlug.IndexOf('--'))</_MSKit_BranchAspectIdx>
+    <_MSKit_Ph_branchAspectSuffix Condition="'$(_MSKit_BranchAspectIdx)'!='-1'">$(_MSKit_Ph_branchSlug.Substring($(_MSKit_BranchAspectIdx)))</_MSKit_Ph_branchAspectSuffix>
+
+    <_MSKit_Ph_commitShaShort Condition="$(MSKit_CommitSha.Length) &gt;= 8">$(MSKit_CommitSha.Substring(0, 8))</_MSKit_Ph_commitShaShort>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSKit_VersionStrategy)'!='Manual' AND '$(MSKit_ExplicitVersion)'==''">
+    <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsStableBranch)'=='true'">$(MSKit_StableVersionTemplate)</_MSKit_EffectiveTemplate>
+    <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsStableBranch)'!='true'">$(MSKit_VersionTemplate)</_MSKit_EffectiveTemplate>
+    <_MSKit_EffectiveTemplate Condition="'$(MSKit_PullRequestNumber)'!='' AND '$(MSKit_PullRequestVersionTemplate)'!=''">$(MSKit_PullRequestVersionTemplate)</_MSKit_EffectiveTemplate>
+    <_MSKit_EffectiveTemplate Condition="'$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ReleaseVersionTemplate)'!=''">$(MSKit_ReleaseVersionTemplate)</_MSKit_EffectiveTemplate>
+
+    <_MSKit_Rendered>$(_MSKit_EffectiveTemplate)</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{prefix}', '$(_MSKit_Ph_prefix)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildNumber}', '$(_MSKit_Ph_buildNumber)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{pipelineId}', '$(_MSKit_Ph_pipelineId)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchSlug}', '$(_MSKit_Ph_branchSlug)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchTicket}', '$(_MSKit_Ph_branchTicket)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{branchAspectSuffix}', '$(_MSKit_Ph_branchAspectSuffix)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildDateUtcDash}', '$(_MSKit_Ph_buildDateUtcDash)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{buildDateUtcDot}', '$(_MSKit_Ph_buildDateUtcDot)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{versionTag}', '$(_MSKit_Ph_versionTag)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{releaseTag}', '$(_MSKit_Ph_releaseTag)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{prNumber}', '$(_MSKit_Ph_prNumber)'))</_MSKit_Rendered>
+    <_MSKit_Rendered>$(_MSKit_Rendered.Replace('{commitShaShort}', '$(_MSKit_Ph_commitShaShort)'))</_MSKit_Rendered>
+
+    <_MSKit_RenderHasUnknown>false</_MSKit_RenderHasUnknown>
+    <_MSKit_RenderHasUnknown Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(_MSKit_Rendered)', '\{[A-Za-z][A-Za-z0-9]*\}'))">true</_MSKit_RenderHasUnknown>
+
+    <Version Condition="'$(_MSKit_Rendered)'!='' AND '$(_MSKit_RenderHasUnknown)'!='true'">$(_MSKit_Rendered)</Version>
+    <!-- Detectable by -getProperty callers; a real build stops earlier on ValidateVersionTemplate. -->
+    <Version Condition="'$(_MSKit_RenderHasUnknown)'=='true'">unknown placeholder: $(_MSKit_Rendered)</Version>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,44 @@
+<Project>
+
+  <PropertyGroup>
+    <IsTfmConstantsImported>true</IsTfmConstantsImported>
+
+    <IsNETFRAMEWORK Condition="'$(TargetFramework)'=='net48'">True</IsNETFRAMEWORK>
+
+    <IsNETSTANDARD20 Condition="'$(TargetFramework)'=='netstandard2.0'">True</IsNETSTANDARD20>
+    <IsNETSTANDARD21 Condition="'$(TargetFramework)'=='netstandard2.1'">True</IsNETSTANDARD21>
+    <IsNETSTANDARD Condition="'$(IsNETSTANDARD20)'=='True' OR '$(IsNETSTANDARD21)'=='True'">True</IsNETSTANDARD>
+
+    <IsNETFRAMEWORK_OR_STANDARD Condition="'$(IsNETFRAMEWORK)'=='True' OR '$(IsNETSTANDARD)'=='True'">True</IsNETFRAMEWORK_OR_STANDARD>
+
+    <IsNET7 Condition="'$(TargetFramework)'=='net7.0'">True</IsNET7>
+    <IsNET8 Condition="'$(TargetFramework)'=='net8.0'">True</IsNET8>
+    <IsNET9 Condition="'$(TargetFramework)'=='net9.0'">True</IsNET9>
+    <IsNET10 Condition="'$(TargetFramework)'=='net10.0'">True</IsNET10>
+    <IsNET11 Condition="'$(TargetFramework)'=='net11.0'">True</IsNET11>
+    <IsNET12 Condition="'$(TargetFramework)'=='net12.0'">True</IsNET12>
+    <IsNET13 Condition="'$(TargetFramework)'=='net13.0'">True</IsNET13>
+    <IsNET14 Condition="'$(TargetFramework)'=='net14.0'">True</IsNET14>
+
+    <IsNET14_OR_GREATER Condition="'$(IsNET14)'=='True'">True</IsNET14_OR_GREATER>
+    <IsNET13_OR_GREATER Condition="'$(IsNET13)'=='True' OR '$(IsNET14_OR_GREATER)'=='True'">True</IsNET13_OR_GREATER>
+    <IsNET12_OR_GREATER Condition="'$(IsNET12)'=='True' OR '$(IsNET13_OR_GREATER)'=='True'">True</IsNET12_OR_GREATER>
+    <IsNET11_OR_GREATER Condition="'$(IsNET11)'=='True' OR '$(IsNET12_OR_GREATER)'=='True'">True</IsNET11_OR_GREATER>
+    <IsNET10_OR_GREATER Condition="'$(IsNET10)'=='True' OR '$(IsNET11_OR_GREATER)'=='True'">True</IsNET10_OR_GREATER>
+    <IsNET9_OR_GREATER Condition="'$(IsNET9)'=='True' OR '$(IsNET10_OR_GREATER)'=='True'">True</IsNET9_OR_GREATER>
+    <IsNET8_OR_GREATER Condition="'$(IsNET8)'=='True' OR '$(IsNET9_OR_GREATER)'=='True'">True</IsNET8_OR_GREATER>
+    <IsNET7_OR_GREATER Condition="'$(IsNET7)'=='True' OR '$(IsNET8_OR_GREATER)'=='True'">True</IsNET7_OR_GREATER>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET7)'=='True'">7</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET8)'=='True'">8</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET9)'=='True'">9</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET10)'=='True'">10</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET11)'=='True'">11</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET12)'=='True'">12</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET13)'=='True'">13</TargetFrameworkVersionMajor>
+    <TargetFrameworkVersionMajor Condition="'$(IsNET14)'=='True'">14</TargetFrameworkVersionMajor>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,42 @@
+<Project>
+
+  <!-- Lets a csproj switch between TargetFramework and TargetFrameworks against a shared value in
+       Directory.Build.props. It runs in props because the SDK locks IsCrossTargetingBuild before
+       the targets phase. The DBP text is read directly, because Pack re-evaluates each inner build
+       with TargetFramework as a global property, which looks exactly like a DBP declaration. -->
+  <PropertyGroup>
+    <_MSKit_DbpFilePath>$([MSBuild]::GetPathOfFileAbove('Directory.Build.props'))</_MSKit_DbpFilePath>
+    <_MSKit_DbpText Condition="'$(_MSKit_DbpFilePath)' != '' AND Exists('$(_MSKit_DbpFilePath)')">$([System.IO.File]::ReadAllText('$(_MSKit_DbpFilePath)'))</_MSKit_DbpText>
+
+    <_MSKit_DbpHasTargetFramework Condition="'$(_MSKit_DbpText)' != '' AND ($(_MSKit_DbpText.Contains('&lt;TargetFramework&gt;')) OR $(_MSKit_DbpText.Contains('&lt;TargetFramework ')))">True</_MSKit_DbpHasTargetFramework>
+    <_MSKit_DbpHasTargetFrameworks Condition="'$(_MSKit_DbpText)' != '' AND ($(_MSKit_DbpText.Contains('&lt;TargetFrameworks&gt;')) OR $(_MSKit_DbpText.Contains('&lt;TargetFrameworks ')))">True</_MSKit_DbpHasTargetFrameworks>
+
+    <MSKit_TargetFramework_Shared Condition="'$(_MSKit_DbpHasTargetFramework)' == 'True'">$([System.Text.RegularExpressions.Regex]::Match($(_MSKit_DbpText), '&lt;TargetFramework[^&gt;/]*&gt;([^&lt;]*)&lt;/TargetFramework&gt;').Groups[1].Value)</MSKit_TargetFramework_Shared>
+    <MSKit_TargetFrameworks_Shared Condition="'$(_MSKit_DbpHasTargetFrameworks)' == 'True'">$([System.Text.RegularExpressions.Regex]::Match($(_MSKit_DbpText), '&lt;TargetFrameworks[^&gt;/]*&gt;([^&lt;]*)&lt;/TargetFrameworks&gt;').Groups[1].Value)</MSKit_TargetFrameworks_Shared>
+  </PropertyGroup>
+
+  <!-- A text precheck keeps the regex off projects that declare neither element.
+       MSKit_GuardXmlPeekRoutine=False disables it. -->
+  <PropertyGroup>
+    <_MSKit_GuardXmlPeekRoutine Condition="'$(MSKit_GuardXmlPeekRoutine)'!='False'">True</_MSKit_GuardXmlPeekRoutine>
+    <_MSKit_CsprojText Condition="'$(_MSKit_GuardXmlPeekRoutine)'=='True' AND '$(_MSKit_CsprojText)'==''">$([System.IO.File]::ReadAllText('$(MSBuildProjectFullPath)'))</_MSKit_CsprojText>
+    <_MSKit_RoutineHasTargetFramework Condition="'$(_MSKit_GuardXmlPeekRoutine)'!='True'">True</_MSKit_RoutineHasTargetFramework>
+    <_MSKit_RoutineHasTargetFramework Condition="'$(_MSKit_GuardXmlPeekRoutine)'=='True' AND ($(_MSKit_CsprojText.Contains('&lt;TargetFramework&gt;')) OR $(_MSKit_CsprojText.Contains('&lt;TargetFramework ')))">True</_MSKit_RoutineHasTargetFramework>
+    <_MSKit_RoutineHasTargetFrameworks Condition="'$(_MSKit_GuardXmlPeekRoutine)'!='True'">True</_MSKit_RoutineHasTargetFrameworks>
+    <_MSKit_RoutineHasTargetFrameworks Condition="'$(_MSKit_GuardXmlPeekRoutine)'=='True' AND ($(_MSKit_CsprojText.Contains('&lt;TargetFrameworks&gt;')) OR $(_MSKit_CsprojText.Contains('&lt;TargetFrameworks ')))">True</_MSKit_RoutineHasTargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MSKit_TargetFramework_Proj Condition="'$(_MSKit_RoutineHasTargetFramework)'=='True'">$([System.Text.RegularExpressions.Regex]::Match($(_MSKit_CsprojText), '&lt;TargetFramework[^&gt;/]*&gt;([^&lt;]*)&lt;/TargetFramework&gt;').Groups[1].Value)</MSKit_TargetFramework_Proj>
+    <MSKit_TargetFrameworks_Proj Condition="'$(_MSKit_RoutineHasTargetFrameworks)'=='True'">$([System.Text.RegularExpressions.Regex]::Match($(_MSKit_CsprojText), '&lt;TargetFrameworks[^&gt;/]*&gt;([^&lt;]*)&lt;/TargetFrameworks&gt;').Groups[1].Value)</MSKit_TargetFrameworks_Proj>
+  </PropertyGroup>
+
+  <!-- The csproj declares only one shape: clear the shared value of the other shape. -->
+  <PropertyGroup Condition="'$(MSKit_TargetFrameworks_Proj)'!='' AND '$(MSKit_TargetFramework_Proj)'=='' AND '$(MSKit_TargetFramework_Shared)'!=''">
+    <TargetFramework></TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSKit_TargetFramework_Proj)'!='' AND '$(MSKit_TargetFrameworks_Proj)'=='' AND '$(MSKit_TargetFrameworks_Shared)'!=''">
+    <TargetFrameworks></TargetFrameworks>
+  </PropertyGroup>
+
+</Project>

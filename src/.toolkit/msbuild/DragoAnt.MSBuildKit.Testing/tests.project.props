@@ -1,0 +1,44 @@
+<Project>
+
+  <!-- Test-project detection and the Microsoft.Testing.Platform switches live in props: the
+       test framework packages' own .targets read them before Directory.Build.targets runs. -->
+
+  <PropertyGroup>
+    <MSKit_TestsProjectNameRegex Condition="'$(MSKit_TestsProjectNameRegex)'==''">\.(Tests(\.Integration|\.Unit)?|IntegrationTests|UnitTests)$</MSKit_TestsProjectNameRegex>
+    <MSKit_IsTestsProjectAutoDetected Condition="'$(MSKit_IsTestsProjectAutoDetected)'==''
+                                                  AND '$(IsTestsProject)'==''
+                                                  AND '$(MSKit_DisableTestsProjectAutoDetect)'!='true'
+                                                  AND '$(MSKit_TestsProjectNameRegex)'!=''">$([System.Text.RegularExpressions.Regex]::IsMatch($(MSBuildProjectName), $(MSKit_TestsProjectNameRegex)))</MSKit_IsTestsProjectAutoDetected>
+    <IsTestsProject Condition="'$(IsTestsProject)'=='' AND '$(MSKit_IsTestsProjectAutoDetected)'=='True'">True</IsTestsProject>
+
+    <!-- Test helper libraries: shared fixtures and base classes that are not runnable themselves. -->
+    <MSKit_TestsLibProjectNameRegex Condition="'$(MSKit_TestsLibProjectNameRegex)'==''">\.(TestsSuite|TestsFixtures|Fixtures)$</MSKit_TestsLibProjectNameRegex>
+    <MSKit_IsTestsLibProjectAutoDetected Condition="'$(MSKit_IsTestsLibProjectAutoDetected)'==''
+                                                     AND '$(IsTestsLibProject)'==''
+                                                     AND '$(MSKit_DisableTestsLibProjectAutoDetect)'!='true'
+                                                     AND '$(MSKit_TestsLibProjectNameRegex)'!=''">$([System.Text.RegularExpressions.Regex]::IsMatch($(MSBuildProjectName), $(MSKit_TestsLibProjectNameRegex)))</MSKit_IsTestsLibProjectAutoDetected>
+    <IsTestsLibProject Condition="'$(IsTestsLibProject)'=='' AND '$(MSKit_IsTestsLibProjectAutoDetected)'=='True'">True</IsTestsLibProject>
+
+    <_MSKit_TestsProjectNameRegex_Shared>$(MSKit_TestsProjectNameRegex)</_MSKit_TestsProjectNameRegex_Shared>
+    <_MSKit_TestsLibProjectNameRegex_Shared>$(MSKit_TestsLibProjectNameRegex)</_MSKit_TestsLibProjectNameRegex_Shared>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MSKit_AutoDetectedProjectType Include="Tests" Condition="'$(MSKit_IsTestsProjectAutoDetected)'=='True'" />
+    <MSKit_AutoDetectedProjectType Include="TestsLib" Condition="'$(MSKit_IsTestsLibProjectAutoDetected)'=='True'" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(IsTestsProject)'=='True' AND '$(IsTestsLibProject)'!='True'">
+    <!-- Restore decides on the app host packs from the props-phase OutputType; set later, the
+         app host for a target framework the SDK does not bundle is never downloaded. -->
+    <OutputType>Exe</OutputType>
+    <EnableMicrosoftTestingPlatform Condition="'$(EnableMicrosoftTestingPlatform)'==''">True</EnableMicrosoftTestingPlatform>
+    <!-- Exit code 8 means "zero tests ran"; a project whose tests are all skipped is not a failure. -->
+    <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)'==''">--ignore-exit-code 8</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <_MSKit_TestsProjectPropsImported>True</_MSKit_TestsProjectPropsImported>
+  </PropertyGroup>
+
+</Project>

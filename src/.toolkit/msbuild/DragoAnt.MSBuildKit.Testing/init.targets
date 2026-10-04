@@ -1,0 +1,9 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)tests.project.targets" />
+
+  <ImportGroup Condition="'$(IsTestsProject)'=='True' Or '$(IsTestsLibProject)'=='True'">
+    <Import Project="$(MSBuildThisFileDirectory)tests.project.mtp.routine.targets" />
+  </ImportGroup>
+
+</Project>

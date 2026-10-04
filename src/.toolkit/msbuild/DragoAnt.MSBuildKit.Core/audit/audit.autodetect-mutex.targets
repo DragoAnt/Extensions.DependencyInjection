@@ -1,0 +1,15 @@
+<Project>
+
+  <!-- MSKIT_CORE001: the project name matched more than one auto-detect regex. -->
+  <Target Name="ValidateAutoDetectedProjectTypeMutex"
+          BeforeTargets="CoreCompile;Build"
+          Condition="@(MSKit_AutoDetectedProjectType-&gt;Count()) &gt; 1">
+    <PropertyGroup>
+      <_MSKit_AutoDetectedTypes>@(MSKit_AutoDetectedProjectType, ', ')</_MSKit_AutoDetectedTypes>
+    </PropertyGroup>
+    <Error Code="MSKIT_CORE001"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' auto-detected as MULTIPLE project types: $(_MSKit_AutoDetectedTypes).%0AA project can be exactly ONE type.%0AFix ONE of:%0A  1. Rename the project so its name matches only ONE auto-detect regex%0A  2. Override the conflicting MSKit_*ProjectNameRegex in Directory.Build.props to exclude this project name%0A  3. Set the corresponding MSKit_Disable*AutoDetect=true in the csproj and import the explicit endpoint instead (e.g. MSKit_DisableCodeAnalyzerAutoDetect=true + Import &quot;$(CodeAnalyzerCommonPropsPath)&quot;)" />
+  </Target>
+
+</Project>

@@ -1,0 +1,9 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_SlnSecretsCleanUp Condition="'$(MSKit_SlnSecretsCleanUp)'=='' AND '$(MSKit_IsDevEnv)'!='True'">True</MSKit_SlnSecretsCleanUp>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)local.directory.secrets.props" />
+
+</Project>

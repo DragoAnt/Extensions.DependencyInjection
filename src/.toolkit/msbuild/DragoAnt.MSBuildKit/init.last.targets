@@ -1,0 +1,7 @@
+<Project>
+
+  <Import Condition="Exists('$(MSKit_SlnFileDirectory)Directory.Packages.Metadata.targets')"
+          Project="$(MSKit_SlnFileDirectory)Directory.Packages.Metadata.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)project.global.metadata.targets" />
+
+</Project>

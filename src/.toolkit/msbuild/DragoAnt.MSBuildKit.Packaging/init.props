@@ -1,0 +1,20 @@
+<Project>
+
+  <!-- Build settings every published package needs, set for all projects so a library and the
+       projects it references are built the same way. Each one yields to a value you set. -->
+  <PropertyGroup>
+    <!-- Source Link (built into the .NET 8+ SDK) records the commit and repository URL. -->
+    <PublishRepositoryUrl Condition="'$(PublishRepositoryUrl)'==''">true</PublishRepositoryUrl>
+    <EmbedUntrackedSources Condition="'$(EmbedUntrackedSources)'==''">true</EmbedUntrackedSources>
+    <Deterministic Condition="'$(Deterministic)'==''">true</Deterministic>
+    <!-- Must be set before the SDK targets, which default it to false. -->
+    <GenerateDocumentationFile Condition="'$(GenerateDocumentationFile)'==''">True</GenerateDocumentationFile>
+    <!-- Normalizes the source paths in PDBs; only on CI, so local debugging keeps real paths. -->
+    <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)'=='' AND '$(MSKit_IsDevEnv)'!='True'">true</ContinuousIntegrationBuild>
+
+    <NuGetAudit Condition="'$(NuGetAudit)'==''">true</NuGetAudit>
+    <NuGetAuditMode Condition="'$(NuGetAuditMode)'==''">all</NuGetAuditMode>
+    <NuGetAuditLevel Condition="'$(NuGetAuditLevel)'==''">low</NuGetAuditLevel>
+  </PropertyGroup>
+
+</Project>

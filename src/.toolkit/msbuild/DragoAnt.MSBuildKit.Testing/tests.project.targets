@@ -1,0 +1,35 @@
+<Project>
+
+  <!-- Runs after the csproj body, so an explicit IsTestsLibProject is final here: a test helper
+       library is never a runnable test project. -->
+  <PropertyGroup>
+    <IsTestsProject Condition="'$(IsTestsLibProject)'=='True'">False</IsTestsProject>
+    <OutputType Condition="'$(IsTestsLibProject)'=='True' AND '$(OutputType)'=='Exe'">Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestsProject)'=='True'">
+    <IsPackable>False</IsPackable>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(EnableMicrosoftTestingPlatform)'=='True' AND '$(IsTestsProject)'=='True'">
+    <GenerateTestingPlatformEntryPoint Condition="'$(GenerateTestingPlatformEntryPoint)'==''">True</GenerateTestingPlatformEntryPoint>
+    <!-- SDK 8/9 `dotnet test` reaches Microsoft.Testing.Platform only through this bridge. -->
+    <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)'=='' AND ('$(IsNET8)'=='True' OR '$(IsNET9)'=='True')">True</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestsProject)'!='True' And '$(IsTestsLibProject)'!='True'">
+    <InternalsVisibleToAllTestsProjects Condition="'$(InternalsVisibleToAllTestsProjects)'==''">True</InternalsVisibleToAllTestsProjects>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="('$(IsTestsProject)'=='True' Or '$(IsTestsLibProject)'=='True') And '$(ExcludeFromCodeCoverage)'==''">
+    <ExcludeFromCodeCoverage>True</ExcludeFromCodeCoverage>
+  </PropertyGroup>
+
+  <Import Condition="'$(InternalsVisibleToAllTestsProjects)'=='True'"
+          Project="$(MSBuildThisFileDirectory)test.project.internalsVisibleTo.targets" />
+
+  <Import Condition="('$(IsTestsProject)'=='True' Or '$(IsTestsLibProject)'=='True') AND '$(MSKit_TestsImplicitReferences)'!='False'"
+          Project="$(MSBuildThisFileDirectory)tests.project.lib.global.usings.targets" />
+
+</Project>

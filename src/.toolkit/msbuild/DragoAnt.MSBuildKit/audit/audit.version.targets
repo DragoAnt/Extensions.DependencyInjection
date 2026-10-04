@@ -1,0 +1,93 @@
+<Project InitialTargets="RestrictManualVersion;ValidateVersionTemplate;ValidateReleaseTag">
+
+  <!-- Checks for the version engine (version.props / version.targets). Codes MSKIT_VER001..007. -->
+
+  <!-- MSKIT_VER001: <Version> declared in the csproj while a template strategy is active. -->
+  <Target Name="RestrictManualVersion"
+          Condition="'$(MSKit_VersionStrategy)'!='Manual'"
+          BeforeTargets="Restore;Build;CoreCompile">
+    <PropertyGroup>
+      <_MSKit_GuardXmlPeek Condition="'$(MSKit_GuardXmlPeekAudit)'!='False'">True</_MSKit_GuardXmlPeek>
+      <_MSKit_RMV_CsprojText Condition="'$(_MSKit_GuardXmlPeek)'=='True'">$([System.IO.File]::ReadAllText('$(MSBuildProjectFullPath)'))</_MSKit_RMV_CsprojText>
+      <_MSKit_HasVersion Condition="'$(_MSKit_GuardXmlPeek)'!='True'">True</_MSKit_HasVersion>
+      <_MSKit_HasVersion Condition="'$(_MSKit_GuardXmlPeek)'=='True' AND ($(_MSKit_RMV_CsprojText.Contains('&lt;Version&gt;')) OR $(_MSKit_RMV_CsprojText.Contains('&lt;Version ')))">True</_MSKit_HasVersion>
+    </PropertyGroup>
+
+    <XmlPeek Condition="'$(_MSKit_HasVersion)'=='True'" XmlInputPath="$(MSBuildProjectFullPath)" Query="Project/PropertyGroup/Version/text()">
+      <Output TaskParameter="Result" ItemName="_MSKit_VersionCheckNode" />
+    </XmlPeek>
+
+    <Error Code="MSKIT_VER001"
+           Condition="@(_MSKit_VersionCheckNode->Count()) &gt; 0"
+           Text="&lt;Version&gt; is declared in the project but MSKit_VersionStrategy='$(MSKit_VersionStrategy)' renders the version from a template, so the declared value is ignored.%0AFix: remove &lt;Version&gt; from the csproj (declare the next version as &lt;VersionPrefix&gt; in Directory.Version.props), or switch to manual versioning in Directory.Build.props:%0A  &lt;MSKit_VersionStrategy&gt;Manual&lt;/MSKit_VersionStrategy&gt;"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <!-- MSKIT_VER002 / MSKIT_VER003: a template uses a placeholder the engine does not know. -->
+  <Target Name="ValidateVersionTemplate"
+          Condition="'$(MSKit_VersionStrategy)'!='Manual'">
+
+    <PropertyGroup>
+      <_MSKit_ValidPlaceholders>prefix;buildNumber;pipelineId;branchSlug;branchTicket;branchAspectSuffix;buildDateUtcDash;buildDateUtcDot;versionTag;releaseTag;prNumber;commitShaShort</_MSKit_ValidPlaceholders>
+      <_MSKit_PlaceholderHelp>
+Valid placeholders:
+  {prefix}              - $(VersionPrefix), declared in Directory.Version.props
+  {buildNumber}         - CI run number (GITHUB_RUN_NUMBER); DateBased caps it at 65535
+  {pipelineId}          - CI run id (GITHUB_RUN_ID)
+  {releaseTag}          - the release tag with a leading v removed (tag builds only)
+  {prNumber}            - the pull request number (pull request builds only)
+  {branchSlug}          - the branch name with every character outside [0-9A-Za-z-] replaced by '-'
+  {branchTicket}        - the first [A-Za-z]+-[0-9]+ match in {branchSlug}, else {branchSlug}
+  {branchAspectSuffix}  - the part of {branchSlug} from its first '--' to the end, else empty
+  {buildDateUtcDash}    - UTC build time as yyyyMMdd-HHmmss
+  {buildDateUtcDot}     - UTC build time as yyyy.M.d
+  {versionTag}          - $(VersionTag)
+  {commitShaShort}      - the first 8 characters of the commit SHA
+      </_MSKit_PlaceholderHelp>
+      <_MSKit_AllTemplates>$(MSKit_VersionTemplate)|$(MSKit_StableVersionTemplate)|$(MSKit_ReleaseVersionTemplate)|$(MSKit_PullRequestVersionTemplate)</_MSKit_AllTemplates>
+      <_MSKit_TplHasTokens>false</_MSKit_TplHasTokens>
+      <_MSKit_TplHasTokens Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(_MSKit_AllTemplates)', '\{[A-Za-z][A-Za-z0-9]*\}'))">true</_MSKit_TplHasTokens>
+      <_MSKit_TplNames Condition="'$(_MSKit_TplHasTokens)'=='true'">$([System.Text.RegularExpressions.Regex]::Replace('$(_MSKit_AllTemplates)', '[^{}]*\{([A-Za-z][A-Za-z0-9]*)\}[^{}]*', '$1;').TrimEnd(';'))</_MSKit_TplNames>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_MSKit_ValidPlaceholder Include="$(_MSKit_ValidPlaceholders.Split(';'))" />
+      <_MSKit_TplNameItem Include="$(_MSKit_TplNames.Split(';'))" Condition="'$(_MSKit_TplNames)'!=''" />
+      <_MSKit_UnknownPlaceholder Include="@(_MSKit_TplNameItem)" Exclude="@(_MSKit_ValidPlaceholder)" />
+    </ItemGroup>
+
+    <Error Code="MSKIT_VER002"
+           Condition="@(_MSKit_UnknownPlaceholder->Count()) &gt; 0"
+           Text="A version template contains unknown placeholder(s): @(_MSKit_UnknownPlaceholder -> '{%(Identity)}', ', ').%0ATemplates: MSKit_VersionTemplate='$(MSKit_VersionTemplate)', MSKit_StableVersionTemplate='$(MSKit_StableVersionTemplate)', MSKit_ReleaseVersionTemplate='$(MSKit_ReleaseVersionTemplate)', MSKit_PullRequestVersionTemplate='$(MSKit_PullRequestVersionTemplate)'.%0A$(_MSKit_PlaceholderHelp)"
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <!-- MSKIT_VER004: the VersionTag strategy rendered an empty version. -->
+  <Target Name="ValidateRenderedVersionForVersionTag"
+          AfterTargets="RenderVersionFromTemplate"
+          Condition="'$(MSKit_VersionStrategy)'=='VersionTag'">
+    <Error Code="MSKIT_VER004"
+           Condition="'$(Version)'==''"
+           Text="MSKit_VersionStrategy='VersionTag' but VersionTag is empty.%0AFix: pass it on the command line (-p:VersionTag=1.2.3) or use MSKit_VersionStrategy=ReleaseTag, which reads the version from the release tag."
+           File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <!-- MSKIT_VER006: a release tag that is not SemVer 2.0. MSKIT_VER007: its version core differs
+       from the VersionPrefix the repository declares. -->
+  <Target Name="ValidateReleaseTag"
+          Condition="'$(MSKit_IsReleaseTag)'=='True' AND '$(MSKit_ExplicitVersion)'=='' AND '$(MSKit_VersionStrategy)'!='Manual' AND '$(MSKit_VersionStrategy)'!='DevEnv'"
+          BeforeTargets="Restore;Build">
+    <Error Code="MSKIT_VER006"
+           Condition="'$(MSKit_IsReleaseTagValid)'!='true'"
+           Text="Release tag '$(MSKit_ReleaseTagRaw)' is not a valid version. After removing a leading 'v' it must be SemVer 2.0: MAJOR.MINOR.PATCH with an optional -prerelease and +metadata (for example v2.1.0 or 2.1.0-beta.1).%0AFix: delete the tag and the GitHub release, then create a release whose tag is a version."
+           File="$(MSBuildProjectFullPath)" />
+    <PropertyGroup Condition="'$(MSKit_IsReleaseTagValid)'=='true'">
+      <_MSKit_ReleaseTagCore>$([System.Text.RegularExpressions.Regex]::Match('$(MSKit_ReleaseTag)', '^\d+\.\d+\.\d+').Value)</_MSKit_ReleaseTagCore>
+    </PropertyGroup>
+    <Warning Code="MSKIT_VER007"
+             Condition="'$(MSKit_SkipAudit_ReleaseTagPrefix)'!='True' AND '$(_MSKit_ReleaseTagCore)'!='' AND '$(MSKit_DeclaredVersionPrefix)'!='' AND '$(MSKit_DeclaredVersionPrefix)'!='$(_MSKit_ReleaseTagCore)'"
+             Text="Release tag '$(MSKit_ReleaseTagRaw)' has version core $(_MSKit_ReleaseTagCore), but the repository declares VersionPrefix $(MSKit_DeclaredVersionPrefix).%0AFix: bump &lt;VersionPrefix&gt; in Directory.Version.props after the release so branch and pull-request builds sort above it. Set MSKit_SkipAudit_ReleaseTagPrefix=True to silence this."
+             File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>

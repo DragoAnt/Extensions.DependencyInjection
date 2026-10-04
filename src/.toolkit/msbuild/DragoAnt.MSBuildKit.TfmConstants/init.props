@@ -1,0 +1,5 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)tfm.constants.props" Condition="'$(IsTfmConstantsImported)'!='true'" />
+
+</Project>

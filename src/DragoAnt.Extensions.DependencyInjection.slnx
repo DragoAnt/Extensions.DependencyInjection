@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/.common/">
+    <File Path="../README.md" />
+    <File Path="../global.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Directory.Version.props" />
+    <File Path="nuget.config" />
+  </Folder>
+  <Folder Name="/.pipelines/">
+    <File Path="../.github/dependabot.yml" />
+    <File Path="../.github/workflows/ci.yml" />
+    <File Path="../.github/workflows/release.yml" />
+  </Folder>
+  <Project Path="DragoAnt.Extensions.DependencyInjection.Referenced/DragoAnt.Extensions.DependencyInjection.Referenced.csproj" />
+  <Project Path="DragoAnt.Extensions.DependencyInjection.Tests/DragoAnt.Extensions.DependencyInjection.Tests.csproj" />
+  <Project Path="DragoAnt.Extensions.DependencyInjection/DragoAnt.Extensions.DependencyInjection.csproj" />
+</Solution>

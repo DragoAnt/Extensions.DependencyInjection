@@ -1,5 +1,5 @@
 <Project>
 
-  <Import Condition="'$(IsPackable)'=='true'" Project="$(MSBuildThisFileDirectory).msbuild\package.props" />
+  <Import Project="$(MSBuildThisFileDirectory).toolkit/msbuild/init.targets" />
 
 </Project>

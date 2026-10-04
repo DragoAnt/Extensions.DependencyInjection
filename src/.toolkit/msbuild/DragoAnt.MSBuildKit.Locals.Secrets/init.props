@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_SecretsCleanUp Condition="'$(MSKit_SecretsCleanUp)'=='' AND '$(MSKit_IsDevEnv)'!='True'">True</MSKit_SecretsCleanUp>
+  </PropertyGroup>
+
+</Project>

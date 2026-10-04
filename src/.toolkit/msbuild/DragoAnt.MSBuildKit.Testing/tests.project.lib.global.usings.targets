@@ -1,0 +1,28 @@
+<Project>
+
+  <!-- Assertion library and NSubstitute for every test project. MSKit_TestsAssertions picks the
+       library (AwesomeAssertions | FluentAssertions | Shouldly | None);       MSKit_TestsMocking picks NSubstitute | None; MSKit_TestsImplicitReferences=False turns all
+       of this off. -->
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Allowed="True" Condition="'$(MSKit_TestsAssertions)'=='FluentAssertions'" />
+    <PackageReference Include="Shouldly" Allowed="True" Condition="'$(MSKit_TestsAssertions)'=='Shouldly'" />
+    <PackageReference Include="AwesomeAssertions" Allowed="True" Condition="'$(MSKit_TestsAssertions)'=='AwesomeAssertions'" />
+
+    <PackageReference Include="NSubstitute" Allowed="True" Condition="'$(MSKit_TestsMocking)'=='NSubstitute'" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Allowed="True" Condition="'$(MSKit_TestsMocking)'=='NSubstitute'">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="FluentAssertions" Condition="'$(MSKit_TestsAssertions)'=='FluentAssertions'" />
+    <Using Include="Shouldly" Condition="'$(MSKit_TestsAssertions)'=='Shouldly'" />
+    <Using Include="AwesomeAssertions" Condition="'$(MSKit_TestsAssertions)'=='AwesomeAssertions'" />
+    <Using Include="NSubstitute" Condition="'$(MSKit_TestsMocking)'=='NSubstitute'" />
+    <Using Include="NSubstitute.ExceptionExtensions" Condition="'$(MSKit_TestsMocking)'=='NSubstitute'" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+  </ItemGroup>
+
+</Project>

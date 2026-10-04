@@ -1,0 +1,16 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)version.targets" />
+
+  <!-- Analyzer and source-generator projects keep a clean netstandard2.0 surface. -->
+  <Import Condition="'$(IsCodeAnalyzer)'!='True' And '$(IsSourceGenerator)'!='True' And '$(MSKit_IncludeCodeAnalysisGlobalUsings)'=='True'"
+          Project="$(MSBuildThisFileDirectory)project.global.usings.targets" />
+
+  <Import Condition="Exists('$(MSKit_SlnFileDirectory)Directory.GlobalUsings.targets')"
+          Project="$(MSKit_SlnFileDirectory)Directory.GlobalUsings.targets" />
+
+  <ItemGroup Condition="'$(ExcludeFromCodeCoverage)'=='true'">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage" />
+  </ItemGroup>
+
+</Project>

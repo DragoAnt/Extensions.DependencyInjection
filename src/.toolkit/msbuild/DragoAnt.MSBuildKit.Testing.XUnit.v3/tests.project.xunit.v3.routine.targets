@@ -1,0 +1,57 @@
+<Project InitialTargets="CreateXUnitRunnerJson">
+
+  <!-- Microsoft.Testing.Platform v2 is the default runner: xunit.v3.mtp-v2 plus the code coverage
+       (cobertura) and TRX extensions. EnableMicrosoftTestingPlatform=False falls back to VSTest. -->
+  <Choose>
+    <When Condition="'$(IsTestsProject)'=='True' AND '$(EnableMicrosoftTestingPlatform)'=='True'">
+      <ItemGroup>
+        <PackageReference Include="xunit.v3.mtp-v2" Allowed="True" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Allowed="True" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Allowed="True" />
+      </ItemGroup>
+    </When>
+    <When Condition="'$(IsTestsProject)'=='True'">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Allowed="True" />
+        <PackageReference Include="xunit.runner.visualstudio" Allowed="True">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.v3" Allowed="True" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup Condition="'$(IsTestsLibProject)'=='True'">
+    <PackageReference Include="xunit.v3.assert" Allowed="True" />
+    <PackageReference Include="xunit.v3.extensibility.core" Allowed="True" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(IsTestsProject)'=='True'">
+    <OutputType>Exe</OutputType>
+    <XunitRunnerConfigFileName Condition="'$(XunitRunnerConfigFileName)'==''">xunit.runner.json</XunitRunnerConfigFileName>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestsProject)'=='True'">
+    <Content Include="$(XunitRunnerConfigFileName)" CopyToOutputDirectory="PreserveNewest"
+             Condition="Exists('$(XunitRunnerConfigFileName)')" />
+  </ItemGroup>
+
+  <!-- Opt-in scaffold: MSKit_ScaffoldTestConfig=True writes a starter xunit.runner.json on a local build. -->
+  <Target Condition="'$(MSKit_ScaffoldTestConfig)'=='True' AND '$(IsTestsProject)'=='True' AND '$(MSKit_IsDevEnv)'=='True' AND !Exists('$(XunitRunnerConfigFileName)')"
+          Name="CreateXUnitRunnerJson">
+    <PropertyGroup>
+      <XunitRunnerJson>
+{
+    "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json"
+}
+      </XunitRunnerJson>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(XunitRunnerConfigFileName)" Overwrite="true" Lines="$(XunitRunnerJson)" />
+  </Target>
+
+</Project>

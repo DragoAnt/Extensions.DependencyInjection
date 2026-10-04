@@ -1,0 +1,33 @@
+<Project>
+
+  <!-- MSKIT_ROSLYN001..003: a project name matched a Roslyn auto-detect regex, but the kit part
+       that wires that project type is not installed. -->
+
+  <Target Name="ValidateCodeAnalyzerSatelliteAttached"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(MSKit_IsCodeAnalyzerAutoDetected)'=='True'
+                      AND '$(MSKit_CodeAnalyzerSatelliteAttached)'!='true'">
+    <Error Code="MSKIT_ROSLYN001"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' name matches the CodeAnalyzer auto-detect regex '$(_MSKit_CodeAnalyzerProjectNameRegex_Shared)' but the kit part 'DragoAnt.MSBuildKit.Project.CodeAnalyzer' is not installed.%0AFix: pwsh .toolkit/update.ps1 -Add Project.CodeAnalyzer   (or: sh .toolkit/update.sh --add Project.CodeAnalyzer)%0AOr, if this project is not a Roslyn analyzer, rename it or set MSKit_DisableCodeAnalyzerAutoDetect=true in the csproj." />
+  </Target>
+
+  <Target Name="ValidateCodeFixerSatelliteAttached"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(MSKit_IsCodeFixerAutoDetected)'=='True'
+                      AND '$(MSKit_CodeFixerSatelliteAttached)'!='true'">
+    <Error Code="MSKIT_ROSLYN002"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' name matches the CodeFixer auto-detect regex '$(_MSKit_CodeFixerProjectNameRegex_Shared)' but the kit part 'DragoAnt.MSBuildKit.Project.CodeFixer' is not installed.%0AFix: pwsh .toolkit/update.ps1 -Add Project.CodeFixer   (or: sh .toolkit/update.sh --add Project.CodeFixer)%0AOr, if this project is not a Roslyn code-fix provider, rename it or set MSKit_DisableCodeFixerAutoDetect=true in the csproj." />
+  </Target>
+
+  <Target Name="ValidateSourceGeneratorSatelliteAttached"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(MSKit_IsSourceGeneratorAutoDetected)'=='True'
+                      AND '$(MSKit_SourceGeneratorSatelliteAttached)'!='true'">
+    <Error Code="MSKIT_ROSLYN003"
+           File="$(MSBuildProjectFullPath)"
+           Text="Project '$(MSBuildProjectName)' name matches the SourceGenerator auto-detect regex '$(_MSKit_SourceGeneratorProjectNameRegex_Shared)' but the kit part 'DragoAnt.MSBuildKit.Project.SourceGenerator' is not installed.%0AFix: pwsh .toolkit/update.ps1 -Add Project.SourceGenerator   (or: sh .toolkit/update.sh --add Project.SourceGenerator)%0AOr, if this project is not a Roslyn source generator, rename it or set MSKit_DisableSourceGeneratorAutoDetect=true in the csproj." />
+  </Target>
+
+</Project>

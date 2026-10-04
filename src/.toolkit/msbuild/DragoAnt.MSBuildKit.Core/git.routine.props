@@ -1,0 +1,12 @@
+<Project>
+
+  <PropertyGroup>
+    <MSKit_Branch Condition="'$(MSKit_Branch)'=='' AND '$(GITHUB_REF_NAME)'!=''">$(GITHUB_REF_NAME)</MSKit_Branch>
+    <MSKit_Branch Condition="'$(MSKit_Branch)'==''">unknown-branch</MSKit_Branch>
+    <MSKit_CommitSha Condition="'$(MSKit_CommitSha)'==''"></MSKit_CommitSha>
+    <MSKit_IsStableBranchRegex Condition="'$(MSKit_IsStableBranchRegex)'==''">^(main|master|release/.+)$</MSKit_IsStableBranchRegex>
+    <MSKit_IsStableBranch>false</MSKit_IsStableBranch>
+    <MSKit_IsStableBranch Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(MSKit_Branch), $(MSKit_IsStableBranchRegex), RegexOptions.IgnoreCase))">true</MSKit_IsStableBranch>
+  </PropertyGroup>
+
+</Project>

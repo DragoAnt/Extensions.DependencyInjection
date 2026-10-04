@@ -1,0 +1,37 @@
+<Project>
+
+  <!-- Test helper library checks, MSKIT_TEST020..022. A test helper library may also set IsTestsLibProject directly: everything it needs is wired in the targets phase. -->
+
+  <!-- MSKIT_TEST020: MSKit_TestingFramework must be set BEFORE LibCommonProps Import -->
+  <Target Name="ValidateTestingFrameworkSetBeforeLibCommonPropsImport"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsLibProjectCommonPropsImported)'=='True'
+                      AND '$(_MSKit_TestingFrameworkAtLibCommonPropsImport)'==''">
+    <Error Code="MSKIT_TEST020"
+           File="$(MSBuildProjectFullPath)"
+           Text="MSKit_TestingFramework was not set when $(TestsLibProjectCommonPropsPath) was imported.%0AFix: set the framework PropertyGroup BEFORE the Import:%0A  &lt;PropertyGroup&gt;%0A    &lt;MSKit_TestingFramework&gt;xunit.v3&lt;/MSKit_TestingFramework&gt;%0A  &lt;/PropertyGroup&gt;%0A  &lt;Import Project=&quot;$(TestsLibProjectCommonPropsPath)&quot; /&gt;" />
+  </Target>
+
+  <!-- MSKIT_TEST021: framework changed after the Lib Import -->
+  <Target Name="ValidateTestingFrameworkUnchangedSinceLibImport"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsLibProjectCommonPropsImported)'=='True'
+                      AND '$(_MSKit_TestingFrameworkAtLibCommonPropsImport)'!=''
+                      AND '$(_MSKit_TestingFrameworkAtLibCommonPropsImport)'!='$(MSKit_TestingFramework)'">
+    <Error Code="MSKIT_TEST021"
+           File="$(MSBuildProjectFullPath)"
+           Text="MSKit_TestingFramework changed after $(TestsLibProjectCommonPropsPath) was imported.%0AAt import: '$(_MSKit_TestingFrameworkAtLibCommonPropsImport)'   csproj-final: '$(MSKit_TestingFramework)'.%0AFix: move the framework PropertyGroup ABOVE the Import." />
+  </Target>
+
+  <!-- MSKIT_TEST022: no satellite or custom LibCommonProps path resolved -->
+  <Target Name="ValidateTestingFrameworkLibCommonPropsPathResolved"
+          BeforeTargets="CoreCompile;Build"
+          Condition="'$(_MSKit_TestsLibProjectCommonPropsImported)'=='True'
+                      AND '$(MSKit_TestingFramework_LibCommonPropsPath)'==''
+                      AND '$(MSKit_TestingFramework)'!=''">
+    <Error Code="MSKIT_TEST022"
+           File="$(MSBuildProjectFullPath)"
+           Text="No LibCommonProps path resolved for MSKit_TestingFramework='$(MSKit_TestingFramework)'.%0AFix: use a framework the kit ships (xunit.v3) or set MSKit_TestingFramework_LibCommonPropsPath to a custom file." />
+  </Target>
+
+</Project>
