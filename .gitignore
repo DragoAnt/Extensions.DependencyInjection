@@ -402,3 +402,6 @@ FodyWeavers.xsd
 # Verify
 *.received.*
 /examples/.idea/.idea.DragoAnt.Extensions.DependencyInjection.Examples/.idea/
+
+# Local AI agent context (never committed)
+/.claude/
