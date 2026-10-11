@@ -9,8 +9,8 @@
     <MSKit_PackageVersion_NSubstitute Condition="'$(MSKit_PackageVersion_NSubstitute)'==''">6.2.0</MSKit_PackageVersion_NSubstitute>
     <MSKit_PackageVersion_NSubstituteAnalyzersCSharp Condition="'$(MSKit_PackageVersion_NSubstituteAnalyzersCSharp)'==''">1.0.17</MSKit_PackageVersion_NSubstituteAnalyzersCSharp>
     <MSKit_PackageVersion_MicrosoftNetTestSdk Condition="'$(MSKit_PackageVersion_MicrosoftNetTestSdk)'==''">18.10.1</MSKit_PackageVersion_MicrosoftNetTestSdk>
-    <MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport)'==''">2.4.1</MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport>
-    <MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage)'==''">18.11.2</MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage>
+    <MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport)'==''">2.5.1</MSKit_PackageVersion_MicrosoftTestingExtensionsTrxReport>
+    <MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage Condition="'$(MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage)'==''">18.12.0</MSKit_PackageVersion_MicrosoftTestingExtensionsCodeCoverage>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(MSKit_ImplicitPackageVersions)'=='True' AND '$(ManagePackageVersionsCentrally)'=='true'">
