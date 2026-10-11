@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <MSKit_PackageVersion_XunitV3 Condition="'$(MSKit_PackageVersion_XunitV3)'==''">4.0.1</MSKit_PackageVersion_XunitV3>
+    <MSKit_PackageVersion_XunitV3 Condition="'$(MSKit_PackageVersion_XunitV3)'==''">4.0.2</MSKit_PackageVersion_XunitV3>
     <MSKit_PackageVersion_XunitV3Assert Condition="'$(MSKit_PackageVersion_XunitV3Assert)'==''">$(MSKit_PackageVersion_XunitV3)</MSKit_PackageVersion_XunitV3Assert>
     <MSKit_PackageVersion_XunitV3ExtensibilityCore Condition="'$(MSKit_PackageVersion_XunitV3ExtensibilityCore)'==''">$(MSKit_PackageVersion_XunitV3)</MSKit_PackageVersion_XunitV3ExtensibilityCore>
     <MSKit_PackageVersion_XunitRunnerVisualStudio Condition="'$(MSKit_PackageVersion_XunitRunnerVisualStudio)'==''">4.0.0</MSKit_PackageVersion_XunitRunnerVisualStudio>
